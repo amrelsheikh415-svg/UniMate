@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>لوحة الإدارة</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f4f5f9;--card:#fff;--ink:#14172b;--mute:#666b85;--line:#e1e3ee;--brand:#1f3a93;--accent:#f26a1b;--ok:#0f9d6e;--bad:#c2415a;--btn:#eef0f8}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0f1220;--card:#181c30;--ink:#eceefb;--mute:#9aa0bd;--line:#2a2f4a;--brand:#7c97ff;--accent:#ff8a47;--ok:#3ccf9a;--bad:#ff7b92;--btn:#232844}}
+*{box-sizing:border-box}
+html{height:100%}
+body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font:15px/1.6 Cairo,system-ui,"Segoe UI",Tahoma,sans-serif;padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0)}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer;border:1px solid var(--line);background:var(--btn);border-radius:8px;padding:5px 12px}
+button:hover{border-color:var(--brand)}
+button.primary{background:var(--brand);color:#fff;border-color:var(--brand)}
+@media (prefers-color-scheme:dark){button.primary{color:#0f1220}}
+button.danger{color:var(--bad)}
+button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+input{width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--card)}
+[hidden]{display:none!important}
+.wrap{max-width:1100px;margin:0 auto;padding:16px}
+#login{max-width:360px;margin:12vh auto;padding:24px;background:var(--card);border:1px solid var(--line);border-radius:14px}
+#login h1{margin:0 0 4px;font-size:22px}
+#login p{margin:0 0 16px;color:var(--mute)}
+#login label{display:block;margin:10px 0 4px;font-weight:600}
+#login button{width:100%;margin-top:16px;padding:10px}
+.err{color:var(--bad);margin-top:10px;min-height:1.4em}
+header{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+header h1{margin:0;font-size:22px;font-weight:800;flex:1}
+nav{display:flex;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:4px}
+nav button{border:0;background:none;padding:6px 14px}
+nav button[aria-selected=true]{background:var(--brand);color:#fff}
+@media (prefers-color-scheme:dark){nav button[aria-selected=true]{color:#0f1220}}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.stat b{display:block;font-size:26px;font-weight:800;line-height:1.2}
+.stat span{color:var(--mute);font-size:13px}
+.stat.hot b{color:var(--accent)}
+h2{font-size:17px;margin:22px 0 10px}
+.bar{display:flex;gap:8px;margin-bottom:10px;align-items:center}
+.bar input{max-width:320px}
+.bar .sp{flex:1}
+.tw{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:10px}
+table{width:100%;border-collapse:collapse;min-width:760px}
+th,td{padding:9px 12px;text-align:start;border-bottom:1px solid var(--line);vertical-align:middle}
+th{font-size:13px;color:var(--mute);font-weight:600;white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td small{display:block;color:var(--mute);direction:ltr;text-align:start}
+.tag{display:inline-block;padding:0 8px;border-radius:99px;font-size:12px;border:1px solid var(--line);margin-inline-end:4px}
+.tag.ok{color:var(--ok);border-color:var(--ok)}
+.tag.bad{color:var(--bad);border-color:var(--bad)}
+.tag.adm{color:var(--accent);border-color:var(--accent)}
+.act{display:flex;gap:6px;flex-wrap:wrap}
+.empty{padding:28px;text-align:center;color:var(--mute)}
+#toast{position:fixed;inset-inline:0;bottom:calc(16px + env(safe-area-inset-bottom,0));margin:auto;width:max-content;max-width:90vw;background:var(--ink);color:var(--bg);padding:8px 16px;border-radius:10px;z-index:9}
+</style>
+</head>
+<body>
+
+<form id="login" hidden>
+  <h1>لوحة الإدارة</h1>
+  <p>سجّل الدخول بحساب الأدمن.</p>
+  <label for="em">الإيميل</label>
+  <input id="em" type="email" autocomplete="username" required dir="ltr">
+  <label for="pw">كلمة المرور</label>
+  <input id="pw" type="password" autocomplete="current-password" required dir="ltr">
+  <button class="primary" type="submit">دخول</button>
+  <div class="err" id="lerr" role="alert"></div>
+</form>
+
+<div class="wrap" id="app" hidden>
+  <header>
+    <h1>لوحة الإدارة</h1>
+    <nav role="tablist" id="tabs"></nav>
+    <button id="out">خروج</button>
+  </header>
+  <main id="main"></main>
+</div>
+<div id="toast" role="status" hidden></div>
+
+<script>
+const SB_URL = "https://meavuwntikizkfjhtnbd.supabase.co";
+const SB_KEY = "sb_publishable_IClfN-hW7TnDtlqM_-1xVg_DhxUlBmO";
+const SK = "unimate-admin-session";
+const sess = { get() { try { return JSON.parse(localStorage.getItem(SK)); } catch (e) { return null; } }, set(v) { try { v ? localStorage.setItem(SK, JSON.stringify(v)) : localStorage.removeItem(SK); } catch (e) {} } };
+async function authCall(grant, body) {
+  const r = await fetch(SB_URL + "/auth/v1/token?grant_type=" + grant, { method: "POST", headers: { "Content-Type": "application/json", apikey: SB_KEY }, body: JSON.stringify(body) });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(/invalid login/i.test(j.msg || j.error_description || "") ? "الإيميل أو كلمة المرور غلط." : (j.msg || j.error_description || j.message || "فشل الدخول (" + r.status + ")"));
+  sess.set({ access_token: j.access_token, refresh_token: j.refresh_token, expires_at: Math.floor(Date.now() / 1000) + (j.expires_in || 3600) });
+}
+async function getToken() {
+  let s = sess.get(); if (!s) return null;
+  if (s.expires_at - 60 < Date.now() / 1000) { try { await authCall("refresh_token", { refresh_token: s.refresh_token }); s = sess.get(); } catch (e) { sess.set(null); return null; } }
+  return s.access_token;
+}
+const $ = id => document.getElementById(id);
+const h = (t, p = {}, ...k) => {
+  const n = document.createElement(t);
+  for (const [a, v] of Object.entries(p)) {
+    if (a === "class") n.className = v;
+    else if (a.startsWith("on")) n.addEventListener(a.slice(2), v);
+    else if (v === true) n.setAttribute(a, "");
+    else if (v != null && v !== false) n.setAttribute(a, v);
+  }
+  k.flat(9).forEach(x => { if (x != null && x !== false) n.append(x.nodeType ? x : document.createTextNode(x)); });
+  return n;
+};
+const fmt = d => d ? new Date(d).toLocaleString("ar-EG", { dateStyle: "medium", timeStyle: "short" }) : "—";
+let tt; const toast = m => { const t = $("toast"); t.textContent = m; t.hidden = false; clearTimeout(tt); tt = setTimeout(() => t.hidden = true, 2800); };
+
+async function api(action, extra = {}) {
+  const token = await getToken();
+  if (!token) throw new Error("انتهت الجلسة، سجّل دخول تاني");
+  const r = await fetch(SB_URL + "/functions/v1/admin", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", apikey: SB_KEY, Authorization: "Bearer " + token },
+    body: JSON.stringify({ action, ...extra })
+  });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(r.status === 403 ? "الحساب ده مش أدمن" : (j.error || "حصل خطأ"));
+  return j;
+}
+
+const TABS = [["overview", "نظرة عامة"], ["users", "المستخدمين"], ["forest", "الغابة"]];
+let tab = "overview", page = 1, q = "";
+
+function drawTabs() {
+  const n = $("tabs"); n.replaceChildren();
+  TABS.forEach(([id, label]) => n.append(h("button", { role: "tab", "aria-selected": id === tab, onclick: () => { tab = id; page = 1; drawTabs(); show(); } }, label)));
+}
+async function show() {
+  const m = $("main"); m.replaceChildren(h("div", { class: "empty" }, "بيحمّل…"));
+  try {
+    const v = tab === "overview" ? await overview() : tab === "users" ? await users() : await forest();
+    m.replaceChildren(v);
+  } catch (e) { m.replaceChildren(h("div", { class: "empty" }, e.message)); }
+}
+
+async function overview() {
+  const s = await api("stats");
+  const S = [
+    ["مسجّلين", s.users, 1], ["نشطين آخر 24 ساعة", s.active24h, 1], ["جدد آخر 7 أيام", s.new7d],
+    ["حسابات موثّقة", s.verified], ["بروفايلات", s.profiles],
+    ["أجهزة (تذكيرات)", s.devices], ["اشتراكات إشعارات", s.push], ["إشعارات لسه متبعتتش", s.outboxPending],
+    ["أشجار الغابة", s.trees], ["أعضاء الغرف", s.rooms]
+  ];
+  return h("div", {},
+    h("div", { class: "grid" }, S.map(([l, v, hot]) => h("div", { class: "stat" + (hot ? " hot" : "") }, h("b", {}, String(v)), h("span", {}, l)))),
+    h("h2", {}, "ملاحظة"),
+    h("p", { class: "empty" }, "الأرقام دي لحظية من قاعدة البيانات. «أجهزة» و«اشتراكات» بتعدّ الأجهزة اللي فعّلت التذكيرات، مش لازم تكون حسابات."));
+}
+
+async function users() {
+  const d = await api("users", { page });
+  const rows = d.users.filter(u => !q || [u.email, u.name, u.username, u.university].join(" ").toLowerCase().includes(q.toLowerCase()));
+  const act = async (fn, msg) => { try { await fn(); toast(msg); show(); } catch (e) { toast(e.message); } };
+  const body = rows.length ? rows.map(u => {
+    const banned = u.banned_until && new Date(u.banned_until) > new Date();
+    return h("tr", {},
+      h("td", {}, u.name || u.username || "بدون اسم", h("small", {}, u.email || "")),
+      h("td", {}, [u.university, u.study_year].filter(Boolean).join(" - ") || "—"),
+      h("td", {}, fmt(u.created_at)),
+      h("td", {}, fmt(u.last_seen_at || u.last_sign_in_at)),
+      h("td", {},
+        u.is_admin && h("span", { class: "tag adm" }, "أدمن"),
+        u.verified && h("span", { class: "tag ok" }, "موثّق"),
+        banned && h("span", { class: "tag bad" }, "محظور"),
+        !u.confirmed && h("span", { class: "tag" }, "إيميل مش متأكد")),
+      h("td", {}, h("div", { class: "act" },
+        h("button", { onclick: () => act(() => api("verify", { id: u.id, value: !u.verified }), u.verified ? "اتلغى التوثيق" : "اتوثّق الحساب") }, u.verified ? "إلغاء التوثيق" : "توثيق"),
+        !u.is_admin && h("button", { class: "danger", onclick: () => act(() => api(banned ? "unban" : "ban", { id: u.id }), banned ? "اتفك الحظر" : "اتحظر الحساب") }, banned ? "فك الحظر" : "حظر"),
+        !u.is_admin && h("button", { class: "danger", onclick: () => { if (confirm("حذف الحساب نهائيًا هو وبياناته؟ مينفعش تتراجع.")) act(() => api("delete_user", { id: u.id }), "اتحذف الحساب"); } }, "حذف"))));
+  }) : [h("tr", {}, h("td", { colspan: 6, class: "empty" }, "مفيش مستخدمين مطابقين."))];
+  const pages = Math.max(1, Math.ceil(d.total / 50));
+  return h("div", {},
+    h("div", { class: "bar" },
+      h("input", { type: "search", placeholder: "ابحث بالاسم أو الإيميل في الصفحة دي", value: q, oninput: e => { q = e.target.value; clearTimeout(tt); tt = setTimeout(show, 250); } }),
+      h("span", { class: "sp" }),
+      h("span", {}, d.total + " مستخدم"),
+      h("button", { disabled: page <= 1, onclick: () => { page--; show(); } }, "السابق"),
+      h("span", {}, page + " / " + pages),
+      h("button", { disabled: page >= pages, onclick: () => { page++; show(); } }, "التالي")),
+    h("div", { class: "tw" }, h("table", {},
+      h("thead", {}, h("tr", {}, ["المستخدم", "الجامعة", "اتسجّل", "آخر نشاط", "الحالة", "إجراءات"].map(x => h("th", {}, x)))),
+      h("tbody", {}, body))));
+}
+
+async function forest() {
+  const d = await api("trees");
+  const act = async (fn, msg) => { try { await fn(); toast(msg); show(); } catch (e) { toast(e.message); } };
+  const body = d.trees.length ? d.trees.map(t => h("tr", {},
+    h("td", {}, t.name || "طالب", h("small", {}, (t.pid || "").slice(0, 8))),
+    h("td", {}, t.minutes + " دقيقة"),
+    h("td", {}, fmt(t.planted_at)),
+    h("td", {}, h("div", { class: "act" },
+      h("button", { class: "danger", onclick: () => act(() => api("delete_tree", { id: t.id }), "اتحذفت الشجرة") }, "حذف الشجرة"),
+      h("button", { class: "danger", onclick: () => { if (confirm("حذف كل أشجار وعضويات الجهاز ده؟")) act(() => api("delete_pid", { pid: t.pid }), "اتمسح الجهاز من الغابة"); } }, "مسح الجهاز"))))
+  ) : [h("tr", {}, h("td", { colspan: 4, class: "empty" }, "الغابة فاضية."))];
+  return h("div", {}, h("p", {}, "آخر 100 شجرة اتزرعت. استخدمها لحذف أسماء مسيئة أو أشجار مزيفة."),
+    h("div", { class: "tw" }, h("table", {}, h("thead", {}, h("tr", {}, ["الاسم", "المدة", "وقت الزراعة", "إجراءات"].map(x => h("th", {}, x)))), h("tbody", {}, body))));
+}
+
+async function gate() {
+  const session = await getToken();
+  $("login").hidden = !!session; $("app").hidden = !session;
+  if (session) { drawTabs(); show(); }
+}
+$("login").addEventListener("submit", async e => {
+  e.preventDefault(); $("lerr").textContent = "";
+  const b = e.submitter || $("login").querySelector("button"); b.disabled = true; b.textContent = "بيدخل…";
+  try { await authCall("password", { email: $("em").value.trim(), password: $("pw").value }); await gate(); }
+  catch (err) { $("lerr").textContent = err.message === "Failed to fetch" ? "مفيش اتصال بالسيرفر. اتأكد من النت وجرّب تاني." : err.message; }
+  b.disabled = false; b.textContent = "دخول";
+});
+$("out").addEventListener("click", async () => { sess.set(null); gate(); });
+gate();
+</script>
+</body>
+</html>

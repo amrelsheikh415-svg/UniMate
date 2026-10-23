@@ -1,0 +1,1340 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#1f3a93">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="UniMate">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+<title>UniMate AI | مساعدك الجامعي الذكي</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f5f6fa;--surface:#fff;--ink:#0f172a;--muted:#586177;--line:#e1e5ee;--brand:#1f3a93;--brand2:#1f3a93;--pink:#d6455d;--sun:#f26a1b;--mint:#0f9d6e;--sky:#0e8fd1;--soft:#e9edf8;--on:#0f172a;--shadow:0 1px 2px rgba(15,23,42,.05);
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b1220;--surface:#131c30;--ink:#eaeef8;--muted:#9aa6c2;--line:#243149;--brand:#4f6fe8;--brand2:#4f6fe8;--soft:#19233f;--sun:#ff8a3d;--mint:#2fc79a;--sky:#4db5ec;--shadow:none}}
+:root[data-theme="dark"]{--bg:#0b1220;--surface:#131c30;--ink:#eaeef8;--muted:#9aa6c2;--line:#243149;--brand:#4f6fe8;--brand2:#4f6fe8;--soft:#19233f;--sun:#ff8a3d;--mint:#2fc79a;--sky:#4db5ec;--shadow:none}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{margin:0;padding:0;box-sizing:border-box}
+[hidden]{display:none!important}
+body{font-family:"IBM Plex Sans Arabic",Tahoma,"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.7;min-height:100vh}
+.wrap{max-width:800px;margin:0 auto;padding:16px 16px 110px}
+.top{display:flex;align-items:center;gap:10px;padding:4px 0 16px;font-weight:800;font-size:1.15rem}
+.logo{width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,var(--brand),var(--brand2));display:inline-grid;place-items:center;color:#fff;font-weight:800;font-size:1rem}
+.beta{font-size:.7rem;font-weight:700;background:var(--soft);color:var(--brand);padding:0 10px;border-radius:99px}
+.head{margin:4px 0 16px}
+h2{font-size:1.55rem;font-weight:800;line-height:1.4}
+h3{font-size:1.02rem;font-weight:800;margin-bottom:8px}
+.muted{color:var(--muted)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:14px;box-shadow:var(--shadow)}
+.hero{background:linear-gradient(135deg,#1c35c4,var(--brand) 55%,#3f74ff);color:#fff;border:0;padding:24px}
+.hero h2{font-size:1.6rem}
+.hero p{opacity:.92}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px 16px;position:relative;overflow:hidden;box-shadow:var(--shadow)}
+.tile::before{content:"";position:absolute;inset-block:0;inset-inline-start:0;width:5px;background:var(--a)}
+.tile b{display:block;font-size:1.7rem;line-height:1.3;font-weight:800}
+.tile span{font-size:.84rem;color:var(--muted);font-weight:600}
+button{font:inherit;font-weight:700;background:var(--brand);color:#fff;border:0;border-radius:12px;padding:10px 20px;cursor:pointer;transition:filter .15s,transform .15s}
+button:hover{filter:brightness(1.1)}
+button:active{transform:scale(.98)}
+button:disabled{opacity:.5;cursor:default}
+button.ghost{background:transparent;color:var(--brand);border:1.5px solid var(--line)}
+button.ghost:hover{background:var(--soft);filter:none}
+button.sm{padding:5px 14px;font-size:.88rem}
+:focus-visible{outline:3px solid var(--sky);outline-offset:2px}
+label.f{display:block;font-weight:600;margin-bottom:10px;font-size:.94rem}
+input[type=text],input[type=number],input[type=date],input[type=time],select{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:9px 12px;margin-top:4px}
+input:focus,select:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px var(--soft)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.inl{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap}
+.inl>*{flex:1;min-width:110px}
+.inl>button{flex:0 0 auto}
+.opt{display:flex;gap:10px;align-items:center;border:1.5px solid var(--line);border-radius:12px;padding:9px 12px;margin-bottom:8px;cursor:pointer}
+.opt:has(input:checked){border-color:var(--brand);background:var(--soft)}
+.opt input{accent-color:var(--brand);width:18px;height:18px}
+fieldset{border:0;margin-bottom:10px}
+legend{font-weight:600;margin-bottom:6px}
+.bar{height:10px;border-radius:99px;background:var(--soft);overflow:hidden;margin:6px 0 12px}
+.bar i{display:block;height:100%;background:var(--mint);border-radius:99px;transition:width .3s}
+.row{display:flex;gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.row:first-of-type{border-top:0}
+.row input[type=checkbox]{width:20px;height:20px;accent-color:var(--mint)}
+.row .t{flex:1}
+.row .s{display:block;color:var(--muted);font-size:.84rem}
+.row.done .n{text-decoration:line-through;color:var(--muted)}
+.dot{width:10px;height:10px;border-radius:50%;flex:0 0 auto}
+.chip{display:inline-block;border-radius:99px;padding:1px 12px;font-size:.84rem;font-weight:700;margin:2px 0 2px 6px;background:var(--soft)}
+.chip.hot{background:var(--sun);color:var(--on)}
+.timer{text-align:center}
+.time{font-size:3.2rem;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.2}
+.timer .inl{justify-content:center}
+.timer .inl>*{flex:0 0 auto}
+.chat{display:grid;gap:8px;margin:12px 0;max-height:52vh;overflow-y:auto}
+.msg{padding:10px 14px;border-radius:16px;white-space:pre-wrap;max-width:92%}
+.msg.u{background:var(--brand);color:#fff;justify-self:start}
+.msg.a{background:var(--soft);justify-self:end}
+.wd{padding:10px 0;border-top:1px solid var(--line)}
+.wd:first-of-type{border-top:0}
+.wd.today b{color:var(--brand)}
+.cls{background:var(--sky);color:var(--on)}
+.badges{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px}
+.badge{text-align:center;border-radius:16px;padding:12px 6px;background:var(--soft);font-weight:700;font-size:.88rem}
+.badge i{display:block;font-style:normal;font-size:1.8rem}
+.badge.off{color:var(--muted);filter:grayscale(1);opacity:.6}
+.bars{display:flex;gap:8px;align-items:flex-end;height:120px}
+.bars div{flex:1;text-align:center;font-size:.75rem;color:var(--muted)}
+.bars em{display:block;background:linear-gradient(var(--brand2),var(--brand));border-radius:8px 8px 0 0;min-height:4px}
+.note{background:var(--soft);color:var(--ink);border-radius:14px;padding:12px 16px;margin-bottom:12px}
+.empty{text-align:center;padding:28px 18px}
+.feat{list-style:none;margin:0 0 16px}
+.feat li{padding:6px 0 6px 0;color:var(--muted)}
+.feat li::before{content:"✓";color:var(--mint);font-weight:800;margin-inline-end:10px}
+.nav{position:fixed;bottom:calc(10px + env(safe-area-inset-bottom,0px));left:12px;right:12px;display:flex;justify-content:space-around;gap:2px;background:color-mix(in srgb,var(--surface) 88%,transparent);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:24px;padding:6px;box-shadow:0 14px 34px -12px rgba(14,20,48,.35);z-index:5}
+.nav .sec{display:none}
+.nav button{background:none;box-shadow:none;color:var(--muted);padding:6px 2px;font-size:.72rem;line-height:1.3;flex:1;border-radius:12px;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:1px}
+.nav button .ic{display:block;height:22px}
+.nav button[aria-current=page],.nav button.cur{color:var(--brand);background:var(--soft)}
+.nav .more .ic svg{stroke-width:3.8}
+.nav .more[aria-expanded=true]{color:var(--brand);background:var(--soft)}
+.moreback{position:fixed;inset:0;z-index:6;background:rgba(14,20,48,.35)}
+.moremenu{position:fixed;z-index:7;left:12px;bottom:calc(86px + env(safe-area-inset-bottom,0px));width:min(240px,calc(100vw - 24px));background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:8px;box-shadow:0 20px 44px -14px rgba(14,20,48,.45);transform-origin:bottom left;animation:pop .16s ease-out}
+.moremenu button{display:flex;align-items:center;gap:12px;width:100%;background:none;box-shadow:none;color:var(--ink);padding:11px 12px;border-radius:14px;font-size:.98rem;text-align:start}
+.moremenu button:hover{background:var(--soft);filter:none}
+.moremenu button[aria-current=page]{color:var(--brand);background:var(--soft)}
+@keyframes pop{from{opacity:0;transform:translateY(8px) scale(.96)}to{opacity:1;transform:none}}
+.bside{display:none}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(96px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 20px;border-radius:12px;font-weight:600;z-index:20;box-shadow:var(--shadow)}
+dialog{border:0;border-radius:20px;padding:22px;max-width:340px;width:90%;margin:auto;background:var(--surface);color:var(--ink);box-shadow:0 20px 50px rgba(0,0,0,.3)}
+dialog::backdrop{background:rgba(14,20,48,.55)}
+dialog .inl{margin-top:16px;justify-content:flex-end}
+dialog .inl>*{flex:0 0 auto}
+@media (min-width:900px){
+body{padding-inline-start:236px}
+.top{display:none}
+.wrap{padding:28px 28px 48px}
+.nav{top:0;bottom:0;left:auto;right:0;width:236px;flex-direction:column;justify-content:flex-start;gap:4px;border:0;border-inline-start:1px solid var(--line);border-radius:0;box-shadow:none;background:var(--surface);-webkit-backdrop-filter:none;backdrop-filter:none;padding:22px 14px}
+.nav .sec{display:flex}
+.nav .more,#more{display:none!important}
+.nav button{flex:0 0 auto;flex-direction:row;gap:12px;font-size:.98rem;padding:10px 14px;justify-content:flex-start}
+.bside{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.15rem;padding:0 6px 18px}
+.toast{bottom:28px}
+}
+@media (max-width:520px){.g2{grid-template-columns:1fr}.hero h2{font-size:1.35rem}.tiles{gap:8px}.tile{padding:12px}.tile b{font-size:1.4rem}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.forest{display:flex;flex-wrap:wrap;gap:4px;font-size:30px;line-height:1.2}
+.lb{display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:12px}
+.lb.me{background:color-mix(in srgb,var(--brand) 16%,transparent)}.lb .n{flex:1}.lb .r{width:30px;text-align:center}
+@media (max-width:520px){input[type=text],input[type=number],input[type=date],input[type=time],select,textarea{font-size:16px}}
+html{-webkit-tap-highlight-color:transparent}body{overscroll-behavior-y:none}
+.picks{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin:8px 0}
+button.ghost.on{background:var(--soft);border-color:var(--brand)}
+.plant{font-size:3.4rem;line-height:1.2;margin-top:4px}
+.lb .bar{margin:2px 0 0;height:6px}
+textarea{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:9px 12px;margin-top:6px;resize:vertical}
+textarea:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px var(--soft)}
+body{background:radial-gradient(120% 55% at 100% 0,var(--soft),transparent 65%) fixed,var(--bg)}
+.logo{box-shadow:0 6px 14px -6px var(--brand)}
+.card{border-radius:22px;padding:20px}
+.hero{position:relative;overflow:hidden;box-shadow:0 18px 40px -18px rgba(37,71,240,.55)}
+.hero>*{position:relative;z-index:1}
+.hero::before,.hero::after{content:"";position:absolute;border-radius:50%;background:rgba(255,255,255,.13)}
+.hero::before{width:180px;height:180px;inset-inline-end:-50px;top:-70px}
+.hero::after{width:100px;height:100px;inset-inline-end:90px;bottom:-60px;background:var(--sun);opacity:.3}
+.tile{border-radius:18px}
+.tile b{color:var(--ink)}
+button{box-shadow:0 8px 16px -10px var(--brand)}
+button.ghost,button.sm.ghost{box-shadow:none}
+.opt{border-radius:14px}
+.msg{border-radius:18px}
+.card h3{font-size:1.06rem}
+@media (min-width:900px){.nav .sec{display:flex}}
+/* المساعد والاختبارات */
+.picks,.seg{display:flex;gap:4px;background:var(--soft);padding:4px;border-radius:16px}
+.picks{margin:4px 0 14px}
+.picks button.ghost,.seg button.ghost{flex:1;background:transparent;border:0;color:var(--muted);border-radius:12px;box-shadow:none;padding:8px 10px}
+.picks button.ghost.on,.seg button.ghost.on{background:var(--surface);color:var(--brand);box-shadow:var(--shadow)}
+.seg{margin-top:4px}
+.stack>div{margin-top:12px}
+.sugg{display:flex;gap:8px;overflow-x:auto;padding:2px 0 12px;margin-bottom:2px;scrollbar-width:none}
+.sugg::-webkit-scrollbar{display:none}
+.sugg button{flex:0 0 auto;white-space:nowrap;border-radius:99px;background:var(--surface);box-shadow:none}
+.chatcard{padding:14px}
+.chat{min-height:240px;max-height:55vh;padding:4px 2px 8px;align-content:start;grid-auto-rows:max-content}
+.msg{padding:11px 15px;line-height:1.75;width:fit-content;max-width:min(92%,680px)}
+.msg.u{background:linear-gradient(135deg,var(--brand),var(--brand2));border-end-start-radius:6px;box-shadow:0 8px 18px -12px var(--brand)}
+.msg.a{background:var(--bg);border:1px solid var(--line);border-end-end-radius:6px}
+.composer{display:flex;gap:8px;align-items:center;background:var(--bg);border:1.5px solid var(--line);border-radius:99px;padding:5px 6px 5px 5px}
+.composer:focus-within{border-color:var(--brand);box-shadow:0 0 0 3px var(--soft)}
+.composer input[type=text]{flex:1;min-width:0;border:0;background:transparent;margin:0;box-shadow:none;padding:8px 14px}
+.send{flex:0 0 auto;width:40px;height:40px;padding:0;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,var(--brand),var(--brand2))}.send svg{width:19px;height:19px}
+.big{width:100%;padding:13px;font-size:1.05rem;margin-top:14px;background:linear-gradient(135deg,var(--brand),var(--brand2))}
+input[type=file]{width:100%;font:inherit;color:var(--muted);background:var(--bg);border:2px dashed var(--line);border-radius:16px;padding:14px;margin-top:6px;cursor:pointer}
+input[type=file]::file-selector-button{font:inherit;font-weight:700;background:var(--soft);color:var(--brand);border:0;border-radius:10px;padding:6px 14px;margin-inline-end:12px;cursor:pointer}
+.qq{font-size:1.2rem;line-height:1.7;margin:8px 0 14px}
+.opt.mc{position:relative;padding:12px 14px;gap:12px;border-radius:16px}
+.opt.mc input{position:absolute;opacity:0;pointer-events:none}
+.opt.mc:has(input:focus-visible){outline:3px solid var(--sky);outline-offset:2px}
+.lt{flex:0 0 auto;width:32px;height:32px;border-radius:10px;display:grid;place-items:center;background:var(--soft);color:var(--brand);font-weight:800}
+.opt.mc:has(input:checked) .lt{background:var(--brand);color:#fff}
+.ring{width:140px;height:140px;border-radius:50%;margin:8px auto 12px;display:grid;place-items:center;position:relative;background:conic-gradient(var(--c) calc(var(--p)*1%),var(--soft) 0)}
+.ring::before{content:"";position:absolute;inset:12px;border-radius:50%;background:var(--surface)}
+.ring b{position:relative;font-size:2.1rem;font-weight:800;font-variant-numeric:tabular-nums}
+.grp{border-radius:14px;padding:10px 14px;margin-top:10px}
+.grp p+p{margin-top:4px}
+.grp.ok{background:color-mix(in srgb,var(--mint) 15%,transparent)}
+.grp.warn{background:color-mix(in srgb,var(--sun) 18%,transparent)}
+.grp.tip{background:color-mix(in srgb,var(--sky) 15%,transparent)}
+.qr{border-inline-start:5px solid var(--line)}
+.qr.ok{border-inline-start-color:var(--mint)}
+.qr.part{border-inline-start-color:var(--sun)}
+.qr.bad{border-inline-start-color:var(--pink)}
+.ans{border-radius:10px;padding:6px 12px;margin:6px 0;background:var(--bg)}
+.ans.ok{background:color-mix(in srgb,var(--mint) 16%,transparent)}
+.ans.bad{background:color-mix(in srgb,var(--pink) 14%,transparent)}
+:root{--fd:"IBM Plex Sans Arabic",Tahoma,sans-serif}
+h2,h3,.top,.bside,.logo,.tile b,.time,.ring b,.lt,.badge{font-family:var(--fd)}
+h2{font-weight:700;line-height:1.5}
+h3{font-weight:600}
+.tile span,.muted{font-weight:500}
+/* هوية احترافية: خط واحد، ألوان هادية، أسطح مسطحة */
+body{background:var(--bg);font-size:1.02rem}
+h2{font-weight:600;font-size:1.5rem}
+h3{font-weight:600}
+.tile b,.ring b{font-weight:600}
+.logo{box-shadow:none;border-radius:9px}
+.card{border-radius:16px;padding:18px;box-shadow:none}
+.hero{background:linear-gradient(160deg,#14235a,var(--brand));box-shadow:none}
+.hero::before{background:#fff;opacity:.07}
+.hero::after{width:64px;height:5px;inset-inline-start:24px;inset-inline-end:auto;bottom:0;border-radius:4px 4px 0 0;background:var(--sun);opacity:1}
+.tile{border-radius:14px;box-shadow:none}
+button{box-shadow:none;border-radius:10px}
+.big,.send{box-shadow:none}
+.opt,.opt.mc{border-radius:12px}
+.msg{border-radius:14px}
+.msg.u{box-shadow:none}
+input[type=text],input[type=number],input[type=date],input[type=time],select,textarea{border-radius:10px}
+.moremenu{border-radius:16px;box-shadow:0 12px 32px -12px rgba(17,24,39,.35)}
+@media (max-width:899px){.nav{border-radius:18px;box-shadow:0 8px 24px -12px rgba(17,24,39,.3)}}
+/* الرئيسية */
+.herobox{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.hero .dt{font-size:.85rem;opacity:.8;margin-bottom:2px}
+.hero .ring.mini{flex:0 0 auto;width:76px;height:76px;margin:0;background:conic-gradient(var(--sun) calc(var(--p)*1%),rgba(255,255,255,.22) 0)}
+.hero .ring.mini::before{inset:7px;background:rgba(10,20,70,.55)}
+.hero .ring.mini b{font-size:1rem;color:#fff}
+.exam{display:flex;align-items:center;gap:16px}
+.exam .d{flex:0 0 auto;min-width:78px;text-align:center;border-radius:14px;padding:10px 8px;background:var(--soft);color:var(--brand)}
+.exam .d b{display:block;font-size:1.9rem;line-height:1.15;font-weight:700;font-variant-numeric:tabular-nums}
+.exam .d span{font-size:.8rem;font-weight:600}
+.exam.hot .d{background:var(--sun);color:var(--on)}
+.exam .i{display:grid;gap:2px}
+.exam .i h3{margin:0}
+.hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.hd h3{margin:0}
+.mins{font-size:.82rem;font-weight:600;color:var(--muted);background:var(--bg);border-radius:99px;padding:2px 10px;white-space:nowrap}
+.row{padding:12px 0}
+.plan-options{border:1px solid var(--line);border-radius:14px;padding:12px;margin:12px 0}.plan-options>summary{font-weight:700;cursor:pointer}.plan-options .g2{margin-top:12px}
+.missed-plan{border-inline-start:4px solid var(--sun)}.missed-plan h3{margin:0 0 8px}.missed-plan p{margin:6px 0}
+/* الغابة */
+.forest-streak{display:flex;align-items:center;gap:14px;background:linear-gradient(120deg,color-mix(in srgb,var(--sun) 13%,var(--surface)),var(--surface));border-color:color-mix(in srgb,var(--sun) 40%,var(--line))}.forest-streak .fire{font-size:2rem}.forest-streak h3{margin:0}.forest-streak p{margin:2px 0}.forest-streak.active .fire{filter:drop-shadow(0 0 8px #f26a1b)}.garden{position:relative;overflow:hidden;border-radius:14px;padding:16px 12px 0;margin-bottom:12px;background:linear-gradient(var(--soft),color-mix(in srgb,var(--mint) 12%,var(--surface)))}.forest-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin:4px 0 16px}.forest-head h2{font-size:1.5rem}.forest-rank{width:46px;height:46px;flex:0 0 46px;padding:0;display:grid;place-items:center;font-size:1.35rem;border-radius:14px}.forest-rank[aria-expanded="true"]{background:var(--soft);color:var(--brand);border-color:var(--brand)}
+.garden .forest{position:relative;z-index:1;align-items:flex-end;gap:0 4px;padding-bottom:16px;font-size:32px;line-height:1.1}
+.garden::after{content:"";position:absolute;inset-inline:0;bottom:0;height:16px;background:color-mix(in srgb,var(--mint) 38%,var(--surface))}
+.garden.empty{padding:26px 16px;text-align:center}
+.garden.empty::after{display:none}
+.lb:not(:last-child){border-bottom:1px solid var(--line)}
+.lb.me{border-radius:12px;border-bottom-color:transparent}
+.lb-person{display:flex;align-items:center;justify-content:space-between;gap:8px}.lb-streak{flex:0 0 auto;border-radius:999px;padding:2px 8px;background:color-mix(in srgb,var(--sun) 16%,var(--surface));color:var(--ink);font-size:.78rem;font-weight:700;white-space:nowrap}
+.lb .r{font-size:1.2rem}
+.lb:first-child .bar i{background:var(--sun)}
+/* الجدول والامتحانات */
+.wd{display:grid;grid-template-columns:78px 1fr;gap:12px;align-items:start;padding:12px 0}
+.wd .dl{display:grid;line-height:1.4}
+.wd .dl span{font-size:.82rem}
+.wd.today{background:var(--soft);border-radius:14px;padding:12px;border-top-color:transparent}
+.wd.today .dl b{color:var(--brand)}
+.dc{display:flex;flex-wrap:wrap;gap:6px;align-items:center;min-height:30px}
+.dc .chip{margin:0}
+.chip.cls{background:color-mix(in srgb,var(--sky) 18%,transparent);color:var(--ink)}
+.chip.cls b{color:var(--brand)}
+.chip.st{background:var(--bg);border:1px solid var(--line);display:inline-flex;align-items:center;gap:6px}
+.wd.today .chip.st{background:var(--surface)}
+.exam .d b.t{font-size:1.05rem;line-height:1.6}
+.exam.past{opacity:.6}
+/* تقدمي */
+.lvl{display:flex;align-items:center;gap:16px}
+.lvl .ring{flex:0 0 auto;width:88px;height:88px;margin:0}
+.lvl .ring::before{inset:9px}
+.lvl .ring b{font-size:1.6rem}
+.lvl h3{margin-bottom:2px}
+.bars em{background:var(--brand);opacity:.5}
+.bars .today em{background:var(--sun);opacity:1}
+.bars .today{color:var(--ink);font-weight:600}
+.badge:not(.off){border:1px solid color-mix(in srgb,var(--brand) 25%,transparent)}
+.badge.off{background:transparent;border:1px dashed var(--line)}
+/* حسابي والترحيب */
+.who{display:flex;align-items:center;gap:14px}
+.who h3{margin:0}
+.av{flex:0 0 auto;width:52px;height:52px;border-radius:50%;display:grid;place-items:center;background:var(--brand);color:#fff;font-family:var(--fd);font-weight:600;font-size:1.4rem}
+.hero .feat{margin:12px 0 0}
+.hero .feat li{color:#fff;opacity:.92}
+.hero .feat li::before{color:var(--sun)}
+:root[data-theme="light"]{color-scheme:light}
+:root[data-theme="dark"]{color-scheme:dark}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark}}
+.forest-quest{border:1px solid color-mix(in srgb,var(--mint) 30%,var(--line));background:linear-gradient(145deg,color-mix(in srgb,var(--mint) 9%,var(--surface)),var(--surface))}.questline{display:flex;align-items:center;gap:10px;margin:12px 0}.questline>span:first-child{font-size:1.5rem}.questline>div{flex:1}.questline b{display:block}.questline small{color:var(--muted)}.questline .bar{margin:6px 0 0}.quest-reward{border-radius:12px;background:color-mix(in srgb,var(--sun) 14%,var(--surface));padding:10px 12px;margin-top:10px}
+/* التايمر */
+.ring.tring{width:200px;height:200px;margin:14px auto}
+.tring>*{position:relative}
+.tring .plant{font-size:2.6rem;margin:0;line-height:1.1}
+.tring .time{font-size:2.5rem;line-height:1.2}
+.timer .picks button{padding:8px 4px;font-size:.85rem}
+.timer #tGo{min-width:140px}
+/* أرض الزراعة */
+.plot{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;padding:10px;border-radius:16px;background:color-mix(in srgb,var(--mint) 16%,var(--surface));border:1px solid var(--line)}
+.cell{position:relative;aspect-ratio:1;border-radius:10px;display:grid;place-items:center;font-size:clamp(20px,6.4vw,32px);line-height:1;background:color-mix(in srgb,#9a6b3f 24%,var(--surface))}
+.cell:not(.on)::after{content:"";width:5px;height:5px;border-radius:50%;background:color-mix(in srgb,#6b4423 40%,transparent)}
+.cell.next{outline:2px dashed var(--mint);outline-offset:-3px}
+.cell.next::after{content:"+";width:auto;height:auto;border-radius:0;background:none;color:var(--mint);font-size:1.1rem;font-weight:700}
+.cell.on{background:color-mix(in srgb,var(--mint) 22%,var(--surface))}
+.cell.new{background:color-mix(in srgb,var(--mint) 38%,var(--surface))}
+.cell.new span{display:block;animation:plant .9s cubic-bezier(.3,1.5,.5,1) both}
+.cell.new::before{content:"";position:absolute;inset:0;border-radius:10px;border:2px solid var(--mint);animation:ripple 1.3s ease-out both}
+@keyframes plant{0%{transform:translateY(12px) scale(0);opacity:0}60%{transform:translateY(-4px) scale(1.3);opacity:1}100%{transform:none}}
+@keyframes ripple{0%{transform:scale(.7);opacity:1}100%{transform:scale(1.35);opacity:0}}
+@media (prefers-reduced-motion:reduce){.cell.new span,.cell.new::before{animation:none}}
+:root{--sky1:#bfe0ff;--sky2:#f4faff;--sunc:#ffc31f;--hill1:#a9d6b8;--hill2:#84c79e;--gs1:#93d392;--gs2:#4fa86a;--leaf-a:#2fa05a;--leaf-b:#43b86c;--leaf-c:#238a4d;--pine:#1f7a4a;--trunk:#7a5230;--blossom:#f6a8c4;--blossom2:#e56f9c;--day:1;--night:0;}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--sky1:#0a1330;--sky2:#1b2a5c;--hill1:#1d4a45;--hill2:#17573f;--gs1:#1d6b4a;--gs2:#0f4a35;--leaf-a:#2d8a55;--leaf-b:#3aa066;--leaf-c:#1f6f43;--pine:#17603b;--trunk:#6a4a2e;--blossom:#e48ab0;--blossom2:#c95a86;--day:0;--night:1;}}
+:root[data-theme="dark"]{--sky1:#0a1330;--sky2:#1b2a5c;--hill1:#1d4a45;--hill2:#17573f;--gs1:#1d6b4a;--gs2:#0f4a35;--leaf-a:#2d8a55;--leaf-b:#3aa066;--leaf-c:#1f6f43;--pine:#17603b;--trunk:#6a4a2e;--blossom:#e48ab0;--blossom2:#c95a86;--day:0;--night:1;}
+.scene{border-radius:18px;overflow:hidden;border:1px solid color-mix(in srgb,var(--mint) 24%,var(--line));background:var(--sky1);box-shadow:0 12px 28px -18px rgba(17,55,39,.42)}
+.scene svg{display:block;width:100%;height:auto}
+.scene .s1{stop-color:var(--sky1)}.scene .s2{stop-color:var(--sky2)}
+.scene .gs1{stop-color:var(--gs1)}.scene .gs2{stop-color:var(--gs2)}
+.scene .day{opacity:var(--day)}.scene .night{opacity:var(--night)}
+.scene .sun{fill:var(--sunc)}.scene .glow{fill:var(--sunc);opacity:.25}
+.scene .moon{fill:#f3f1de}.scene .star{fill:#fff}.scene .cloud{fill:#fff;opacity:.85}
+.scene .h1{fill:var(--hill1)}.scene .h2{fill:var(--hill2)}
+.scene .gb{fill:#fff;opacity:.08}
+.scene .tuft{fill:none;stroke:var(--gs2);stroke-width:1.6;stroke-linecap:round;opacity:.75}
+.scene .sh{fill:#000;opacity:.15}
+.scene .tkf{fill:var(--trunk)}.scene .tks{fill:none;stroke:var(--trunk);stroke-linecap:round}
+.scene .l0{fill:var(--leaf-a)}.scene .l1{fill:var(--leaf-b)}.scene .l2{fill:var(--leaf-c)}
+.scene .pn{fill:var(--pine)}
+.scene .fr{fill:none;stroke:var(--leaf-b);stroke-width:3.4;stroke-linecap:round}
+.scene .bl{fill:var(--blossom)}.scene .bl2{fill:var(--blossom2)}.scene .flowers{transform-box:fill-box;transform-origin:center;animation:flower-open .7s ease-out both}.scene .flowers circle{filter:drop-shadow(0 1px 1px rgba(92,39,57,.2))}
+@keyframes flower-open{from{opacity:0;transform:scale(.2)}to{opacity:1;transform:scale(1)}}
+.scene .hl{fill:#fff;opacity:.13}
+.scene .gw{transform-box:fill-box;transform-origin:50% 100%}
+.scene .gw.new{animation:sprout 1.1s cubic-bezier(.3,1.4,.5,1) both}
+.scene .rip{fill:none;stroke:#fff;stroke-width:1.5;transform-box:fill-box;transform-origin:center;animation:rip 1.3s ease-out both}.scene .rare-tree{filter:drop-shadow(0 0 5px #f6a8c4)}.scene [data-tree-index]{cursor:pointer}
+@keyframes sprout{0%{transform:scale(0)}60%{transform:scale(1.15,1.28)}100%{transform:none}}
+@keyframes rip{0%{transform:scale(.4);opacity:.9}100%{transform:scale(2.6);opacity:0}}
+@media (prefers-reduced-motion:reduce){.scene .gw.new{animation:none}.scene .rip{display:none}}
+/* تحسين الصفحة الرئيسية */
+.home-page{display:grid;gap:16px;max-width:900px;margin:0 auto}
+.home-page>.card,.home-page>.tiles{margin:0}
+.home-page .herobox{min-height:180px;padding:24px 26px}
+.home-page .hero .dt{display:inline-flex;align-items:center;gap:6px;margin:0 0 8px;padding:5px 10px;border:1px solid rgba(255,255,255,.2);border-radius:99px;background:rgba(255,255,255,.08);font-weight:500}
+.home-page .hero h2{font-size:1.65rem;margin:0 0 4px}
+.home-page .hero p:not(.dt){margin:0;max-width:48ch;line-height:1.8}
+.home-cta{margin-top:16px;padding:9px 15px;border:1px solid rgba(255,255,255,.32);border-radius:11px;background:rgba(255,255,255,.12);color:#fff;font-weight:600;transition:background .18s,transform .18s}
+.home-cta:hover{background:rgba(255,255,255,.2);transform:translateY(-1px)}
+.home-page .hero .ring.mini{width:84px;height:84px}
+.home-page .home-stats{gap:12px;margin:0}
+.home-page .home-stats .tile{min-height:92px;padding:14px 16px 12px;border-radius:15px;background:var(--surface);transition:transform .18s,border-color .18s}
+.home-page .home-stats .tile:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--a) 42%,var(--line))}
+.home-page .home-stats .tile b{font-size:1.55rem;font-variant-numeric:tabular-nums}
+.home-page .home-stats .tile span{display:block;margin-top:3px}
+.home-page .exam{padding:16px 18px;border-inline-start:3px solid var(--sky)}
+.home-page .exam.hot{border-inline-start-color:var(--sun)}
+.home-page .daily-plan{padding:20px 22px}
+.home-page .daily-plan .hd{align-items:center;margin-bottom:12px}
+.home-page .section-kicker{display:block;margin-bottom:2px;color:var(--brand);font-size:.78rem;font-weight:700;letter-spacing:.02em}
+.home-page .daily-plan .hd h3{font-size:1.2rem}
+.home-page .plan-mode{display:inline-flex;align-items:center;justify-content:center;padding:6px 10px;border:1px solid var(--line);border-radius:99px;background:var(--bg);color:var(--muted);font-size:.78rem;font-weight:600;white-space:nowrap}
+.home-page .bar{height:8px;margin:12px 0 8px}
+.home-page .daily-plan .row{gap:12px;padding:13px 4px;border-color:color-mix(in srgb,var(--line) 75%,transparent)}
+.home-page .daily-plan .row:first-of-type{border-top:0}
+.home-page .daily-plan .mins{padding:4px 10px}
+@media(max-width:520px){.home-page{gap:12px}.home-page .herobox{min-height:150px;padding:18px;gap:10px}.home-page .hero h2{font-size:1.35rem}.home-page .hero .ring.mini{width:66px;height:66px}.home-page .home-stats{gap:7px}.home-page .home-stats .tile{min-height:82px;padding:11px 9px}.home-page .home-stats .tile b{font-size:1.3rem}.home-page .home-stats .tile span{font-size:.75rem}.home-page .daily-plan{padding:16px 14px}.home-page .daily-plan .hd{align-items:flex-start;gap:8px}.home-page .plan-mode{font-size:.7rem;padding:5px 8px}}/* لمسات التوازن البصري للوحة الرئيسية */
+.home-page{gap:14px}
+.home-page .hero{background:linear-gradient(135deg,#17264b 0%,color-mix(in srgb,var(--brand) 76%,#17264b) 58%,var(--brand) 100%);border-radius:18px}
+.home-page .hero::after{display:none}
+.home-page .hero::before{width:220px;height:220px;inset-inline-end:-72px;top:-112px;background:#fff;opacity:.06}
+.home-page .hero .dt{border-color:rgba(255,255,255,.16);background:rgba(255,255,255,.07);letter-spacing:.01em}
+.home-page .home-cta{display:inline-flex;align-items:center;gap:7px;background:#fff;color:#17264b;border:0;font-weight:700;padding:10px 16px;box-shadow:0 5px 14px rgba(4,12,35,.16)}
+.home-page .home-cta:hover{background:#f2f5ff;transform:translateY(-1px)}
+.home-page .home-stats .tile{overflow:hidden;border:1px solid var(--line);box-shadow:0 2px 8px rgba(10,20,50,.025)}
+.home-page .home-stats .tile::before{width:3px}
+.home-page .home-stats .tile b{letter-spacing:-.02em}
+.home-page .exam{border-radius:16px;background:linear-gradient(100deg,var(--surface),color-mix(in srgb,var(--sky) 5%,var(--surface)))}
+.home-page .daily-plan{border-radius:18px;border-top:2px solid color-mix(in srgb,var(--brand) 55%,var(--line))}
+.home-page .daily-plan .row{border-radius:10px;transition:background .16s,padding .16s}
+.home-page .daily-plan .row:hover{background:color-mix(in srgb,var(--soft) 58%,transparent);padding-inline:9px}
+.home-page .daily-plan .row.done{opacity:.78}
+.home-page .daily-plan .dot{box-shadow:0 0 0 3px color-mix(in srgb,var(--soft) 72%,transparent)}
+@media(max-width:520px){.home-page{gap:11px}.home-page .hero{border-radius:16px}.home-page .home-cta{padding:8px 12px;font-size:.86rem}.home-page .daily-plan .row:hover{padding-inline:4px}}/* بطاقة المزاج اليومية */
+.mood-card{padding:18px 20px;border-radius:18px;background:linear-gradient(120deg,color-mix(in srgb,var(--brand) 4%,var(--surface)),var(--surface))}
+.mood-heading{display:flex;align-items:center;gap:11px;margin-bottom:14px}
+.mood-spark{display:grid;place-items:center;flex:0 0 38px;height:38px;border-radius:12px;background:var(--soft);color:var(--brand);font-size:1.2rem}
+.mood-heading h3{margin:0 0 2px;font-size:1.05rem}
+.mood-heading p{margin:0;font-size:.84rem}
+.mood-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.mood-option{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;min-height:72px;padding:9px 6px;border:1px solid var(--line);border-radius:13px;background:var(--surface);color:var(--ink);font:inherit;font-size:.88rem;font-weight:600;box-shadow:none;transition:border-color .16s,background .16s,transform .16s}
+.mood-option:hover{transform:translateY(-1px);border-color:color-mix(in srgb,var(--brand) 40%,var(--line))}
+.mood-option.selected{border-color:var(--brand);background:var(--soft);color:var(--brand);box-shadow:0 0 0 2px color-mix(in srgb,var(--brand) 10%,transparent)}
+.mood-emoji{font-size:1.25rem;line-height:1.2}
+.mood-tip{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:12px;padding:11px 12px;border-radius:12px;background:color-mix(in srgb,var(--mint) 9%,var(--surface));border:1px solid color-mix(in srgb,var(--mint) 20%,var(--line))}
+.mood-tip p{margin:0;font-size:.88rem;line-height:1.65}
+.mood-tip button{flex:0 0 auto;white-space:nowrap}
+@media(max-width:520px){.mood-card{padding:15px}.mood-grid{gap:7px}.mood-option{min-height:68px;font-size:.82rem}.mood-tip{align-items:stretch;flex-direction:column}.mood-tip button{width:100%}}/* إرشادات عملية حسب المزاج */
+.mood-context{margin-top:2px!important;font-size:.78rem!important}
+.mood-guidance{margin-top:13px;padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--bg)}
+.mood-target{display:grid;gap:3px}
+.mood-target-label{color:var(--brand);font-size:.76rem;font-weight:700}
+.mood-target b{font-size:1rem}
+.mood-target p{margin:0;font-size:.82rem}
+.mood-steps{display:grid;gap:8px;list-style:none;margin:13px 0;padding:0}
+.mood-steps li{display:flex;align-items:flex-start;gap:9px;font-size:.85rem;line-height:1.55}
+.step-num{display:grid;place-items:center;flex:0 0 22px;height:22px;border-radius:50%;background:var(--soft);color:var(--brand);font-size:.74rem;font-weight:700}
+.mood-start{width:100%;margin-top:2px}/* نظام مرئي موحد للرئيسية */
+.home-page{--home-accent:var(--brand);--home-support:var(--mint);gap:15px}
+.home-page .card:not(.hero){border:1px solid var(--line);border-radius:17px;background:var(--surface);padding:19px 21px}
+.home-page .hero{border-radius:18px;background:linear-gradient(135deg,#17264b 0%,color-mix(in srgb,var(--brand) 80%,#17264b) 64%,var(--brand) 100%)}
+.home-page .hero::after{display:none}
+.home-page .hero h2{font-size:1.55rem;line-height:1.4;font-weight:700}
+.home-page .home-cta{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:#fff;color:#17264b;border:0;border-radius:11px;font-weight:700;padding:10px 16px}
+.home-page .home-cta .ic,.home-page .mood-start .ic{display:inline-flex;height:20px}
+.home-page .home-cta .ic svg,.home-page .mood-start .ic svg{width:19px;height:19px}
+.home-page .home-stats .tile{border:1px solid var(--line);border-radius:15px;background:var(--surface);padding:13px 16px}
+.home-page .home-stats .tile::before{width:3px}
+.home-page .home-stats .tile b{font-size:1.55rem;color:var(--ink);font-weight:700}
+.home-page .metric-label{display:flex!important;align-items:center;gap:7px;margin-top:5px;color:var(--muted);font-size:.82rem}
+.home-page .metric-icon{display:inline-flex;align-items:center;color:var(--home-accent)}
+.home-page .metric-icon .ic{display:inline-flex;height:17px}
+.home-page .metric-icon svg{width:16px;height:16px}
+.home-page .home-stats .tile:nth-child(2) .metric-icon{color:var(--home-support)}
+.home-page .mood-spark .ic,.home-page .mood-icon .ic{display:inline-flex;height:22px}
+.home-page .mood-spark svg,.home-page .mood-icon svg{width:21px;height:21px}
+.home-page .mood-icon{display:inline-flex;color:var(--home-accent)}
+.home-page .mood-option.selected .mood-icon{color:var(--home-support)}
+.home-page .mood-option{border-radius:12px}
+.home-page .mood-guidance{border-radius:12px;background:color-mix(in srgb,var(--home-support) 5%,var(--surface))}
+.home-page .mood-start{display:flex;align-items:center;justify-content:center;gap:8px;background:var(--home-accent);color:#fff;border-radius:11px}
+.home-page .section-kicker,.home-page .mood-target-label{color:var(--home-accent)}
+.home-page .exam{border-radius:15px}
+@media(max-width:520px){.home-page{gap:11px}.home-page .card:not(.hero){padding:15px}.home-page .hero h2{font-size:1.35rem}.home-page .home-cta{padding:8px 12px;font-size:.86rem}.home-page .home-stats .tile{padding:11px 9px}.home-page .metric-label{font-size:.72rem;gap:5px}}/* شكل بديل لبطاقة المزاج */
+.home-page .mood-card{position:relative;overflow:hidden;border-inline-start:3px solid var(--home-accent);background:linear-gradient(115deg,color-mix(in srgb,var(--home-accent) 3%,var(--surface)),var(--surface) 50%)}
+.home-page .mood-heading{gap:12px;margin-bottom:16px}
+.home-page .mood-spark{flex-basis:42px;height:42px;border-radius:50%;background:color-mix(in srgb,var(--home-accent) 10%,var(--surface));color:var(--home-accent)}
+.home-page .mood-kicker{display:block;margin-bottom:1px;color:var(--home-accent);font-size:.7rem;font-weight:700;letter-spacing:.04em}
+.home-page .mood-heading h3{font-size:1.08rem;margin:0}
+.home-page .mood-heading p{margin-top:2px;line-height:1.55}
+.home-page .mood-grid{display:flex;gap:8px}
+.home-page .mood-option{flex:1;flex-direction:row;justify-content:center;gap:7px;min-height:54px;padding:7px 9px;border-radius:13px;background:var(--bg);font-size:.85rem}
+.home-page .mood-icon{display:grid;place-items:center;flex:0 0 30px;width:30px;height:30px;border-radius:50%;background:var(--soft);color:var(--brand)}
+.home-page .mood-icon .ic{height:18px}
+.home-page .mood-icon svg{width:18px;height:18px}
+.home-page .mood-option.selected{border-color:var(--home-support);background:color-mix(in srgb,var(--home-support) 8%,var(--surface));color:var(--ink);box-shadow:0 0 0 2px color-mix(in srgb,var(--home-support) 12%,transparent)}
+.home-page .mood-option.selected .mood-icon{background:var(--home-support);color:#fff}
+.home-page .mood-guidance{border:0;border-radius:12px;background:var(--bg)}
+@media(max-width:520px){.home-page .mood-grid{gap:6px}.home-page .mood-option{gap:5px;min-height:50px;padding:6px 5px;font-size:.76rem}.home-page .mood-icon{flex-basis:26px;width:26px;height:26px}.home-page .mood-icon svg{width:16px;height:16px}.home-page .mood-heading p{font-size:.78rem}}/* توزيع اختيارات المزاج الخمسة */
+.home-page .mood-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+.home-page .mood-option{grid-column:span 2;min-width:0}
+.home-page .mood-option:nth-child(4){grid-column:2/span 2}
+.home-page .mood-option:nth-child(5){grid-column:4/span 2}
+@media(max-width:520px){.home-page .mood-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.home-page .mood-option{grid-column:auto;min-height:50px;padding:6px 8px;font-size:.79rem}.home-page .mood-option:nth-child(4){grid-column:auto}.home-page .mood-option:nth-child(5){grid-column:1/-1;width:calc(50% - 4px);justify-self:center}}/* ترتيب البداية: مهام اليوم تظهر مباشرة بعد الترحيب */
+.home-page>.hero{order:0}
+.home-page>.daily-plan{order:1}
+.home-page>.home-stats{order:2}
+.home-page>.exam{order:3}
+.home-page>.mood-card{order:4}
+.home-page>.missed-plan{order:5}</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><span class="logo">U</span>UniMate AI<span class="beta">تجريبي</span></div>
+  <main id="view"></main>
+</div>
+<nav class="nav" id="nav" hidden aria-label="التنقل"></nav>
+<div id="more" hidden></div>
+<div id="toast" class="toast" role="status" hidden></div>
+<dialog id="dlg"><form method="dialog"><p id="dmsg"></p><div class="inl"><button value="no" class="ghost">إلغاء</button><button value="ok">تأكيد</button></div></form></dialog>
+
+<script>
+/* المساعد الذكي: بعد نشر الدالة على Supabase حط الرابط والمفتاح العام (anon) هنا */
+const AI_URL = "https://meavuwntikizkfjhtnbd.supabase.co/functions/v1/quick-service";
+const AI_KEY = "sb_publishable_IClfN-hW7TnDtlqM_-1xVg_DhxUlBmO";
+const KEY = "unimate-v2", PAL = ["#1f3a93", "#f26a1b", "#0f9d6e", "#0e8fd1", "#c2415a"];
+const DAYS = ["الأحد", "الإثنين", "الثلاثاء", "الأربع", "الخميس", "الجمعة", "السبت"];
+const TABS = [["home", "الرئيسية"], ["focus", "التركيز"], ["forest", "الغابة"], ["ai", "المساعد"], ["subjects", "موادي"], ["schedule", "الجدول"], ["exams", "امتحانات"], ["progress", "تقدمي"], ["account", "حسابي"]];
+const HINTS = { "تراكم المحاضرات": "صفّي محاضرة متأخرة الأول", "ضيق الوقت": "ركّز على الأكتر تكرارًا في الامتحان", "صعوبة فهم المواد": "اشرحها بصوتك كأنك بتعلّم زميلك", "التأجيل وعدم الالتزام": "ابدأ بـ10 دقايق بس" };
+const PLAN_MODES = [["balanced", "متوازنة"], ["exam", "الامتحان الأقرب"], ["catchup", "المحاضرات المتراكمة"], ["hard", "المواد الأصعب"]];
+const planModeName = mode => (PLAN_MODES.find(x => x[0] === mode) || PLAN_MODES[0])[1];
+const probs = p => Array.isArray(p.problems) ? p.problems : p.problem ? [p.problem] : [];
+const hintToday = () => { const a = probs(S.profile).filter(k => HINTS[k]); return a.length ? HINTS[a[new Date().getDate() % a.length]] : ""; };
+const applyTheme = () => { const t = S.theme, r = document.documentElement; if (t === "light" || t === "dark") r.dataset.theme = t; else delete r.dataset.theme; };
+const $ = id => document.getElementById(id);
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+const iso = d => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+const dnum = s => { const [y, m, d] = s.split("-").map(Number); return Date.UTC(y, m - 1, d) / 864e5; };
+
+/* بناء عناصر الصفحة بأمان (textContent فقط) */
+function h(tag, p = {}, ...kids) {
+  const n = document.createElement(tag); let val;
+  for (const [k, v] of Object.entries(p)) {
+    if (k === "class") n.className = v;
+    else if (k.startsWith("on")) n.addEventListener(k.slice(2), v);
+    else if (k === "value") val = v;
+    else if (v === true) n.setAttribute(k, "");
+    else if (v !== false && v != null) n.setAttribute(k, v);
+  }
+  kids.flat(9).forEach(x => { if (x != null && x !== false) n.append(x.nodeType ? x : document.createTextNode(x)); });
+  if (val !== undefined) n.value = val;
+  return n;
+}
+
+/* طبقة التخزين: دلوقتي المتصفح، وبعدين تتبدّل بـ Supabase من غير ما نغيّر باقي الكود */
+const store = {
+  load() { try { return JSON.parse(localStorage.getItem(KEY)); } catch (e) { return null; } },
+  save(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} },
+  clear() { try { localStorage.removeItem(KEY); } catch (e) {} }
+};
+let S = store.load() || { profile: null, subjects: [], exams: [], classes: [], done: {} };
+let tab = "home", plotSel = null, treeFocus = null;
+let syncT; const commit = () => { store.save(S); render(); if (S.notifOn) { clearTimeout(syncT); syncT = setTimeout(() => syncNotif(), 1500); } };
+
+/* ---------- الخطة الذكية ---------- */
+function nextExam(sid, t) {
+  const d = S.exams.filter(e => e.sid === sid && dnum(e.date) >= t).map(e => dnum(e.date) - t);
+  return d.length ? Math.min(...d) : null;
+}
+function dailyHoursFor(date) {
+  const dayHours = S.profile.dayHours && S.profile.dayHours[date.getDay()];
+  return Math.max(0, dayHours === undefined ? (Number(S.profile.hours) || 0.5) : Number(dayHours));
+}
+function completedAfter(id, sourceDate, throughDate) {
+  return Object.entries(S.done || {}).some(([key, value]) => {
+    const split = key.indexOf("|"), day = key.slice(0, split), taskId = key.slice(split + 1);
+    return value && taskId === id && day > sourceDate && day <= throughDate;
+  });
+}
+function carryForDate(date) {
+  const day = iso(date), todayNum = dnum(day);
+  return (S.planCarry || []).filter(x => x.targetDate && dnum(x.targetDate) <= todayNum && !completedAfter(x.id, x.sourceDate, day));
+}
+function rememberPlan(day, plan) {
+  S.planHistory = S.planHistory || {};
+  const snapshot = plan.map(({ id, name, c, min, left, undone }) => ({ id, name, c, min, left, undone }));
+  if (JSON.stringify(S.planHistory[day]) !== JSON.stringify(snapshot)) S.planHistory[day] = snapshot;
+  const cutoff = dnum(day) - 30;
+  Object.keys(S.planHistory).forEach(k => { if (dnum(k) < cutoff) delete S.planHistory[k]; });
+  S.planCarry = (S.planCarry || []).filter(x => dnum(day) - dnum(x.sourceDate) <= 30 && !completedAfter(x.id, x.sourceDate, day));
+  store.save(S);
+}
+function missedPlanTasks(today) {
+  const cutoff = dnum(today) - 7, seen = new Set(), missed = [];
+  const history = S.planHistory || {}, dismissed = S.planDismissed || {};
+  Object.keys(history).sort().forEach(day => {
+    if (day >= today || dnum(day) < cutoff) return;
+    (history[day] || []).forEach(task => {
+      if (!S.subjects.some(s => s.id === task.id)) return;
+      if (seen.has(task.id)) return;
+      const key = day + "|" + task.id;
+      if (S.done[key] || dismissed[key] || completedAfter(task.id, day, today)) return;
+      const alreadyCarried = (S.planCarry || []).some(x => x.id === task.id && x.sourceDate === day && !completedAfter(x.id, x.sourceDate, today));
+      if (alreadyCarried) { seen.add(task.id); return; }
+      seen.add(task.id);
+      missed.push({ ...task, sourceDate: day });
+    });
+  });
+  return missed;
+}
+function handleMissedPlans(tasks, mode, today) {
+  const ids = new Set(tasks.map(x => x.id));
+  S.planCarry = (S.planCarry || []).filter(x => !tasks.some(t => t.id === x.id && t.sourceDate === x.sourceDate));
+  if (mode === "skip") {
+    S.planDismissed = S.planDismissed || {};
+    tasks.forEach(x => { S.planDismissed[x.sourceDate + "|" + x.id] = true; });
+    S.planCarry = S.planCarry.filter(x => !ids.has(x.id));
+  } else {
+    let days = [today];
+    if (mode === "today" && dailyHoursFor(new Date(today + "T00:00:00")) === 0) {
+      days = [];
+      for (let i = 1; i <= 7; i++) { const d = new Date(today + "T00:00:00"); d.setDate(d.getDate() + i); if (dailyHoursFor(d) > 0) { days.push(iso(d)); break; } }
+      if (!days.length) { const d = new Date(today + "T00:00:00"); d.setDate(d.getDate() + 1); days.push(iso(d)); }
+    }
+    if (mode === "week") {
+      days = [];
+      for (let i = 1; i <= 7; i++) {
+        const d = new Date(today + "T00:00:00"); d.setDate(d.getDate() + i);
+        if (dailyHoursFor(d) > 0) days.push(iso(d));
+      }
+      if (!days.length) { const d = new Date(today + "T00:00:00"); d.setDate(d.getDate() + 1); days.push(iso(d)); }
+    }
+    tasks.forEach((x, i) => S.planCarry.push({ id: x.id, name: x.name, c: x.c, min: x.min, sourceDate: x.sourceDate, targetDate: days[i % days.length] }));
+  }
+  commit();
+  toast(mode === "today" ? "اتضافت للخطة، ووقتها هيتوزع على باقي المواد." : mode === "week" ? "وزّعت المهام الفائتة على الأيام المتاحة في الأسبوع." : "تمام، شلت المهام دي من قائمة التعويض.");
+}
+function missedPlanCard(tasks, today) {
+  return h("div", { class: "card missed-plan" }, h("h3", {}, "في مهام فاتتك 🌿"),
+    h("p", { class: "muted" }, tasks.map(x => x.name).join("، ") + " · حوالي " + tasks.reduce((a, x) => a + x.min, 0) + " دقيقة."),
+    h("p", { class: "muted" }, "اختار ننقلها لخطة النهارده أو نوزعها على الأيام المتاحة."),
+    h("div", { class: "inl" }, h("button", { class: "sm", onclick: () => handleMissedPlans(tasks, "today", today) }, dailyHoursFor(new Date(today + "T00:00:00")) > 0 ? "لخطة النهارده" : "لأول يوم متاح"),
+      h("button", { class: "ghost sm", onclick: () => handleMissedPlans(tasks, "week", today) }, "وزّعها على الأسبوع"),
+      h("button", { class: "ghost sm", onclick: () => handleMissedPlans(tasks, "skip", today) }, "تجاهل")));
+}
+function planFor(date) {
+  const total = dailyHoursFor(date) * 60, t = dnum(iso(date));
+  if (total < 15) return [];
+  const mode = S.profile.planMode || "balanced";
+  const carries = carryForDate(date), carryIds = new Set(carries.map(x => x.id));
+  let list = S.subjects.map(s => {
+    const left = nextExam(s.id, t), undone = s.lectures.filter(l => !l.done).length;
+    const urgency = left === null ? 0.6 : Math.min(3, 14 / (left + 1));
+    const backlog = Math.min(undone, 10) * 0.05;
+    let w = s.diff * (1 + urgency) * (1 + backlog);
+    if (mode === "exam") w = s.diff * (1 + (left === null ? 0.1 : Math.min(5, 35 / (left + 1)))) * (1 + backlog * 0.35);
+    if (mode === "catchup") w = (1 + Math.min(undone, 20) * 0.16) * (1 + urgency * 0.4) * (1 + s.diff * 0.15);
+    if (mode === "hard") w = s.diff * s.diff * (1 + urgency * 0.65) * (1 + backlog * 0.5);
+    if (carryIds.has(s.id)) w *= 2.5;
+    return { id: s.id, name: s.name, c: s.c, left, undone, w };
+  }).sort((a, b) => b.w - a.w);
+  if (!list.length) return [];
+  for (let i = 0; i < 4; i++) {
+    const sum = list.reduce((a, x) => a + x.w, 0);
+    const next = list.filter(x => carryIds.has(x.id) || total * x.w / sum >= 15);
+    if (next.length === list.length) break;
+    list = next.length ? next : [list[0]];
+    if (!next.length) break;
+  }
+  const sum = list.reduce((a, x) => a + x.w, 0);
+  return list.map(x => ({ ...x, carry: carryIds.has(x.id), min: Math.max(5, Math.round(total * x.w / sum / 5) * 5) }));
+}
+function forestStreak(sessions = S.trees || []) {
+  const dates = new Set(sessions.map(x => iso(new Date(tm(x).t))));
+  const now = new Date(), plantedToday = dates.has(iso(now));
+  if (!plantedToday) now.setDate(now.getDate() - 1);
+  let current = 0;
+  while (dates.has(iso(now))) { current++; now.setDate(now.getDate() - 1); }
+  return { current, plantedToday };
+}
+function stats() {
+  const dn = Object.entries(S.done), mins = dn.reduce((a, [, v]) => a + v, 0);
+  const streak = forestStreak().current;
+  const lec = S.subjects.reduce((a, s) => a + s.lectures.filter(l => l.done).length, 0);
+  const xp = Math.round(mins / 3) + lec * 15;
+  return { mins, streak, lec, xp, lvl: Math.floor(xp / 100) + 1, tasks: dn.length };
+}
+const BADGES = [["🌱", "أول مهمة", s => s.tasks >= 1], ["💪", "10 مهام", s => s.tasks >= 10], ["🔥", "3 أيام زراعة", s => s.streak >= 3], ["📖", "5 محاضرات", s => s.lec >= 5], ["⏱️", "ساعة مذاكرة", s => s.mins >= 60], ["🏆", "مستوى 3", s => s.lvl >= 3]];
+const subj = id => S.subjects.find(s => s.id === id);
+
+/* ---------- عناصر مشتركة ---------- */
+const inp = (name, v, type = "text", extra = {}) => h("input", { name, type, value: v ?? "", required: true, ...extra });
+const fld = (txt, node) => h("label", { class: "f" }, txt, node);
+
+function profileForm(onSave, btn) {
+  const p = S.profile || {};
+  const year = h("select", { name: "year", required: true }, h("option", { value: "", disabled: true }, "اختار"),
+    ["الأولى", "التانية", "التالتة", "الرابعة", "الخامسة أو أكتر"].map(y => h("option", { value: y }, y)));
+  year.value = p.year || "";
+  const planMode = h("select", { name: "planMode" }, PLAN_MODES.map(([v, l]) => h("option", { value: v }, l)));
+  planMode.value = p.planMode || "balanced";
+  const f = h("form", { class: "card", onsubmit: e => {
+    e.preventDefault(); const g = n => f.elements[n].value;
+    const pr = [...f.querySelectorAll("input[name=problem]:checked")].map(i => i.value);
+    const dayHours = {}; DAYS.forEach((_, i) => { const value = g("dayHours" + i); if (value !== "" ) dayHours[i] = Math.max(0, Math.min(16, +value)); });
+    if (!pr.length) { toast("اختار مشكلة واحدة على الأقل"); return; }
+    onSave({ name: g("name").trim(), uni: g("uni").trim(), year: g("year"), hours: +g("hours"), planMode: g("planMode"), dayHours, problems: pr, problem: pr[0] });
+  } },
+    h("div", { class: "g2" }, fld("الاسم", inp("name", p.name)), fld("اسم الجامعة", inp("uni", p.uni)),
+      fld("السنة الدراسية", year), fld("ساعات المذاكرة المتاحة يوميًا", inp("hours", p.hours, "number", { min: 0.5, max: 16, step: 0.5 })), fld("أولوية خطتك", planMode)),
+    h("details", { class: "plan-options" }, h("summary", {}, "خصص وقت المذاكرة لكل يوم"), h("p", { class: "muted" }, "سيب اليوم فاضي لاستخدام ساعاتك اليومية العامة، أو اكتب 0 لو اليوم إجازة."), h("div", { class: "g2" }, DAYS.map((day, i) => fld(day, inp("dayHours" + i, p.dayHours && p.dayHours[i] !== undefined ? p.dayHours[i] : "", "number", { min: 0, max: 16, step: 0.5, required: false }))))),
+    h("fieldset", {}, h("legend", {}, "إيه المشاكل اللي بتواجهك في المذاكرة؟ (اختار واحدة أو أكتر)"),
+      Object.keys(HINTS).map(k => h("label", { class: "opt" }, h("input", { type: "checkbox", name: "problem", value: k, checked: probs(p).includes(k) }), k))),
+    h("button", { type: "submit" }, btn));
+  return f;
+}
+
+/* ---------- المؤقت (بيكمّل حتى لو غيّرت الصفحة) ---------- */
+const DUR = [[15, "🌿", "شتلة"], [25, "🌳", "شجرة"], [45, "🌲", "صنوبرة"], [60, "🌴", "نخلة"], [90, "🌸", "شجرة مزهرة"]];
+const tier = m => DUR.find(d => d[0] === m) || DUR[1];
+const tm = x => (typeof x === "number" ? { t: x, m: 25 } : x);
+const workSecs = () => (S.tmin || 25) * 60;
+const breakSecs = () => { const m = S.tmin || 25; return (m <= 25 ? 5 : m <= 60 ? 10 : 15) * 60; };
+let tLeft = (S.tmin || 25) * 60, tMode = "work", tInt = null;
+let audioCtx = null;
+function timerTick() {
+  try {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContext) return;
+    audioCtx = audioCtx || new AudioContext();
+    if (audioCtx.state === "suspended") audioCtx.resume();
+    const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+    const now = audioCtx.currentTime;
+    osc.type = "sine"; osc.frequency.value = 900;
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(0.035, now + 0.004);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.045);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(now); osc.stop(now + 0.05);
+  } catch (e) {}
+}
+function timerChime() {
+  try {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContext) return;
+    audioCtx = audioCtx || new AudioContext();
+    if (audioCtx.state === "suspended") audioCtx.resume();
+    const now = audioCtx.currentTime;
+    [0, 0.5, 1, 1.5, 2, 2.5].forEach((offset, i) => {
+      const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+      osc.type = "sine"; osc.frequency.value = i % 2 === 1 ? 880 : 660;
+      gain.gain.setValueAtTime(0.0001, now + offset);
+      gain.gain.exponentialRampToValueAtTime(0.22, now + offset + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + offset + 0.38);
+      osc.connect(gain); gain.connect(audioCtx.destination);
+      osc.start(now + offset); osc.stop(now + offset + 0.4);
+    });
+  } catch (e) {}
+}
+function tPaint() {
+  const e = $("time"); if (!e) return;
+  e.textContent = String(Math.floor(tLeft / 60)).padStart(2, "0") + ":" + String(tLeft % 60).padStart(2, "0");
+  const fs = $("focusSubject"); if (fs) fs.disabled = !!tInt || (tMode === "work" && tLeft !== workSecs());
+  $("tMode").textContent = tMode === "work" ? "جلسة تركيز" : "وقت راحة";
+  $("tGo").textContent = tInt ? "إيقاف مؤقت" : "ابدأ";
+  const rg = $("tRing");
+  if (rg) { const tot = tMode === "work" ? workSecs() : breakSecs(); rg.style.setProperty("--p", String(Math.round((1 - tLeft / tot) * 1000) / 10)); rg.style.setProperty("--c", tMode === "work" ? "var(--brand)" : "var(--mint)"); }
+  const pl = $("tPlant"), cp = $("tCap"), mn = S.tmin || 25, [, em, nm] = tier(mn);
+  if (pl) {
+    const pr = 1 - tLeft / (tMode === "work" ? workSecs() : breakSecs());
+    pl.textContent = tMode === "work" ? (pr < .34 ? "🌱" : pr < .67 ? "🌿" : em) : "☕";
+    cp.textContent = tMode === "work" ? "هتطلع " + nm + " " + em + " لما تكمّل " + mn + " دقيقة من غير إعادة" : "خد راحتك شوية ☕";
+  }
+}
+function tToggle() {
+  if (tInt) { clearInterval(tInt); tInt = null; } else tInt = setInterval(() => {
+    timerTick(); if (--tLeft <= 0) { timerChime(); if (tMode === "work") plantTree(S.tmin || 25); tMode = tMode === "work" ? "break" : "work"; tLeft = tMode === "work" ? workSecs() : breakSecs(); try { navigator.vibrate && navigator.vibrate(300); } catch (e) {} }
+    tPaint();
+  }, 1000);
+  tPaint();
+}
+function tReset() { if (tMode === "work" && tLeft < workSecs()) toast("🥀 الشجرة دبلت... كمّل 25 دقيقة المرة الجاية"); clearInterval(tInt); tInt = null; tMode = "work"; tLeft = workSecs(); tPaint(); }
+
+const IC = { focus: "M12 8v4l3 2M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20z", forest: "M12 3l5 7h-3l4 6H6l4-6H7l5-7zM12 16v5", level: "M12 3l2.6 5.3 5.9.9-4.3 4.2 1 5.9-5.2-2.8-5.2 2.8 1-5.9-4.3-4.2 5.9-.9L12 3z", minutes: "M9 2h6m-3 4v6l4 2M5.6 5.6l1.8 1.8M4 13a8 8 0 1016 0 8 8 0 00-16 0z", energy: "M12 2l2.3 7.7L22 12l-7.7 2.3L12 22l-2.3-7.7L2 12l7.7-2.3L12 2z", rest: "M20.9 13.1A9 9 0 0110.9 3a9 9 0 108 10.1z", target: "M12 22a10 10 0 110-20 10 10 0 010 20zM12 17a5 5 0 110-10 5 5 0 010 10zM12 12h.01", calm: "M20.8 4.6a5.5 5.5 0 00-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 00-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 000-7.8z", start: "M12 22a10 10 0 110-20 10 10 0 010 20zM9.5 9a2.5 2.5 0 014.5 1.5c0 1.5-2 2-2 3.5M12 17h.01", home: "M3 11l9-8 9 8M5 10v10h5v-6h4v6h5V10", ai: "M21 11.5a8.5 8.5 0 01-8.5 8.5H4l1.8-3.6A8.5 8.5 0 1121 11.5z", subjects: "M4 5a2 2 0 012-2h13v16H6a2 2 0 00-2 2V5zM4 19a2 2 0 012-2h13", schedule: "M4 6h16v14H4zM4 10h16M8 3v4M16 3v4", exams: "M9 4h6v3H9zM6 5h12v16H6zM9 14l2 2 4-4", progress: "M4 20V10M10 20V4M16 20v-7M22 20H2", account: "M12 12a4 4 0 100-8 4 4 0 000 8zM4 21a8 8 0 0116 0", more: "M5 12h.01M12 12h.01M19 12h.01" };
+function ico(k) {
+  const n = document.createElement("span"); n.className = "ic";
+  n.innerHTML = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="' + IC[k] + '"/></svg>';
+  return n;
+}
+const head = (t, sub) => h("div", { class: "head" }, h("h2", {}, t), h("p", { class: "muted" }, sub));
+let toastT;
+function toast(msg) { const t = $("toast"); t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, 2600); }
+function sure(msg) {
+  return new Promise(res => { const d = $("dlg"); $("dmsg").textContent = msg; d.returnValue = ""; d.onclose = () => res(d.returnValue === "ok"); d.showModal(); });
+}
+
+/* ---------- الصفحات ---------- */
+/* ---------- الغابة والمنافسة ---------- */
+const FOREST_URL = AI_URL.replace("quick-service", "forest");
+const TREES = ["🌳", "🌲", "🌴", "🌿", "🌵"];
+let board = null, boardAt = 0, boardBusy = false;
+const getPid = () => { if (!S.pid) { S.pid = (crypto.randomUUID ? crypto.randomUUID() : uid() + uid() + uid()); store.save(S); } return S.pid; };
+const myName = () => (S.nick || (S.profile && S.profile.name) || "طالب").slice(0, 20);
+async function forestCall(action, extra = {}) {
+  const r = await fetch(FOREST_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action, pid: getPid(), name: myName(), ...extra }) });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(j.error || r.status);
+  return j;
+}
+async function loadBoard(action = "board", extra = {}) {
+  boardBusy = true;
+  try { board = await forestCall(action, extra); } catch (e) { board = board || { error: true }; }
+  boardBusy = false; boardAt = Date.now();
+  if (tab === "forest" || tab === "leaderboard") render();
+}
+function plantTree(m = 25) {
+  S.trees = S.trees || []; const t = Date.now(), today = iso(new Date()), sessions = S.trees.filter(x => iso(new Date(tm(x).t)) === today).length;
+  const sid = S.subjects.some(s => s.id === S.focusSid) ? S.focusSid : "", subjectName = (subj(sid) || {}).name || "مذاكرة عامة";
+  const rare = sessions === 2; S.trees.push({ t, m, sid, subjectName, rare, growthSession: true });
+  S.growthTrees = S.growthTrees || [];
+  let growing = S.growthTrees.slice().reverse().find(x => x.sid === sid && (x.growth || 0) < 4);
+  if (!growing) { growing = { t, m, sid, subjectName, growth: 0, rare: false }; S.growthTrees.push(growing); }
+  growing.growth = Math.min(4, (growing.growth || 0) + 1); growing.m = Math.max(growing.m || 0, m); growing.minutes = (growing.minutes || 0) + m; growing.t = t;
+  const streak = forestStreak(S.trees); S.bestForestStreak = Math.max(S.bestForestStreak || 0, streak.current);
+  if (rare) growing.rare = true;
+  store.save(S); plotSel = null;
+  const stages = ["بذرة", "برعم", "شتلة", "شجرة كاملة"];
+  toast(rare ? "إنجاز جامد! شجرة " + subjectName + " النادرة بتكبر 🌸" : "🌱 شجرة " + subjectName + " وصلت لمرحلة " + stages[growing.growth - 1]);
+  loadBoard("plant", { minutes: m });
+  if (tab === "forest" || tab === "leaderboard") render();
+}
+
+/* ---------- تنبيهات الموبايل (Web Push) ---------- */
+const NOTIFY_URL = AI_URL.replace("quick-service", "notify");
+let notif = null, notifAt = 0, notifBusy = false;
+async function notifCall(body) {
+  const r = await fetch(NOTIFY_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pid: getPid(), tz: Intl.DateTimeFormat().resolvedOptions().timeZone, ...body }) });
+  const j = await r.json().catch(() => ({})); if (!r.ok) throw new Error(j.error || r.status); return j;
+}
+async function syncNotif() {
+  notifBusy = true;
+  try {
+    notif = await notifCall({ action: "sync", data: {
+      exams: S.exams.map(e => ({ id: e.id, subject: (subj(e.sid) || {}).name || "مادة", date: e.date, kind: e.kind || "" })),
+      classes: S.classes.map(c => ({ id: c.id, day: c.day, time: c.time, title: c.title })) } });
+  } catch (e) { notif = { error: e.message }; }
+  notifBusy = false; notifAt = Date.now(); if (tab === "account") render();
+}
+const keyBytes = k => Uint8Array.from(atob((k + "=".repeat((4 - k.length % 4) % 4)).replace(/-/g, "+").replace(/_/g, "/")), c => c.charCodeAt(0));
+const pushReady = () => /^https?:/.test(location.protocol) && window.isSecureContext && "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
+const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+async function getReg() {
+  let reg = await navigator.serviceWorker.getRegistration();
+  if (!reg) { try { reg = await navigator.serviceWorker.register("sw.js"); } catch (e) { throw new Error("ملف sw.js مش موجود على الموقع، ارفعه جنب index.html"); } }
+  await Promise.race([navigator.serviceWorker.ready, new Promise((_, no) => setTimeout(() => no(new Error("الـ service worker مش بيشتغل، اتأكد إن sw.js مرفوع")), 8000))]);
+  return reg;
+}
+async function enablePush() {
+  toast("بفعّل الإشعارات...");
+  try {
+    const reg = await getReg();
+    const perm = await Notification.requestPermission();
+    if (perm !== "granted") { toast(perm === "denied" ? "الإشعارات متقفولة لهذا الموقع في إعدادات المتصفح" : "لازم تدوس Allow لما المتصفح يسأل"); return; }
+    const { key } = await notifCall({ action: "vapid" });
+    const sub = (await reg.pushManager.getSubscription()) || await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: keyBytes(key) });
+    await notifCall({ action: "push_subscribe", sub: sub.toJSON() });
+    S.notifOn = true; store.save(S); await syncNotif(); toast("الإشعارات اتفعّلت ✅");
+  } catch (e) { toast("تعذر التفعيل: " + e.message); }
+}
+async function disablePush() {
+  try { const reg = await getReg(), sub = await reg.pushManager.getSubscription();
+    if (sub) { await notifCall({ action: "push_unsubscribe", endpoint: sub.endpoint }); await sub.unsubscribe(); } } catch (e) {}
+  S.notifOn = false; store.save(S); render();
+}
+async function testPush() {
+  try { const r = await notifCall({ action: "test" }); toast(r.ok ? "اتبعت تنبيه تجريبي، هيوصلك خلال ثواني" : "الإرسال فشل (" + r.statuses.join(",") + ")"); }
+  catch (e) { toast(e.message === "not_subscribed" ? "فعّل الإشعارات الأول" : "تعذر الإرسال"); }
+}
+function notifCard() {
+  const on = S.notifOn && "Notification" in window && Notification.permission === "granted";
+  if (on && !notifBusy && Date.now() - notifAt > 20000) syncNotif();
+  return h("div", { class: "card" }, h("h3", {}, "تنبيهات الموبايل 📲"),
+    h("p", { class: "muted" }, "إشعارات من الموقع نفسه قبل المحاضرة بنص ساعة، وقبل الامتحان بـ3 أيام ويوم وفي يومه، وتذكير بالمذاكرة بالليل لو امتحانك قرب."),
+    !/^https?:/.test(location.protocol) ? h("p", { class: "muted" }, "⚠️ الإشعارات بتشتغل بس لما تفتح الموقع من رابط (زي Netlify) مش من ملف على الجهاز.")
+    : isIOS && !navigator.standalone ? h("p", { class: "muted" }, "على الآيفون: افتح الموقع في Safari، دوس زرار المشاركة ثم Add to Home Screen، وافتحه من الأيقونة وبعدها فعّل الإشعارات.")
+    : !pushReady() ? h("p", { class: "muted" }, "المتصفح ده مش بيدعم الإشعارات. جرّب Chrome على الأندرويد.")
+    : Notification.permission === "denied" ? h("p", { class: "muted" }, "الإشعارات متقفولة لهذا الموقع. افتح إعدادات الموقع في المتصفح واسمح بالإشعارات.")
+    : !on ? h("button", { onclick: enablePush }, "فعّل الإشعارات")
+    : h("div", {}, h("p", {}, "✅ الإشعارات شغّالة على الجهاز ده."),
+        h("div", { class: "inl" }, h("button", { class: "ghost sm", onclick: testPush }, "ابعت تنبيه تجريبي"), h("button", { class: "ghost sm", onclick: disablePush }, "إيقاف"))));
+}
+
+let sel = "global";
+const genCode = () => { const A = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"; return Array.from({ length: 6 }, () => A[Math.floor(Math.random() * A.length)]).join(""); };
+async function joinRoom(code) {
+  code = String(code || "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 12);
+  if (code.length < 4) { toast("الكود لازم يكون 4 حروف أو أرقام على الأقل"); return; }
+  try { board = await forestCall("join", { room: code }); sel = code; boardAt = Date.now(); toast("اتضمّيت للمجموعة " + code + " 👥"); render(); }
+  catch (e) { toast(e.message === "room_full" ? "المجموعة امتلأت (50 عضو)" : e.message === "too_many_rooms" ? "وصلت للحد الأقصى: 10 مجموعات" : "تعذر الانضمام، جرّب تاني"); }
+}
+async function leaveRoom(code) {
+  if (!(await sure("تطلع من المجموعة " + code + "؟"))) return;
+  try { board = await forestCall("leave", { room: code }); sel = "global"; boardAt = Date.now(); render(); } catch (e) { toast("تعذر الخروج"); }
+}
+async function invite(c) {
+  const link = /^https?:/.test(location.protocol) ? "\n" + location.href.split("#")[0] + "#join=" + c : "";
+  const text = "تعالى نذاكر مع بعض على UniMate 🌳 وننافس! انضم لمجموعتي بالكود: " + c + link;
+  try { if (navigator.share) await navigator.share({ text }); else { await navigator.clipboard.writeText(text); toast("اتنسخت الدعوة، ابعتها لصحابك"); } } catch (e) {}
+}
+function lbRows(list) {
+  const mx = Math.max(1, ...list.map(x => x.minutes)), medal = i => ["🥇", "🥈", "🥉"][i] || (i + 1);
+  return list.map((x, i) => h("div", { class: "lb" + (x.me ? " me" : "") }, h("span", { class: "r" }, medal(i)),
+    h("div", { class: "n" }, h("div", { class: "lb-person" }, h("span", {}, x.name), h("span", { class: "lb-streak", title: "ستريك زراعة الشجر" }, "🔥 " + (Number.isFinite(Number(x.streak)) ? Number(x.streak) : "—"))), h("div", { class: "bar" }, h("i", { style: "width:" + Math.round(x.minutes / mx * 100) + "%" }))),
+    h("span", {}, x.minutes + " د · " + x.trees + " 🌳")));
+}
+function challenge(list) {
+  const i = list.findIndex(x => x.me); if (i < 0 || list.length < 2) return "ادعي صحابك عشان تبدأوا المنافسة! 💪";
+  if (i === 0) return "👑 إنت في المركز الأول بفارق " + (list[0].minutes - list[1].minutes) + " دقيقة عن " + list[1].name + ". حافظ عليه!";
+  return "🔥 فاضل " + (list[i - 1].minutes - list[i].minutes + 1) + " دقيقة وتتخطى " + list[i - 1].name;
+}
+const FPER = 60, frac = x => x - Math.floor(x), FKIND = { 15: "sap", 25: "tree", 45: "pine", 60: "palm", 90: "bloom" };
+function treeSvg(k, c) {
+  const L = "l" + c;
+  if (k === "seed") return '<ellipse class="l2" cx="0" cy="-2" rx="4" ry="2.5"/><circle class="hl" cx="-1" cy="-3" r="1.2"/>';
+  if (k === "sprout") return '<path class="tks" stroke-width="2" d="M0 0Q-1 -7 0 -13"/><ellipse class="l1" cx="-4" cy="-12" rx="4.5" ry="2.5" transform="rotate(-25 -4 -12)"/><ellipse class="l0" cx="4" cy="-16" rx="4.5" ry="2.5" transform="rotate(25 4 -16)"/>';
+  if (k === "sapling") return '<path class="tks" stroke-width="2.4" d="M0 0V-19"/><ellipse class="l0" cx="-5" cy="-15" rx="5.5" ry="3.2"/><ellipse class="l1" cx="5" cy="-21" rx="5.5" ry="3.2"/><circle class="l2" cx="0" cy="-27" r="4"/>';
+  if (k === "rare") return `<rect class="tkf" x="-2.6" y="-19" width="5.2" height="19" rx="1.5"/><circle class="l1" cx="0" cy="-30" r="14"/><circle class="l1" cx="-9" cy="-23" r="9"/><circle class="l1" cx="10" cy="-24" r="9.5"/><circle class="bl" cx="-5" cy="-35" r="4"/><circle class="bl2" cx="-5" cy="-35" r="1.5"/><circle class="bl" cx="8" cy="-28" r="4"/><circle class="bl2" cx="8" cy="-28" r="1.5"/><circle class="hl" cx="-4" cy="-39" r="6"/>`;
+  if (k === "sap") return `<path class="tks" stroke-width="2.2" d="M0 0V-15"/><ellipse class="${L}" cx="-5" cy="-14" rx="6" ry="3.2" transform="rotate(-28 -5 -14)"/><ellipse class="${L}" cx="5" cy="-19" rx="6" ry="3.2" transform="rotate(28 5 -19)"/><ellipse class="${L}" cx="0" cy="-25" rx="3" ry="5"/>`;
+  if (k === "pine") return `<rect class="tkf" x="-2" y="-10" width="4" height="10"/><polygon class="pn" points="0,-56 -11,-34 11,-34"/><polygon class="pn" points="0,-44 -14,-20 14,-20"/><polygon class="pn" points="0,-30 -17,-8 17,-8"/><polygon class="hl" points="0,-56 -3,-34 -11,-34"/>`;
+  if (k === "palm") return `<path class="tks" stroke-width="4" d="M0 0Q6 -22 2 -44"/><path class="fr" d="M2 -44Q-8 -58 -22 -50"/><path class="fr" d="M2 -44Q12 -58 26 -50"/><path class="fr" d="M2 -44Q-12 -48 -24 -36"/><path class="fr" d="M2 -44Q16 -48 28 -36"/><path class="fr" d="M2 -44Q2 -58 3 -64"/><circle class="tkf" cx="0" cy="-42" r="2.3"/><circle class="tkf" cx="4.5" cy="-42" r="2.3"/>`;
+  if (k === "bloom") return `<rect class="tkf" x="-2.6" y="-19" width="5.2" height="19" rx="1.5"/><circle class="bl" cx="0" cy="-30" r="14"/><circle class="bl" cx="-9" cy="-23" r="9"/><circle class="bl" cx="10" cy="-24" r="9.5"/><circle class="bl2" cx="-5" cy="-33" r="2.4"/><circle class="bl2" cx="6" cy="-28" r="2.4"/><circle class="bl2" cx="-11" cy="-22" r="2.2"/><circle class="bl2" cx="11" cy="-22" r="2.2"/><circle class="hl" cx="-4" cy="-35" r="6"/>`;
+  return `<rect class="tkf" x="-2.6" y="-19" width="5.2" height="19" rx="1.5"/><circle class="${L}" cx="0" cy="-30" r="14"/><circle class="${L}" cx="-9" cy="-23" r="9"/><circle class="${L}" cx="10" cy="-24" r="9.5"/><circle class="hl" cx="-4" cy="-35" r="6"/>`;
+}
+function blossomSvg() {
+  return `<g class="flowers" aria-hidden="true"><circle class="bl" cx="-8" cy="-31" r="3.7"/><circle class="bl2" cx="-8" cy="-31" r="1.35"/><circle class="bl" cx="8" cy="-27" r="3.7"/><circle class="bl2" cx="8" cy="-27" r="1.35"/><circle class="bl" cx="0" cy="-39" r="3.7"/><circle class="bl2" cx="0" cy="-39" r="1.35"/></g>`;
+}
+const FOREST_BG = `<defs><linearGradient id="fsky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" class="s1"/><stop offset="1" class="s2"/></linearGradient><linearGradient id="fgr" x1="0" y1="0" x2="0" y2="1"><stop offset="0" class="gs1"/><stop offset="1" class="gs2"/></linearGradient><linearGradient id="fsoil" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#93612f"/><stop offset="1" stop-color="#563820"/></linearGradient><linearGradient id="fgrass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b6ed4e"/><stop offset=".55" stop-color="#73d13d"/><stop offset="1" stop-color="#39a942"/></linearGradient></defs>
+<rect width="360" height="280" fill="url(#fsky)"/>
+<g class="day"><circle class="glow" cx="300" cy="42" r="34"/><circle class="sun" cx="300" cy="42" r="17"/><ellipse class="cloud" cx="68" cy="44" rx="27" ry="8"/><ellipse class="cloud" cx="87" cy="39" rx="16" ry="8"/><ellipse class="cloud" cx="209" cy="67" rx="23" ry="7"/></g>
+<g class="night"><circle class="moon" cx="300" cy="42" r="14"/>${[[40,20],[90,38],[150,16],[210,34],[250,12],[330,22],[20,64],[120,66],[200,58]].map(([x, y]) => `<circle class="star" cx="${x}" cy="${y}" r="1.3"/>`).join("")}</g>
+<ellipse cx="180" cy="250" rx="126" ry="14" fill="#122f2a" opacity=".18"/>
+<path d="M10 145L180 218 350 145 350 178 180 255 10 178Z" fill="url(#fsoil)"/>
+
+<path d="M10 145L180 218 180 228 10 155Z" fill="#b87937" opacity=".75"/><path d="M180 218L350 145 350 158 180 232Z" fill="#704621" opacity=".7"/><path d="M22 151L180 219M180 219L338 151" fill="none" stroke="#d89b55" stroke-width="2" opacity=".48"/><path d="M40 164L180 226M320 164L180 226" fill="none" stroke="#452d1d" stroke-width="2" opacity=".35"/>
+<path d="M10 145L180 218 350 145 180 73Z" fill="#45ae38"/>
+<path d="M21 143L180 210 338 143 180 82Z" fill="url(#fgrass)"/>
+<path d="M33 145Q83 127 125 150T220 143T326 143" fill="none" stroke="#d5f876" stroke-width="3" opacity=".38"/>
+<g fill="#eaffb0" opacity=".8"><circle cx="53" cy="151" r="2"/><circle cx="87" cy="176" r="2"/><circle cx="130" cy="137" r="2"/><circle cx="227" cy="180" r="2"/><circle cx="279" cy="137" r="2"/><circle cx="300" cy="164" r="2"/><circle cx="163" cy="187" r="2"/></g>`;
+function plotView(t) {
+  const lands = Math.floor(t.length / FPER) + 1, cur = plotSel == null || plotSel >= lands ? lands - 1 : plotSel, from = cur * FPER;
+  const items = t.slice(from, from + FPER).map((x, i) => {
+    const f = frac(.5 + i * .5698402909), [m, , nm] = tier(tm(x).m);
+    const py = 123 + f * 76, edge = py < 145 ? (py - 73) * 2.36 : (218 - py) * 2.33;
+    const growth = x.growth || 0, stage = growth ? ["", "بذرة", "برعم", "شتلة", "شجرة كاملة"][growth] : "شجرة كاملة";
+    return { idx: from + i, subjectName: x.subjectName || (x.growthSession ? "مذاكرة عامة" : "جلسات سابقة"), px: 180 + (frac(.5 + i * .7548776662) * 2 - 1) * edge * .78, py, sc: .52 + f * .42, m, nm: x.rare ? "شجرة نادرة" : stage, stage, growth, rare: !!x.rare, c: i % 3, fresh: from + i === t.length - 1 && Date.now() - tm(x).t < 6000 };
+  }).sort((a, b) => a.py - b.py);
+  const trees = items.map(o => `<g data-tree-index="${o.idx}" role="button" tabindex="0" aria-label="عرض تفاصيل ${o.stage}" transform="translate(${o.px.toFixed(1)} ${o.py.toFixed(1)}) scale(${o.sc.toFixed(2)})"><title>${o.nm} — ${o.m} دقيقة تركيز</title><ellipse class="sh" rx="11" ry="3.2"/>${o.fresh ? '<ellipse class="rip" rx="8" ry="3"/>' : ""}<g class="gw${o.fresh ? " new" : ""}${o.rare ? " rare-tree" : ""}">${treeSvg(o.growth && o.growth < 4 ? ["", "seed", "sprout", "sapling"][o.growth] : (o.rare ? "rare" : FKIND[o.m] || "tree"), o.c)}${o.growth && o.growth < 4 ? "" : blossomSvg()}</g></g>`).join("");
+  const scene = h("div", { class: "scene" });
+  scene.innerHTML = `<svg viewBox="0 0 360 280" role="img" aria-label="غابتك: ${items.length} شجرة">${FOREST_BG}${trees}</svg>`;
+  const selectTree = e => { const g = e.target.closest("[data-tree-index]"); if (!g) return; treeFocus = t[Number(g.getAttribute("data-tree-index"))] || null; render(); };
+  scene.addEventListener("click", selectTree);
+  scene.addEventListener("keydown", e => { if ((e.key === "Enter" || e.key === " ") && e.target.closest("[data-tree-index]")) { e.preventDefault(); selectTree(e); } });
+  return h("div", {},
+    lands > 1 ? h("div", { class: "picks" }, Array.from({ length: lands }, (_, k) => h("button", { class: "ghost sm" + (k === cur ? " on" : ""), onclick: () => { plotSel = k; render(); } }, "غابة " + (k + 1)))) : null,
+    scene,
+    h("p", { class: "muted", style: "margin:8px 0 2px;text-align:center;font-size:.85rem" }, items.length ? items.length + " من " + FPER + " شجرة في الجزيرة دي — كل جلسة بتكبر غابتك 🌸 — " : "الغابة لسه فاضية. كل جلسة تركيز هتزود جزيرتك شجرة مزهرة 🌱 — ", DUR.map(([m, em]) => em + " " + m + "د").join("  ")));
+}
+
+function forestQuest(t, tot, today, plants) {
+  const sessions = t.filter(x => iso(new Date(tm(x).t)) === iso(new Date())).length;
+  const goal = 3, pct = Math.min(100, Math.round(sessions / goal * 100)), growing = plants.slice().reverse().find(x => x.growth && x.growth < 4), growthPct = growing ? Math.round(growing.growth / 4 * 100) : 100;
+  const planted = Math.max(S.realTrees || 0, Array.isArray(S.realPlantNames) ? S.realPlantNames.length : 0), rareCount = plants.filter(x => x.rare).length, unlocked = tot >= 600;
+  return h("div", { class: "card forest-quest" }, h("h3", {}, "مهمتك في الغابة 🎯"),
+    h("div", { class: "questline" }, h("span", {}, sessions >= goal ? "🌸" : "🌱"), h("div", {},
+      h("b", {}, sessions >= goal ? "مهمة اليوم اكتملت! فتحت شجرة نادرة" : "ازرع شجرة نادرة النهاردة"),
+      h("small", {}, sessions + " من " + goal + " جلسات تركيز · جمعت " + rareCount + " شجرة نادرة"), h("div", { class: "bar" }, h("i", { style: "width:" + pct + "%" })))),
+    h("div", { class: "questline" }, h("span", {}, growing ? ["", "🌰", "🌱", "🪴", "🌳"][growing.growth] : "✨"), h("div", {}, h("b", {}, growing ? "شجرتك الحالية: " + ["", "بذرة", "برعم", "شتلة", "شجرة كاملة"][growing.growth] : "جاهز تبدأ شجرة جديدة!"), h("small", {}, growing ? growing.growth + " من 4 جلسات لحد ما تكبر" : "كل 4 جلسات مكتملة تكمل دورة نمو شجرة"), h("div", { class: "bar" }, h("i", { style: "width:" + growthPct + "%" })))),
+    h("div", { class: "quest-reward" }, h("b", {}, "الهدف الكبير: ازرع شجرة على أرض الواقع 🌳"),
+      h("p", { class: "muted" }, unlocked ? "وصلت لـ10 ساعات مذاكرة! اختار شتلة مناسبة من مشتل قريب، واسأل عن أفضل مكان وموعد لريّها." : "ذاكرت " + Math.floor(tot / 60) + " من 10 ساعات — فاضلك " + (600 - tot) + " دقيقة لفتح مهمة الزراعة."),
+      unlocked ? planted ? h("div", {}, h("p", {}, "✅ سجلت زراعة " + planted + " شجرة — إنجاز عظيم!"), (S.realPlantNames || []).map(n => h("p", { class: "muted" }, "🌿 " + n))) : h("button", { class: "sm", onclick: async () => { if (!(await sure("هل زرعت شجرة فعلًا؟ سجّل الإنجاز بعد ما تزرعها على أرض الواقع."))) return; const n = window.prompt("اكتب اسم الشجرة أو مكان زراعتها (اختياري)"); if (n === null) return; S.realPlantNames = S.realPlantNames || []; if (n.trim()) S.realPlantNames.push(n.trim().slice(0, 50)); S.realTrees = (S.realTrees || 0) + 1; store.save(S); toast("إنجاز عظيم! غابتك كبرت على أرض الواقع 🌳"); render(); } }, "سجلت إني زرعت شجرة 🌱") : null),
+    h("p", { class: "muted", style: "margin-top:10px;font-size:.85rem" }, "كل 3 جلسات في اليوم تفتح شجرة نادرة، وكل جلسة كاملة تزود غابتك."));
+}
+const views = {
+  home() {
+    const st = stats(), now = new Date(), key = iso(now), plan = planFor(now);
+    const availableHours = dailyHoursFor(now);
+    rememberPlan(key, plan);
+    const missed = missedPlanTasks(key);
+    const total = plan.reduce((a, x) => a + x.min, 0), done = plan.filter(x => S.done[key + "|" + x.id]).length;
+    const upcoming = S.exams.filter(e => dnum(e.date) >= dnum(key)).sort((a, b) => a.date < b.date ? -1 : 1)[0];
+    const hr = now.getHours(), greet = hr < 12 ? "صباح الخير" : hr < 18 ? "أهلاً" : "مساء الخير";
+    const pct = plan.length ? Math.round(done / plan.length * 100) : 0, dleft = upcoming ? dnum(upcoming.date) - dnum(key) : 0;
+    const fmt = d => d.toLocaleDateString("ar-EG-u-nu-latn", { weekday: "long", day: "numeric", month: "long" });
+    const moods = [
+      { id: "energetic", icon: "energy", label: "متحمس", minutes: 25, title: "استغل حماسك في مهمة لها أولوية", steps: ["ابدأ بأعلى مادة أولوية في خطتك.", "اقفل الإشعارات وجهّز الكتاب أو المحاضرة قبل تشغيل المؤقت.", "ذاكر 25 دقيقة متواصلة، وبعدها خُد راحة قصيرة."] },
+      { id: "tired", icon: "rest", label: "مرهق", minutes: 15, title: "ابدأ بحاجة خفيفة ومن غير ضغط", steps: ["ابدأ بمادة سهلة أو بمراجعة جزء تعرفه.", "اشرب مية وافتح المطلوب بس، من غير ما تفكر في باقي اليوم.", "جرّب 15 دقيقة؛ بعدها قرر تكمل أو ترتاح."] },
+      { id: "distracted", icon: "target", label: "مشتت", minutes: 15, title: "صغّر البداية وقلّل المشتتات", steps: ["اكتب هدفًا واحدًا واضحًا: صفحة أو سؤال واحد.", "حط الموبايل بعيد وافتح مصدر المذاكرة فقط.", "ابدأ 15 دقيقة؛ لو سرحت، ارجع للهدف المكتوب بهدوء."] },
+      { id: "anxious", icon: "calm", label: "قلقان", minutes: 15, title: "هدّي البداية وركّز على جزء واحد", steps: ["ابدأ بمادة امتحانك الأقرب أو أول مهمة مقترحة.", "خد 3 أنفاس ببطء: شهيق 4 ثواني وزفير 6 ثواني.", "راجع نقطة واحدة لمدة 15 دقيقة، وبعدها حدّد الخطوة التالية."] },
+      { id: "stuck", icon: "start", label: "مش عارف أبدأ", minutes: 15, title: "حوّل البداية لخطوة صغيرة جدًا", steps: ["ابدأ بأبسط مهمة غير مكتملة في خطتك.", "افتح المحاضرة واكتب عنوان الجزء أو أول سؤال فقط.", "شغّل 15 دقيقة واشتغل على الخطوة دي وحدها."] }
+    ];
+    const todayMood = S.dailyMood?.day === key ? S.dailyMood.id : "";
+    const chosenMood = moods.find(x => x.id === todayMood);
+    const openTasks = plan.filter(x => !S.done[key + "|" + x.id]);
+    const examTask = upcoming ? openTasks.find(x => x.id === upcoming.sid) : null;
+    const moodTask = ["tired", "stuck"].includes(todayMood) ? openTasks.slice().sort((a, b) => (subj(a.id)?.diff || 2) - (subj(b.id)?.diff || 2) || a.min - b.min)[0] : todayMood === "anxious" ? examTask : openTasks[0];
+    const moodSubject = todayMood === "anxious" && upcoming ? subj(upcoming.sid) : moodTask ? subj(moodTask.id) : upcoming ? subj(upcoming.sid) : null;
+    const moodContext = moodTask ? "المهمة دي من خطة النهاردة." : todayMood === "anxious" && upcoming && moodSubject ? "اخترنا مادة امتحانك الأقرب كأولوية للمراجعة." : upcoming && moodSubject ? "مهام اليوم خلصت؛ دي مادة امتحانك الأقرب." : plan.length ? "أنجزت خطة اليوم؛ استخدم الوقت لمراجعة خفيفة." : S.subjects.length ? "مفيش جلسة محددة في خطة اليوم." : "ابدأ بمذاكرة عامة أو أضف موادك لخطة أدق.";
+    return h("div", { class: "home-page" },
+      h("div", { class: "card hero herobox" },
+        h("div", {}, h("p", { class: "dt" }, fmt(now)), h("h2", {}, greet + " يا " + S.profile.name),
+          h("p", {}, plan.length ? "النهاردة " + plan.length + " مهام، حوالي " + total + " دقيقة." : S.subjects.length ? (availableHours === 0 ? "النهارده يوم راحة حسب اختيارك." : "زوّد وقت اليوم لـ15 دقيقة على الأقل عشان نضيف جلسة.") : "ابدأ بإضافة موادك عشان نجهّز خطتك."), h("button", { class: "home-cta", onclick: () => goTab("focus") }, ico("focus"), "ابدأ جلسة التركيز")),
+        plan.length ? h("div", { class: "ring mini", style: "--p:" + pct, role: "img", "aria-label": "أنجزت " + done + " من " + plan.length }, h("b", {}, done + "/" + plan.length)) : null),
+      h("div", { class: "tiles home-stats" },
+        h("div", { class: "tile", style: "--a:var(--brand)" }, h("b", {}, st.streak), h("span", { class: "metric-label" }, h("span", { class: "metric-icon" }, ico("forest")), "ستريك الغابة")),
+        h("div", { class: "tile", style: "--a:var(--mint)" }, h("b", {}, st.lvl), h("span", { class: "metric-label" }, h("span", { class: "metric-icon" }, ico("level")), "المستوى")),
+        h("div", { class: "tile", style: "--a:var(--brand)" }, h("b", {}, st.mins), h("span", { class: "metric-label" }, h("span", { class: "metric-icon" }, ico("minutes")), "دقيقة مذاكرة"))),
+      h("section", { class: "card mood-card", "aria-labelledby": "moodTitle" },
+        h("div", { class: "mood-heading" }, h("span", { class: "mood-spark", "aria-hidden": "true" }, ico("energy")), h("div", {}, h("span", { class: "mood-kicker" }, "تشيك إن سريع"), h("h3", { id: "moodTitle" }, "مزاجك إيه النهارده؟"), h("p", { class: "muted" }, "اختار أقرب إحساس ليك عشان نرشح لك بداية مناسبة."))),
+        h("div", { class: "mood-grid" }, moods.map(m => h("button", { type: "button", class: "mood-option" + (todayMood === m.id ? " selected" : ""), "aria-pressed": String(todayMood === m.id), onclick: () => { S.dailyMood = { day: key, id: m.id }; store.save(S); render(); } }, h("span", { class: "mood-icon", "aria-hidden": "true" }, ico(m.icon)), h("span", {}, m.label)))),
+        chosenMood ? h("div", { class: "mood-guidance" },
+          h("div", { class: "mood-target" }, h("span", { class: "mood-target-label" }, "اقتراح مناسب لك · " + chosenMood.minutes + " دقيقة"), h("b", {}, chosenMood.title), h("p", { class: "muted" }, moodTask ? "المهمة المقترحة: " + moodTask.name : moodSubject ? "المادة المقترحة: " + moodSubject.name : "اختار مادة بتحبها أو ابدأ بمذاكرة عامة."), h("p", { class: "muted mood-context" }, moodContext)),
+          h("ol", { class: "mood-steps" }, chosenMood.steps.map((step, i) => h("li", {}, h("span", { class: "step-num" }, i + 1), h("span", {}, step)))),
+          h("button", { class: "sm mood-start", onclick: () => {
+            if (tInt || tMode !== "work" || tLeft !== workSecs()) { goTab("focus"); toast("كمّل جلستك الحالية أو دوس إعادة قبل تغيير مدتها"); return; }
+            if (moodSubject) S.focusSid = moodSubject.id;
+            S.tmin = chosenMood.minutes; tLeft = workSecs(); store.save(S); goTab("focus");
+          } }, ico("focus"), "ابدأ جلسة " + chosenMood.minutes + " دقيقة")) : null),
+      upcoming && h("div", { class: "card exam" + (dleft <= 3 ? " hot" : "") },
+        h("div", { class: "d" }, h("b", { class: dleft === 0 ? "t" : "" }, dleft === 0 ? "النهاردة" : dleft), dleft === 0 ? null : h("span", {}, "يوم")),
+        h("div", { class: "i" }, h("span", { class: "muted" }, "أقرب امتحان"), h("h3", {}, subj(upcoming.sid)?.name || "امتحان"), h("span", { class: "muted" }, fmt(new Date(upcoming.date + "T00:00:00"))))),
+      h("div", { class: "card daily-plan" }, h("div", { class: "hd" }, h("div", {}, h("span", { class: "section-kicker" }, "خطتك الشخصية"), h("h3", {}, "مهام النهاردة")), plan.length ? h("span", { class: "plan-mode" }, done + " من " + plan.length + " · " + planModeName(S.profile.planMode || "balanced")) : null),
+        h("div", { class: "bar" }, h("i", { style: "width:" + (plan.length ? Math.round(done / plan.length * 100) : 0) + "%" })),
+        plan.length ? plan.map((x, i) => {
+          const k = key + "|" + x.id, hint = x.carry ? "جلسة مؤجلة · أولوية اليوم" : x.left !== null && x.left <= 3 ? "الامتحان قرّب، ركّز على المراجعة" : (i === 0 ? hintToday() : "");
+          return h("label", { class: "row" + (S.done[k] ? " done" : "") },
+            h("input", { type: "checkbox", checked: !!S.done[k], onchange: e => { e.target.checked ? S.done[k] = x.min : delete S.done[k]; commit(); } }),
+            h("span", { class: "dot", style: "background:" + PAL[x.c % 5] }),
+            h("span", { class: "t" }, h("span", { class: "n" }, x.name), hint && h("span", { class: "s" }, hint)),
+            h("span", { class: "mins" }, x.min + " د"));
+        }) : h("div", {}, h("p", { class: "muted" }, S.subjects.length ? (availableHours === 0 ? "اليوم يوم راحة حسب إعداداتك." : "خصص 15 دقيقة على الأقل لليوم عشان تظهر جلسة.") : "مفيش مواد لسه."), !S.subjects.length && h("button", { class: "sm", onclick: () => { tab = "subjects"; render(); } }, "أضف موادك"))),
+      missed.length ? missedPlanCard(missed, key) : null);
+  },
+
+  focus() {
+    return h("div", {}, head("جلسة التركيز 🎯", "مساحة هادية لمذاكرتك — كل جلسة كاملة تزرع شجرة في غابتك."),
+      h("div", { class: "card timer" }, h("h3", { id: "tMode" }, "جلسة تركيز"),
+        h("label", { class: "muted", style: "display:block;text-align:start;margin:10px 0" }, "مادة الشجرة", h("select", { id: "focusSubject", value: S.subjects.some(s => s.id === S.focusSid) ? S.focusSid : "", disabled: !!tInt || (tMode === "work" && tLeft !== workSecs()), onchange: e => { S.focusSid = e.target.value; store.save(S); } }, h("option", { value: "" }, "مذاكرة عامة"), S.subjects.map(s => h("option", { value: s.id }, s.name)))),
+        h("p", { class: "muted", style: "text-align:start;font-size:.85rem" }, "اختار المادة، وكل جلسة مكتملة هتنمّي شجرتها الخاصة."),
+        h("div", { class: "picks" }, DUR.map(([m, em]) => h("button", { class: "ghost sm" + ((S.tmin || 25) === m ? " on" : ""), onclick: () => {
+          if (tInt || tMode !== "work" || tLeft !== workSecs()) { toast("خلّص الجلسة الحالية أو دوس إعادة الأول"); return; }
+          S.tmin = m; store.save(S); tLeft = workSecs(); render(); } }, m + "د " + em))),
+        h("div", { class: "ring tring", id: "tRing", style: "--p:0;--c:var(--brand)" }, h("div", { class: "plant", id: "tPlant" }, "🌱"), h("div", { class: "time", id: "time" }, "25:00")),
+        h("div", { class: "inl" }, h("button", { id: "tGo", onclick: tToggle }, "ابدأ"), h("button", { class: "ghost", onclick: tReset }, "إعادة")), h("p", { class: "muted", id: "tCap" }, "")));
+  },
+
+  forest() {
+    const t = S.trees || [], plants = t.filter(x => !x.growthSession).concat(S.growthTrees || []), today = t.filter(x => iso(new Date(tm(x).t)) === iso(new Date())).length, tot = t.reduce((a, x) => a + tm(x).m, 0);
+    const streak = forestStreak(t), bestStreak = Math.max(S.bestForestStreak || 0, streak.current);
+
+    return h("div", {}, h("div", { class: "forest-head" }, h("div", {}, h("h2", {}, "الغابة 🌳"), h("p", { class: "muted" }, "اختار مادة قبل الجلسة، وكل مادة هتكبر شجرتها لوحدها. دوس على أي شجرة وشوف تفاصيلها.")), h("button", { class: "ghost forest-rank", title: "الترتيب", "aria-label": "افتح صفحة المنافسة والترتيب", onclick: () => goTab("leaderboard") }, "🏆")),
+      h("div", { class: "tiles" },
+        h("div", { class: "tile", style: "--a:var(--mint)" }, h("b", {}, plants.length), h("span", {}, "شجرة")),
+        h("div", { class: "tile", style: "--a:var(--sky)" }, h("b", {}, tot), h("span", {}, "دقيقة")),
+        h("div", { class: "tile", style: "--a:var(--sun)" }, h("b", {}, today), h("span", {}, "النهاردة"))),
+      h("div", { class: "card forest-streak" + (streak.plantedToday ? " active" : "") }, h("div", { class: "fire" }, "🔥"), h("div", {}, h("h3", {}, "ستريكك " + streak.current + " يوم"), h("p", { class: "muted" }, streak.plantedToday ? "زرعت النهارده — حافظت على الستريك!" : streak.current ? "ازرع شجرة النهارده عشان الستريك مايروحش." : "ابدأ ستريكك بجلسة تركيز مكتملة النهارده."), h("small", { class: "muted" }, "أعلى ستريك: " + bestStreak + " يوم"))),
+      h("div", { class: "card" }, h("h3", {}, "غابتك"),
+        plotView(plants),
+        treeFocus && plants.includes(treeFocus) ? h("div", { class: "note" }, h("b", {}, "🌳 " + (treeFocus.subjectName || "غابة عامة")), h("p", {}, treeFocus.growth ? "مرحلة الشجرة: " + ["", "بذرة", "برعم", "شتلة", "شجرة كاملة"][treeFocus.growth] + " · " + treeFocus.growth + " من 4 جلسات · " + (treeFocus.minutes || 0) + " دقيقة مذاكرة" : "شجرة مكتملة من جلساتك السابقة · " + tm(treeFocus).m + " دقيقة"), h("p", { class: "muted" }, "آخر جلسة: " + new Date(tm(treeFocus).t).toLocaleDateString("ar-EG", { day: "numeric", month: "long" }) + (treeFocus.rare ? " · شجرة نادرة 🌸" : ""))) : null,
+        h("button", { class: "sm", onclick: () => goTab("focus") }, "ابدأ جلسة تركيز")),
+
+
+      forestQuest(t, tot, today, plants));
+  },
+
+  leaderboard() {
+    if (!boardBusy && Date.now() - boardAt > 30000) loadBoard(sel === "global" ? "board" : "room", sel === "global" ? {} : { room: sel });
+    const nameI = h("input", { type: "text", maxlength: 20, placeholder: "اسمك في الترتيب", value: myName() });
+    nameI.onchange = () => { S.nick = nameI.value.trim().slice(0, 20); store.save(S); loadBoard("rename"); };
+    const codeI = h("input", { type: "text", maxlength: 12, placeholder: "كود المجموعة" });
+    const rooms = (board && board.rooms) || [];
+    const pick = (k, l) => h("button", { class: "ghost sm" + (sel === k ? " on" : ""), onclick: () => { sel = k; boardAt = 0; render(); } }, l);
+    let body;
+    if (!board) body = h("p", { class: "muted" }, "بحمّل الترتيب...");
+    else if (board.error) body = h("p", { class: "muted" }, "مش قادر أحمّل الترتيب دلوقتي، جرّب تاني بعد شوية.");
+    else if (sel === "global") body = [board.myRank ? h("p", { class: "muted" }, "ترتيبك: #" + board.myRank + " من " + board.players + " — دقايقك: " + board.myMinutes + " (" + board.myTrees + " 🌳)") : h("p", { class: "muted" }, "ازرع أول شجرة وادخل المنافسة!"), lbRows(board.top)];
+    else if (!board.roomData) body = h("p", { class: "muted" }, "بحمّل المجموعة...");
+    else body = [h("p", { class: "note" }, challenge(board.roomData.members)), lbRows(board.roomData.members),
+      h("div", { class: "inl" }, h("button", { onclick: () => invite(sel) }, "ادعي صحابك 📨"), h("button", { class: "ghost", onclick: () => leaveRoom(sel) }, "خروج من المجموعة"))];
+    return h("div", {}, head("المنافسة والترتيب 🏆", "تابع ترتيبك الأسبوعي وذاكر مع مجموعتك."),
+      h("button", { class: "ghost sm", onclick: () => goTab("forest") }, "رجوع للغابة 🌳"),
+      h("div", { class: "card" }, h("h3", {}, "المنافسة الأسبوعية 🏆"), h("p", { class: "muted" }, "الترتيب حسب دقايق التركيز في آخر 7 أيام"),
+        h("label", { class: "muted" }, "اسمك"), nameI,
+        h("div", { class: "picks" }, pick("global", "🌍 الكل"), rooms.map(r => pick(r.room, "👥 " + r.room + " (" + r.members + ")"))), body),
+      h("div", { class: "card" }, h("h3", {}, "مجموعات المذاكرة 👥"),
+        h("p", { class: "muted" }, "اعمل مجموعة وابعت الكود أو اللينك لصحابك، ويظهروا معاك من أي جهاز ويتنافسوا في ترتيب خاص بيكم."),
+        h("div", { class: "inl" }, h("button", { onclick: () => joinRoom(genCode()) }, "أنشئ مجموعة جديدة")),
+        h("div", { class: "inl", style: "margin-top:10px" }, codeI, h("button", { class: "ghost", onclick: () => joinRoom(codeI.value) }, "انضم بالكود"))));
+  },
+  ai() { return aiView(); },
+
+  subjects() {
+    const nameI = h("input", { type: "text", placeholder: "اسم المادة", required: true, "aria-label": "اسم المادة" });
+    const diff = h("select", { "aria-label": "الصعوبة" }, [["1", "سهلة"], ["2", "متوسطة"], ["3", "صعبة"]].map(([v, l]) => h("option", { value: v }, l)));
+    diff.value = "2";
+    return h("div", {}, head("موادي", "ضيف موادك ومحاضراتها وتابع اللي خلصته"),
+      h("form", { class: "card inl", onsubmit: e => { e.preventDefault(); S.subjects.push({ id: uid(), name: nameI.value.trim(), diff: +diff.value, c: S.subjects.length % 5, lectures: [] }); commit(); } },
+        nameI, diff, h("button", { type: "submit" }, "إضافة")),
+      !S.subjects.length && h("div", { class: "card empty" }, h("h3", {}, "لسه مفيش مواد"), h("p", { class: "muted" }, "أضف أول مادة من الخانة اللي فوق، وبعدها هنجهّز لك خطة يومية.")),
+      S.subjects.map(s => {
+        const dn = s.lectures.filter(l => l.done).length, li = h("input", { type: "text", placeholder: "اسم محاضرة جديدة", "aria-label": "محاضرة جديدة" });
+        return h("div", { class: "card", style: "border-inline-start:5px solid " + PAL[s.c % 5] },
+          h("div", { class: "inl" }, h("h3", { style: "flex:1;margin:0" }, s.name, h("span", { class: "chip" }, ["", "سهلة", "متوسطة", "صعبة"][s.diff])),
+            h("button", { class: "ghost sm", onclick: async () => { if (await sure("حذف المادة وكل محاضراتها وامتحاناتها؟")) { S.subjects = S.subjects.filter(x => x.id !== s.id); S.exams = S.exams.filter(e => e.sid !== s.id); commit(); } } }, "حذف")),
+          h("p", { class: "muted" }, "خلّصت " + dn + " من " + s.lectures.length + " محاضرة"),
+          h("div", { class: "bar" }, h("i", { style: "width:" + (s.lectures.length ? Math.round(dn / s.lectures.length * 100) : 0) + "%" })),
+          s.lectures.map(l => h("label", { class: "row" + (l.done ? " done" : "") },
+            h("input", { type: "checkbox", checked: l.done, onchange: e => { l.done = e.target.checked; commit(); } }), h("span", { class: "t n" }, l.title))),
+          h("form", { class: "inl", onsubmit: e => { e.preventDefault(); if (li.value.trim()) { s.lectures.push({ id: uid(), title: li.value.trim(), done: false }); commit(); } } },
+            li, h("button", { class: "sm", type: "submit" }, "إضافة")));
+      }));
+  },
+
+  schedule() {
+    const day = h("select", { "aria-label": "اليوم" }, DAYS.map((d, i) => h("option", { value: i }, d)));
+    const time = h("input", { type: "time", value: "09:00", required: true, "aria-label": "الوقت" });
+    const title = h("input", { type: "text", placeholder: "محاضرة (مثال: فيزياء)", required: true, "aria-label": "اسم المحاضرة" });
+    const now = new Date();
+    return h("div", {}, head("الجدول", "محاضراتك الثابتة وخطة المذاكرة في مكان واحد"),
+      h("form", { class: "card inl", onsubmit: e => { e.preventDefault(); S.classes.push({ id: uid(), day: +day.value, time: time.value, title: title.value.trim() }); commit(); } },
+        day, time, title, h("button", { type: "submit" }, "إضافة محاضرة")),
+      h("div", { class: "card" }, [0, 1, 2, 3, 4, 5, 6].map(i => {
+        const d = new Date(now); d.setDate(d.getDate() + i);
+        const cl = S.classes.filter(c => c.day === d.getDay()).sort((a, b) => a.time < b.time ? -1 : 1), pl = planFor(d);
+        return h("div", { class: "wd" + (i === 0 ? " today" : "") },
+          h("div", { class: "dl" }, h("b", {}, i === 0 ? "النهاردة" : DAYS[d.getDay()]), h("span", { class: "muted" }, d.getDate() + "/" + (d.getMonth() + 1))),
+          h("div", { class: "dc" },
+            cl.map(c => h("span", { class: "chip cls" }, h("b", {}, c.time), " " + c.title + " ", h("a", { href: "#", role: "button", "aria-label": "حذف", style: "color:inherit", onclick: e => { e.preventDefault(); S.classes = S.classes.filter(x => x.id !== c.id); commit(); } }, "✕"))),
+            pl.map(x => h("span", { class: "chip st" }, h("i", { class: "dot", style: "background:" + PAL[x.c % 5] }), x.name + (x.carry ? " · تعويض" : "") + " · " + x.min + "د")),
+            cl.length || pl.length ? null : h("span", { class: "muted" }, "فاضي")));
+      })));
+  },
+
+  exams() {
+    const sel = h("select", { "aria-label": "المادة" }, S.subjects.map(s => h("option", { value: s.id }, s.name)));
+    const date = h("input", { type: "date", required: true, "aria-label": "تاريخ الامتحان" });
+    const kind = h("input", { type: "text", placeholder: "نوعه (ميد، فاينال...)", "aria-label": "نوع الامتحان" });
+    const key = iso(new Date());
+    return h("div", {}, head("الامتحانات", "سجّل مواعيدك والخطة هتتظبط على قرب كل امتحان"),
+      S.subjects.length ? h("form", { class: "card inl", onsubmit: e => { e.preventDefault(); S.exams.push({ id: uid(), sid: sel.value, date: date.value, kind: kind.value.trim() }); commit(); } },
+        sel, date, kind, h("button", { type: "submit" }, "إضافة")) : h("p", { class: "note" }, "ضيف موادك الأول من صفحة «موادي»."),
+      S.exams.slice().sort((a, b) => a.date < b.date ? -1 : 1).map(e => {
+        const d = dnum(e.date) - dnum(key);
+        return h("div", { class: "card exam" + (d >= 0 && d <= 3 ? " hot" : "") + (d < 0 ? " past" : "") },
+          h("div", { class: "d" }, d < 0 ? h("b", { class: "t" }, "عدّى") : d === 0 ? h("b", { class: "t" }, "النهاردة") : [h("b", {}, d), h("span", {}, "يوم")]),
+          h("div", { class: "i", style: "flex:1" }, h("h3", {}, (subj(e.sid)?.name || "") + (e.kind ? " — " + e.kind : "")), h("span", { class: "muted" }, new Date(e.date + "T00:00:00").toLocaleDateString("ar-EG-u-nu-latn", { weekday: "long", day: "numeric", month: "long" }))),
+          h("button", { class: "ghost sm", onclick: () => { S.exams = S.exams.filter(x => x.id !== e.id); commit(); } }, "حذف"));
+      }));
+  },
+
+  progress() {
+    const st = stats(), now = new Date();
+    const days = [6, 5, 4, 3, 2, 1, 0].map(i => { const d = new Date(now); d.setDate(d.getDate() - i); const k = iso(d); return { d, m: Object.entries(S.done).filter(([x]) => x.startsWith(k + "|")).reduce((a, [, v]) => a + v, 0) }; });
+    const max = Math.max(30, ...days.map(x => x.m));
+    return h("div", {}, head("تقدمي", "إنجازاتك ومستواك وأيام التزامك"),
+      h("div", { class: "card lvl" }, h("div", { class: "ring", style: "--p:" + (st.xp % 100) + ";--c:var(--sun)", role: "img", "aria-label": "المستوى " + st.lvl }, h("b", {}, st.lvl)),
+        h("div", {}, h("h3", {}, "المستوى " + st.lvl), h("p", { class: "muted" }, st.xp + " نقطة — فاضل " + (100 - st.xp % 100) + " للمستوى الجاي."), h("p", { class: "muted" }, "كل 3 دقايق مذاكرة = نقطة، وكل محاضرة = 15 نقطة."))),
+      h("div", { class: "tiles home-stats" },
+        h("div", { class: "tile", style: "--a:var(--brand)" }, h("b", {}, st.streak), h("span", { class: "metric-label" }, h("span", { class: "metric-icon" }, ico("forest")), "ستريك الغابة")),
+        h("div", { class: "tile", style: "--a:var(--pink)" }, h("b", {}, st.lec), h("span", {}, "محاضرة خلصت")),
+        h("div", { class: "tile", style: "--a:var(--mint)" }, h("b", {}, st.tasks), h("span", {}, "مهمة خلصت"))),
+      h("div", { class: "card" }, h("h3", {}, "مذاكرتك آخر 7 أيام"), h("p", { class: "muted" }, "المجموع " + days.reduce((a, x) => a + x.m, 0) + " دقيقة"),
+        h("div", { class: "bars" }, days.map((x, i) => h("div", { class: i === 6 ? "today" : "" }, x.m, h("em", { style: "height:" + Math.round(x.m / max * 80) + "px" }), DAYS[x.d.getDay()])))),
+      h("div", { class: "card" }, h("div", { class: "hd" }, h("h3", {}, "إنجازاتك"), h("span", { class: "muted" }, BADGES.filter(b => b[2](st)).length + " من " + BADGES.length)),
+        h("div", { class: "badges" }, BADGES.map(([ic, t, f]) => h("div", { class: "badge" + (f(st) ? "" : " off") }, h("i", {}, ic), t)))));
+  },
+
+  account() {
+    const me = S.profile, th = S.theme || "auto";
+    return h("div", {}, head("حسابي", "بياناتك وتفضيلاتك"),
+      h("div", { class: "card who" }, h("span", { class: "av" }, (me.name || "?").trim().charAt(0)),
+        h("div", {}, h("h3", {}, me.name), h("span", { class: "muted" }, [me.uni, me.year && "السنة " + me.year].filter(Boolean).join(" — ")))),
+      h("div", { class: "card" }, h("h3", {}, "المظهر"),
+        h("div", { class: "seg", role: "group" }, [["auto", "تلقائي"], ["light", "فاتح"], ["dark", "داكن"]].map(([k, l]) => h("button", { type: "button", class: "ghost sm" + (th === k ? " on" : ""), "aria-pressed": String(th === k), onclick: () => { S.theme = k; store.save(S); render(); } }, l)))),
+      profileForm(p => { S.profile = p; commit(); toast("اتحفظت بياناتك"); }, "حفظ التعديلات"),
+      notifCard(),
+      h("div", { class: "card" }, h("h3", {}, "بياناتك"),
+        h("p", { class: "muted" }, "بياناتك محفوظة على الجهاز ده."),
+        h("div", { class: "inl" },
+          h("button", { class: "ghost", onclick: async () => { try { await navigator.clipboard.writeText(JSON.stringify(S)); toast("اتنسخت نسخة احتياطية من بياناتك"); } catch (e) { toast("تعذر النسخ"); } } }, "انسخ نسخة احتياطية"),
+          h("button", { class: "ghost", onclick: async () => { if (await sure("هتتمسح كل بياناتك. متأكد؟")) { store.clear(); S = { profile: null, subjects: [], exams: [], classes: [], done: {} }; tab = "home"; tReset(); render(); } } }, "ابدأ من جديد"))));
+  }
+};
+
+/* ---------- المساعد الذكي ---------- */
+let sample = null, hist = [], busy = false, live = null;
+(window.claude && claude.use ? claude.use("sample").catch(() => null) : Promise.resolve(null)).then(s => { sample = s; if (tab === "ai") render(); });
+const SYS = "أنت UniMate، مساعد دراسي ودود لطلاب الجامعة في مصر. اتكلم بالعامية المصرية البسيطة وخلّي إجاباتك عملية وقصيرة (أقل من 120 كلمة) من غير مقدمات. بيانات الطالب: ";
+function ctxData() {
+  const p = S.profile;
+  return { الاسم: p.name, الجامعة: p.uni, السنة: p.year, ساعات_يوميا: p.hours, اكبر_مشكلة: probs(p).join("، "),
+    المواد: S.subjects.map(s => ({ الاسم: s.name, الصعوبة: s.diff, محاضرات_متبقية: s.lectures.filter(l => !l.done).length })),
+    الامتحانات: S.exams.map(e => ({ المادة: subj(e.sid)?.name, التاريخ: e.date })),
+    أولوية_الخطة: planModeName(p.planMode || "balanced"),
+    ساعات_المذاكرة_حسب_اليوم: p.dayHours || null,
+    خطة_النهاردة: planFor(new Date()).map(x => ({ المادة: x.name, دقائق: x.min })) };
+}
+const context = () => SYS + JSON.stringify(ctxData());
+const chatMsgs = () => hist.slice(0, -1).filter(m => !m.err);
+async function callAI(msgs, onText) {
+  if (AI_URL) {
+    let r;
+    try {
+      r = await fetch(AI_URL, { method: "POST", headers: { "Content-Type": "application/json", apikey: AI_KEY, Authorization: "Bearer " + AI_KEY },
+        body: JSON.stringify({ messages: chatMsgs().map(({ role, content }) => ({ role, content })), context: ctxData() }) });
+    } catch (e) { throw { code: "failed", detail: "network: " + (e && e.message) }; }
+    if (r.status === 429) throw { code: "rate_limited" };
+    if (!r.ok) { let d = ""; try { const j = await r.json(); d = j.error || j.message || JSON.stringify(j); } catch (e) {} throw { code: "failed", detail: r.status + " - " + d }; }
+    const j = await r.json(); onText({ text: j.text }); return { text: j.text };
+  }
+  return sample(msgs, { cache: false, onText });
+}
+async function ask(text) {
+  if (!(AI_URL || sample) || busy || !text.trim()) return;
+  busy = true; hist.push({ role: "user", content: text }, { role: "assistant", content: "بفكر..." }); render();
+  const msgs = chatMsgs().map((m, i) => i === 0 ? { role: "user", content: context() + "\n\nسؤال الطالب: " + m.content } : m);
+  try {
+    const r = await callAI(msgs, ({ text }) => { hist[hist.length - 1].content = text; if (live) { live.textContent = text; live.parentNode.scrollTop = 1e6; } });
+    hist[hist.length - 1].content = r.text;
+    if (hist.length > 12) hist.splice(0, 2);
+  } catch (e) {
+    hist.splice(-2); hist.push({ role: "assistant", content: e && e.code === "rate_limited" ? "الطلبات كتير دلوقتي، جرّب بعد شوية." : "المساعد مش متاح حاليًا. جرّب تاني بعد شوية." + (e && e.detail ? " [" + e.detail + "]" : ""), err: true });
+  }
+  busy = false; render();
+}
+/* ---------- الاختبارات الذكية ---------- */
+const QUIZ_URL = AI_URL.replace("quick-service", "quiz");
+let aiMode = "chat";
+const Q = { stage: "setup", text: "", files: [], count: 10, diff: "متوسط", short: true, subj: "", quiz: null, ans: [], i: 0, review: null, revErr: false, saved: false, busy: false, err: "" };
+const readB64 = f => new Promise((ok, no) => { const r = new FileReader(); r.onload = () => ok(String(r.result).split(",")[1]); r.onerror = no; r.readAsDataURL(f); });
+async function quizCall(body) {
+  const r = await fetch(QUIZ_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  const j = await r.json().catch(() => ({})); if (!r.ok) { const er = new Error(j.error || r.status); er.detail = j.detail; throw er; } return j;
+}
+async function onFiles(e) {
+  for (const f of [...e.target.files]) {
+    if (/\.(txt|md)$/i.test(f.name) || f.type === "text/plain") { if (f.size > 2e6) { toast(f.name + " كبير أوي"); continue; } Q.text += (Q.text ? "\n\n" : "") + await f.text(); }
+    else if (["application/pdf", "image/png", "image/jpeg", "image/webp"].includes(f.type)) {
+      if (f.size > 8e6) { toast(f.name + " أكبر من 8MB"); continue; }
+      if (Q.files.length >= 4) { toast("الحد الأقصى 4 ملفات"); break; }
+      Q.files.push({ name: f.name, mime: f.type, file: f });
+    } else toast(f.name + ": النوع ده مش مدعوم (PDF أو صور أو txt)");
+  }
+  e.target.value = ""; render();
+}
+async function genQuiz() {
+  if (Q.busy) return;
+  if (!Q.text.trim() && !Q.files.length) { toast("ارفع المادة أو الصق النص الأول"); return; }
+  Q.busy = true; Q.err = ""; render();
+  try {
+    const files = await Promise.all(Q.files.map(async f => ({ mime: f.mime, data: await readB64(f.file) })));
+    const r = await quizCall({ action: "generate", text: Q.text, files, count: Q.count, short: Q.short ? 2 : 0, difficulty: Q.diff, subject: Q.subj });
+    Q.quiz = r; Q.ans = r.questions.map(() => null); Q.i = 0; Q.review = null; Q.revErr = false; Q.saved = false; Q.stage = "taking";
+  } catch (e) { Q.err = e.message === "bad_quiz" ? "معرفتش أطلّع أسئلة كويسة من المادة دي. جرّب مادة أطول أو أوضح." + (e.detail ? " [" + JSON.stringify(e.detail).slice(0, 500) + "]" : "") : /timeout|504/.test(e.message) ? "الطلب أخد وقت أطول من اللازم. جرّب ملف أصغر (صفحات أقل) أو اعمل الاختبار على جزء من المادة." : "تعذر توليد الاختبار (" + e.message + "). جرّب تاني."; }
+  Q.busy = false; render();
+}
+async function submitQuiz() {
+  const un = Q.ans.filter(a => a == null || a === "").length;
+  if (un && !(await sure("لسه فاضل " + un + " سؤال من غير إجابة. تسلّم كده؟"))) return;
+  Q.stage = "result"; Q.review = null; Q.revErr = false; Q.saved = false; render(); doReview();
+}
+const qPts = () => Q.quiz.questions.reduce((a, x, i) => a + (x.type === "mcq" ? (Q.ans[i] === x.answer ? 1 : 0) : ((Q.review && (Q.review.items.find(r => r.index === i) || {}).score) || 0)), 0);
+async function doReview() {
+  const items = Q.quiz.questions.map((x, i) => x.type === "mcq"
+    ? { type: "mcq", topic: x.topic, q: x.q, student: Q.ans[i] == null ? "(مفيش إجابة)" : x.options[Q.ans[i]], right: x.options[x.answer], correct: Q.ans[i] === x.answer }
+    : { type: "short", topic: x.topic, q: x.q, student: Q.ans[i] || "(مفيش إجابة)", right: x.model_answer });
+  try { Q.review = await quizCall({ action: "review", items }); } catch (e) { Q.revErr = true; }
+  if (!Q.saved) { Q.saved = true; S.quizzes = S.quizzes || []; S.quizzes.unshift({ d: iso(new Date()), s: Q.subj, t: Q.quiz.title, p: Math.round(qPts() / Q.quiz.questions.length * 100), n: Q.quiz.questions.length }); S.quizzes = S.quizzes.slice(0, 20); store.save(S); }
+  render();
+}
+const LET = ["أ", "ب", "ج", "د", "هـ", "و"];
+const qSeg = (val, opts, set) => h("div", { class: "seg", role: "group" }, opts.map(([v, l]) => h("button", { type: "button", class: "ghost sm" + (String(val) === String(v) ? " on" : ""), "aria-pressed": String(String(val) === String(v)), onclick: () => { set(v); render(); } }, l)));
+const qSel = (val, opts, set) => h("select", { onchange: e => set(e.target.value), value: String(val) }, opts.map(([v, l]) => h("option", { value: v }, l)));
+function quizSetup() {
+  const ta = h("textarea", { rows: 6, placeholder: "الصق نص المادة هنا... أو ارفع ملفات تحت", oninput: e => { Q.text = e.target.value; }, value: Q.text });
+  const hist = S.quizzes || [];
+  return h("div", {},
+    h("div", { class: "card" }, h("h3", {}, "اختبرني في مادتي 📝"),
+      h("p", { class: "muted" }, "ارفع المحاضرة (PDF أو صور) أو الصق النص، والـAI يعملك اختبار منها ويقيّمك في الآخر."),
+      h("label", { class: "muted" }, "المادة (اختياري)"), qSel(Q.subj, [["", "من غير تحديد"], ...S.subjects.map(s => [s.name, s.name])], v => { Q.subj = v; }),
+      ta,
+      h("label", { class: "muted", style: "display:block;margin-top:8px" }, "ملفات (PDF، صور، txt) — لحد 4 ملفات، كل واحد أقل من 8MB"),
+      h("input", { type: "file", accept: ".pdf,.png,.jpg,.jpeg,.webp,.txt,.md", multiple: true, onchange: onFiles }),
+      Q.files.map((f, i) => h("div", { class: "lb" }, h("span", { class: "n" }, "📎 " + f.name), h("button", { class: "ghost sm", onclick: () => { Q.files.splice(i, 1); render(); } }, "حذف"))),
+      h("div", { class: "stack" },
+        h("div", {}, h("label", { class: "muted" }, "عدد الأسئلة"), qSeg(Q.count, [[5, "5"], [10, "10"], [15, "15"]], v => { Q.count = +v; })),
+        h("div", {}, h("label", { class: "muted" }, "الصعوبة"), qSeg(Q.diff, ["سهل", "متوسط", "صعب"].map(x => [x, x]), v => { Q.diff = v; }))),
+      h("label", { class: "opt", style: "margin-top:10px" }, h("input", { type: "checkbox", checked: Q.short, onchange: e => { Q.short = e.target.checked; } }), "ضيف سؤالين مقاليين قصيرين يصححهم الـAI"),
+      Q.err && h("p", { class: "note" }, Q.err),
+      h("button", { class: "big", disabled: Q.busy, onclick: genQuiz }, Q.busy ? "بجهّز الاختبار... ممكن ياخد لحد دقيقة 🧠" : "ولّد الاختبار")),
+    hist.length ? h("div", { class: "card" }, h("h3", {}, "آخر اختباراتك"), hist.slice(0, 6).map(r => h("div", { class: "lb" }, h("span", { class: "n" }, (r.t || "اختبار") + (r.s ? " — " + r.s : "") + " · " + r.d), h("span", {}, r.p + "%")))) : null);
+}
+function quizTake() {
+  const qs = Q.quiz.questions, x = qs[Q.i], n = qs.length, last = Q.i === n - 1;
+  const body = x.type === "mcq"
+    ? x.options.map((o, k) => h("label", { class: "opt mc" }, h("input", { type: "radio", name: "qa", checked: Q.ans[Q.i] === k, onchange: () => { Q.ans[Q.i] = k; } }), h("span", { class: "lt" }, LET[k] || k + 1), h("span", {}, o)))
+    : h("textarea", { rows: 5, placeholder: "اكتب إجابتك هنا...", oninput: e => { Q.ans[Q.i] = e.target.value; }, value: Q.ans[Q.i] || "" });
+  return h("div", {}, h("div", { class: "card" },
+    h("p", { class: "muted" }, "سؤال " + (Q.i + 1) + " من " + n + (x.type === "short" ? " — مقالي" : "") + " · " + x.topic),
+    h("div", { class: "bar" }, h("i", { style: "width:" + Math.round((Q.i + 1) / n * 100) + "%" })),
+    h("h3", { class: "qq" }, x.q), body,
+    h("div", { class: "inl", style: "margin-top:10px" },
+      h("button", { class: "ghost", disabled: Q.i === 0, onclick: () => { Q.i--; render(); } }, "السابق"),
+      last ? h("button", { onclick: submitQuiz }, "سلّم الاختبار ✅") : h("button", { onclick: () => { Q.i++; render(); } }, "التالي"))),
+    h("button", { class: "ghost sm", onclick: async () => { if (await sure("تلغي الاختبار؟")) { Q.stage = "setup"; render(); } } }, "إلغاء الاختبار"));
+}
+function quizResult() {
+  const qs = Q.quiz.questions, rv = Q.review, pct = Math.round(qPts() / qs.length * 100), o = rv && rv.overall;
+  const li = (icon, arr, c) => (arr || []).length ? h("div", { class: "grp " + c }, arr.map(t => h("p", {}, icon + " " + t))) : null;
+  const sc = i => rv ? (rv.items.find(r => r.index === i) || {}) : {};
+  return h("div", {},
+    h("div", { class: "card" }, h("h3", { style: "text-align:center" }, "نتيجتك"), h("div", { class: "ring", style: "--p:" + pct + ";--c:" + (pct >= 70 ? "var(--mint)" : pct >= 40 ? "var(--sun)" : "var(--pink)") }, h("b", {}, pct + "%")),
+      h("p", { class: "muted", style: "text-align:center" }, o ? "المستوى: " + o.level : Q.revErr ? "" : "بقيّمك وبصحّح الأسئلة المقالية..."),
+      Q.revErr && h("div", {}, h("p", { class: "note" }, "تعذر التقييم الذكي. نتيجة الاختيارات ظاهرة، والمقالي ماتصححش."), h("button", { class: "sm", onclick: () => { Q.revErr = false; render(); doReview(); } }, "جرّب التقييم تاني")),
+      o && h("div", {}, h("p", {}, o.summary), li("✅", o.strengths, "ok"), li("⚠️", o.weaknesses, "warn"), o.advice.length ? h("h3", { style: "margin-top:10px" }, "نصايح للمراجعة") : null, li("💡", o.advice, "tip"))),
+    qs.map((x, i) => {
+      const ok = x.type === "mcq" ? Q.ans[i] === x.answer : (sc(i).score ?? 0) >= 1, part = x.type === "short" && sc(i).score > 0 && sc(i).score < 1;
+      return h("div", { class: "card qr " + (ok ? "ok" : part ? "part" : "bad") }, h("p", { class: "muted" }, (ok ? "✅" : part ? "🟡" : "❌") + " سؤال " + (i + 1) + " · " + x.topic), h("h3", {}, x.q),
+        x.type === "mcq" ? [h("p", { class: "ans " + (ok ? "ok" : "bad") }, "إجابتك: " + (Q.ans[i] == null ? "—" : x.options[Q.ans[i]])), ok ? null : h("p", { class: "ans ok" }, "الصح: " + x.options[x.answer])]
+          : [h("p", { class: "ans" }, "إجابتك: " + (Q.ans[i] || "—")), h("p", { class: "ans ok" }, "الإجابة النموذجية: " + x.model_answer), sc(i).feedback ? h("p", { class: "note" }, sc(i).feedback) : null],
+        h("p", { class: "muted" }, "💬 " + x.explanation));
+    }),
+    h("div", { class: "inl" },
+      h("button", { onclick: () => { Q.stage = "setup"; Q.quiz = null; render(); } }, "اختبار جديد"),
+      h("button", { class: "ghost", onclick: () => { Q.ans = Q.quiz.questions.map(() => null); Q.i = 0; Q.review = null; Q.saved = false; Q.stage = "taking"; render(); } }, "أعد نفس الأسئلة")));
+}
+const quizView = () => Q.stage === "taking" && Q.quiz ? quizTake() : Q.stage === "result" && Q.quiz ? quizResult() : quizSetup();
+function aiView() {
+  const seg = h("div", { class: "picks" }, [["chat", "💬 اسأل"], ["quiz", "📝 اختبرني"]].map(([k, l]) => h("button", { class: "ghost sm" + (aiMode === k ? " on" : ""), onclick: () => { aiMode = k; render(); } }, l)));
+  return h("div", {}, seg, aiMode === "quiz" ? quizView() : chatView());
+}
+function chatView() {
+  if (!(AI_URL || sample)) return h("div", {}, head("المساعد الذكي", "اسأل عن خطتك أو أي حاجة في مذاكرتك"), h("p", { class: "note" }, "المساعد مش متاح في الجلسة دي. هيشتغل لما تفتح الصفحة المنشورة على Claude."));
+  const q = h("input", { type: "text", placeholder: "اسأل عن أي حاجة في مذاكرتك", "aria-label": "سؤالك" });
+  const sendIc = () => { const n = document.createElement("span"); n.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>'; return n; };
+  const go = () => { const v = q.value; q.value = ""; ask(v); };
+  q.addEventListener("keydown", e => { if (e.key === "Enter") go(); });
+  const chat = h("div", { class: "chat", "aria-live": "polite" }, hist.length ? hist.map(m => h("div", { class: "msg " + (m.role === "user" ? "u" : "a") }, m.content)) : h("div", { class: "msg a" }, "أهلاً! أنا مساعدك الجامعي 👋\nاسألني عن خطتك، أو ازاي تنظّم مذاكرتك، أو اختار اقتراح من فوق."));
+  live = hist.length && hist[hist.length - 1].role === "assistant" ? chat.lastChild : null;
+  setTimeout(() => chat.scrollTop = 1e6);
+  return h("div", {}, head("المساعد الذكي", "اسأل عن خطتك أو أي حاجة في مذاكرتك"),
+    h("div", { class: "sugg" }, ["حلّل خطتي وادّيني نصيحة", "ازاي أبطّل تأجيل؟", "اعملّي خطة مراجعة لأقرب امتحان"].map(t => h("button", { class: "ghost sm", disabled: busy, onclick: () => ask(t) }, t))),
+    h("div", { class: "card chatcard" }, chat, h("div", { class: "composer" }, q, h("button", { class: "send", "aria-label": "إرسال", disabled: busy, onclick: go }, sendIc()))));
+}
+
+/* ---------- التشغيل ---------- */
+(() => { const m = location.hash.match(/^#join=([A-Za-z0-9]{4,12})$/); if (m) { S.pendingJoin = m[1].toUpperCase(); store.save(S); history.replaceState(null, "", location.pathname + location.search); } })();
+const PRIMARY = ["home", "focus", "forest", "ai", "subjects"];
+let moreOpen = false;
+function goTab(k) { tab = k; moreOpen = false; render(); window.scrollTo(0, 0); }
+function paintMore() {
+  const m = $("more"), b = $("nav").querySelector(".more");
+  m.hidden = !moreOpen || !S.profile;
+  if (b) b.setAttribute("aria-expanded", String(moreOpen && !m.hidden));
+  if (m.hidden) { m.replaceChildren(); return; }
+  m.replaceChildren(h("div", { class: "moreback", onclick: () => { moreOpen = false; paintMore(); } }),
+    h("div", { class: "moremenu", role: "menu" }, TABS.filter(([k]) => !PRIMARY.includes(k)).map(([k, l]) => h("button", { role: "menuitem", "aria-current": k === tab ? "page" : null, onclick: () => goTab(k) }, ico(k), l))));
+}
+addEventListener("keydown", e => { if (e.key === "Escape" && moreOpen) { moreOpen = false; paintMore(); } });
+function render() {
+  applyTheme();
+  const nav = $("nav"), v = $("view");
+  if (!S.profile) {
+    moreOpen = false; $("more").hidden = true;
+    nav.hidden = true;
+    v.replaceChildren(h("div", {}, h("div", { class: "card hero" }, h("h2", {}, "أهلاً بيك في UniMate AI"), h("p", {}, "مساعدك الجامعي الذكي لتنظيم المذاكرة."),
+      h("ul", { class: "feat" }, h("li", {}, "خطة يومية بتتغير مع قرب امتحاناتك"), h("li", {}, "متابعة محاضراتك وإنجازاتك"), h("li", {}, "مساعد ذكي يجاوب أسئلتك"))),
+      profileForm(p => { S.profile = p; tab = "subjects"; commit(); }, "يلا نبدأ")));
+    return;
+  }
+  nav.hidden = false;
+  if (S.pendingJoin) { const c = S.pendingJoin; S.pendingJoin = null; store.save(S); tab = "forest"; sel = "global"; sure("تنضم لمجموعة المذاكرة " + c + " 👥؟").then(ok => { if (ok) joinRoom(c); }); }
+  nav.replaceChildren(h("div", { class: "bside" }, h("span", { class: "logo" }, "U"), "UniMate AI"), ...TABS.map(([k, l]) => h("button", { class: PRIMARY.includes(k) ? "" : "sec", "aria-current": k === tab ? "page" : null, onclick: () => goTab(k) }, ico(k), l)),
+    h("button", { class: "more" + (PRIMARY.includes(tab) ? "" : " cur"), "aria-label": "المزيد", "aria-haspopup": "true", "aria-expanded": "false", onclick: () => { moreOpen = !moreOpen; paintMore(); } }, ico("more"), "المزيد"));
+  paintMore();
+  v.replaceChildren(views[tab]());
+  v.append(h("p", { class: "muted", style: "text-align:center;font-size:.75rem;margin-top:18px" }, "الإصدار 2026.10.22 — اختبارات v2"));
+  tPaint();
+}
+render();
+</script>
+<script>if("serviceWorker"in navigator&&location.protocol.startsWith("http"))addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));</script>
+</body>
+</html>
