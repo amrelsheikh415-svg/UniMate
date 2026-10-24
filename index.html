@@ -50,7 +50,7 @@ button.ghost:hover{background:var(--soft);filter:none}
 button.sm{padding:5px 14px;font-size:.88rem}
 :focus-visible{outline:3px solid var(--sky);outline-offset:2px}
 label.f{display:block;font-weight:600;margin-bottom:10px;font-size:.94rem}
-input[type=text],input[type=number],input[type=date],input[type=time],select{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:9px 12px;margin-top:4px}
+input[type=text],input[type=password],input[type=number],input[type=date],input[type=time],select{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:9px 12px;margin-top:4px}
 input:focus,select:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px var(--soft)}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .inl{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap}
@@ -277,9 +277,40 @@ input[type=text],input[type=number],input[type=date],input[type=time],select,tex
 .bars .today{color:var(--ink);font-weight:600}
 .badge:not(.off){border:1px solid color-mix(in srgb,var(--brand) 25%,transparent)}
 .badge.off{background:transparent;border:1px dashed var(--line)}
+/* شاشة الدخول */
+body.auth{padding-inline-start:0}
+body.auth .top{display:none}
+body.auth .wrap{padding:24px 16px}
+.auth-wrap{min-height:calc(100vh - 48px);min-height:calc(100dvh - 48px);display:grid;place-items:center}
+.auth-card{width:100%;max-width:420px;background:var(--surface);border:1px solid var(--line);border-radius:24px;overflow:hidden;box-shadow:0 24px 48px -28px rgba(15,23,42,.35)}
+.auth-head{background:linear-gradient(160deg,#14235a,var(--brand) 60%,#3f74ff);color:#fff;padding:30px 24px 26px;text-align:center}
+.auth-head .logo{display:grid;width:58px;height:58px;border-radius:17px;font-size:1.8rem;margin:0 auto 12px;background:rgba(255,255,255,.16);box-shadow:inset 0 0 0 1px rgba(255,255,255,.3)}
+.auth-head h2{font-size:1.5rem;margin-bottom:2px}
+.auth-head p{opacity:.88;font-size:.95rem}
+.auth-body{padding:20px 22px 22px}
+.auth-body .seg{margin:0 0 20px}
+.auth-f{margin-bottom:14px}
+.auth-f label{display:block;font-weight:600;font-size:.92rem;margin-bottom:6px}
+.auth-f input{width:100%;margin:0;font:inherit;font-size:1rem;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink)}
+.auth-f input:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px var(--soft)}
+.auth-f small{display:block;margin-top:6px;font-size:.82rem;color:var(--muted);min-height:1.3em}
+.auth-f small.ok{color:var(--mint)}
+.auth-f small.bad{color:var(--pink)}
+.pw{position:relative}
+.pw input{padding-left:76px}
+.pw button{position:absolute;top:6px;bottom:6px;left:6px;padding:0 12px;background:transparent;color:var(--brand);box-shadow:none;font-size:.85rem;border-radius:8px}
+.pw button:hover{background:var(--soft);filter:none}
+.auth-err{background:color-mix(in srgb,var(--pink) 12%,transparent);color:var(--pink);border-radius:12px;padding:10px 14px;margin-bottom:14px;font-size:.92rem;font-weight:600}
+.auth-go{width:100%;padding:13px 20px;font-size:1.02rem}
+.auth-forgot{margin-top:14px;text-align:center;font-size:.85rem;color:var(--muted)}
+.ann{display:flex;gap:10px;align-items:flex-start;background:var(--soft);border:1px solid var(--brand);color:var(--ink);border-radius:14px;padding:10px 14px;margin-bottom:12px;font-weight:600}
+.ann span{flex:1}
+.ann button{background:transparent;color:var(--muted);box-shadow:none;padding:0 6px;font-size:1rem}
+.auth-foot{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 16px;margin-top:18px;font-size:.82rem;color:var(--muted)}
 /* حسابي والترحيب */
 .who{display:flex;align-items:center;gap:14px}
 .who h3{margin:0}
+.vbadge{display:inline-grid;place-items:center;width:1.15em;height:1.15em;margin-inline-start:.4em;border-radius:50%;background:#1d9bf0;color:#fff;font:700 .7em/1 system-ui,sans-serif;vertical-align:middle}
 .av{flex:0 0 auto;width:52px;height:52px;border-radius:50%;display:grid;place-items:center;background:var(--brand);color:#fff;font-family:var(--fd);font-weight:600;font-size:1.4rem}
 .hero .feat{margin:12px 0 0}
 .hero .feat li{color:#fff;opacity:.92}
@@ -502,9 +533,155 @@ function h(tag, p = {}, ...kids) {
 /* طبقة التخزين: دلوقتي المتصفح، وبعدين تتبدّل بـ Supabase من غير ما نغيّر باقي الكود */
 const store = {
   load() { try { return JSON.parse(localStorage.getItem(KEY)); } catch (e) { return null; } },
-  save(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} },
+  save(s) { try { s._u = Date.now(); localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} schedulePush(); },
   clear() { try { localStorage.removeItem(KEY); } catch (e) {} }
 };
+/* ---------- الحسابات والمزامنة (Supabase Auth) ---------- */
+const SB = AI_URL.split("/functions")[0], AK = "unimate-auth", US = "@user.unimate.app";
+const auth = { get() { try { return JSON.parse(localStorage.getItem(AK)); } catch (e) { return null; } }, set(v) { try { v ? localStorage.setItem(AK, JSON.stringify(v)) : localStorage.removeItem(AK); } catch (e) {} } };
+const validUser = u => /^(?=.*[a-z])[a-z0-9._]{3,20}$/.test(u) && !/^\.|\.$|\.\./.test(u);
+const toId = v => { v = String(v || "").trim().toLowerCase(); if (v.includes("@") && v[0] !== "@") return v; v = v.replace(/^@/, ""); return validUser(v) ? v + US : null; };
+const niceId = e => e && e.endsWith(US) ? "@" + e.slice(0, -US.length) : (e || "");
+const authMsg = (j, st) => { const t = ((j && (j.msg || j.error_description || j.message)) || "") + " " + ((j && j.error_code) || "");
+  if (/invalid login|invalid_credentials/i.test(t)) return "اسم المستخدم أو كلمة المرور غلط.";
+  if (/already registered|user_already_exists/i.test(t)) return "اسم المستخدم ده محجوز، اختار غيره.";
+  if (/at least 6|weak_password|password should/i.test(t)) return "كلمة المرور لازم تكون 6 حروف على الأقل.";
+  if (/banned/i.test(t)) return "الحساب ده محظور.";
+  if (/locked/i.test(t)) return "الحساب اتقفل مؤقتًا بسبب محاولات غلط كتير. جرّب بعد " + ((j && j.retry_min) || 15) + " دقيقة.";
+  if (/rate limit|too many/i.test(t)) return "محاولات كتير، استنى شوية وجرّب تاني.";
+  if (/email_address_invalid/i.test(t)) return "التسجيل مش متاح دلوقتي، جرّب بعد شوية.";
+  return "حصل خطأ (" + st + (j && j.error_code ? ": " + j.error_code : "") + "). جرّب تاني."; };
+async function authReq(path, body) {
+  const r = await fetch(path.startsWith("token?grant_type=password") ? SB + "/functions/v1/login" : SB + "/auth/v1/" + path, { method: "POST", headers: { "Content-Type": "application/json", apikey: AI_KEY }, body: JSON.stringify(body) });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) { const e = new Error(authMsg(j, r.status)); e.status = r.status; throw e; }
+  return j;
+}
+const saveSess = j => auth.set({ access_token: j.access_token, refresh_token: j.refresh_token, expires_at: Math.floor(Date.now() / 1000) + (j.expires_in || 3600), uid: j.user.id, email: j.user.email });
+let refP;
+function doRefresh() { if (!refP) { const a = auth.get(); refP = authReq("token?grant_type=refresh_token", { refresh_token: a.refresh_token }).then(saveSess).finally(() => { refP = null; }); } return refP; }
+async function checkAccount() {
+  if (!auth.get()) return;
+  try { await doRefresh(); }
+  catch (e) { if (e.status >= 400 && e.status < 500) { authMode = "login"; authErr = "الحساب ده اتحظر أو اتحذف."; await logout(true); } }
+}
+async function getTok() {
+  const a = auth.get(); if (!a) return null;
+  if (a.expires_at - 60 > Date.now() / 1000) return a.access_token;
+  try { await doRefresh(); return auth.get().access_token; }
+  catch (e) { if (e.status >= 400 && e.status < 500) { await logout(true); return null; } return a.access_token; }
+}
+async function rest(path, opts = {}) {
+  const t = await getTok(); if (!t) throw new Error("no session");
+  return fetch(SB + "/rest/v1/" + path, { ...opts, headers: { apikey: AI_KEY, Authorization: "Bearer " + t, "Content-Type": "application/json", ...(opts.headers || {}) } });
+}
+let pushT;
+function schedulePush() { if (!auth.get()) return; clearTimeout(pushT); pushT = setTimeout(() => cloudPush().catch(() => {}), 2000); }
+async function cloudPush() {
+  const a = auth.get(); if (!a) return; const now = new Date().toISOString(), p = S.profile || {};
+  const H = { Prefer: "resolution=merge-duplicates,return=minimal" };
+  await rest("unimate_user_data?on_conflict=user_id", { method: "POST", headers: H, body: JSON.stringify({ user_id: a.uid, payload: S, updated_at: now }) });
+  const pr = { user_id: a.uid, last_seen_at: now, updated_at: now };
+  if (a.email.endsWith(US)) pr.username = a.email.slice(0, -US.length);
+  if (p.name) { pr.name = String(p.name).slice(0, 60); pr.university = String(p.uni || "").slice(0, 80); pr.study_year = String(p.year || "").slice(0, 20); }
+  await rest("unimate_profiles?on_conflict=user_id", { method: "POST", headers: H, body: JSON.stringify(pr) });
+}
+function delCard() {
+  const pw = h("input", { type: "password", dir: "auto", autocomplete: "current-password", placeholder: "اكتب كلمة المرور للتأكيد", "aria-label": "كلمة المرور للتأكيد" });
+  const btn = h("button", { class: "sm ghost", style: "color:var(--pink)", onclick: async () => {
+    if (!pw.value) return toast("اكتب كلمة المرور الأول");
+    if (!(await sure("حذف حسابك نهائيًا هو وكل بياناتك؟ مينفعش تتراجع."))) return;
+    btn.disabled = true;
+    try {
+      const t = await getTok(); if (!t) return;
+      const r = await fetch(SB + "/functions/v1/account", { method: "POST", headers: { "Content-Type": "application/json", apikey: AI_KEY, Authorization: "Bearer " + t }, body: JSON.stringify({ action: "delete_me", password: pw.value }) });
+      const j = await r.json().catch(() => ({}));
+      if (r.ok) { authMode = "signup"; authErr = "اتحذف حسابك."; await logout(true); } else toast(j.error || "حصل خطأ");
+    } catch (e) { toast("مفيش اتصال بالنت"); }
+    btn.disabled = false;
+  } }, "حذف حسابي نهائيًا");
+  return h("div", { class: "card" }, h("h3", {}, "حذف الحساب"), h("p", { class: "muted" }, "بيمسح حسابك وكل بياناتك من السيرفر وبيرجّعك لشاشة التسجيل."), h("div", { class: "inl" }, pw, btn));
+}
+const annBox = h("div", { id: "ann" });
+async function loadAnn() {
+  try {
+    const row = (await (await fetch(SB + "/rest/v1/unimate_announcements?select=id,message&active=eq.true&order=created_at.desc&limit=1", { headers: { apikey: AI_KEY } })).json())[0];
+    let seen = ""; try { seen = localStorage.getItem("unimate-ann") || ""; } catch (e) {}
+    if (!row || row.id === seen) return annBox.replaceChildren();
+    annBox.replaceChildren(h("div", { class: "ann", role: "status" }, h("span", {}, row.message),
+      h("button", { type: "button", "aria-label": "إغلاق الإعلان", onclick: () => { try { localStorage.setItem("unimate-ann", row.id); } catch (e) {} annBox.replaceChildren(); } }, "✕")));
+  } catch (e) {}
+}
+function pwCard() {
+  const np = h("input", { type: "password", dir: "auto", autocomplete: "new-password", minlength: 6, placeholder: "كلمة مرور جديدة (6 حروف على الأقل)", "aria-label": "كلمة مرور جديدة" });
+  const btn = h("button", { class: "sm", onclick: async () => {
+    if (np.value.length < 6) return toast("كلمة المرور لازم تكون 6 حروف على الأقل");
+    btn.disabled = true;
+    try {
+      const t = await getTok(); if (!t) return;
+      const r = await fetch(SB + "/auth/v1/user", { method: "PUT", headers: { "Content-Type": "application/json", apikey: AI_KEY, Authorization: "Bearer " + t }, body: JSON.stringify({ password: np.value }) });
+      if (r.ok) { np.value = ""; toast("اتغيّرت كلمة المرور"); } else toast(authMsg(await r.json().catch(() => ({})), r.status));
+    } catch (e) { toast("مفيش اتصال بالنت"); }
+    btn.disabled = false;
+  } }, "حفظ");
+  return h("div", { class: "card" }, h("h3", {}, "تغيير كلمة المرور"), h("div", { class: "inl" }, np, btn));
+}
+let verified = false; try { verified = localStorage.getItem("unimate-verified") === "1"; } catch (e) {}
+function setVerified(v) { const ch = v !== verified; verified = v; try { v ? localStorage.setItem("unimate-verified", "1") : localStorage.removeItem("unimate-verified"); } catch (e) {} return ch; }
+const vBadge = () => verified ? h("span", { class: "vbadge", title: "حساب موثّق", role: "img", "aria-label": "حساب موثّق" }, "✓") : null;
+async function refreshVerified() {
+  const a = auth.get(); if (!a) return;
+  try { const r = await rest("unimate_profiles?select=verified&user_id=eq." + a.uid); if (!r.ok) return;
+    const row = (await r.json())[0]; if (row && setVerified(!!row.verified)) render(); } catch (e) {}
+}
+async function cloudBoot() {
+  const a = auth.get(); if (!a) return;
+  refreshVerified(); checkAccount();
+  const r = await rest("unimate_user_data?select=payload&user_id=eq." + a.uid); if (!r.ok) return;
+  const c = ((await r.json())[0] || {}).payload;
+  if (c && (c._u || 0) > (S._u || 0)) { try { localStorage.setItem(KEY + "-bak", JSON.stringify(S)); localStorage.setItem(KEY, JSON.stringify(c)); } catch (e) {} S = c; render(); }
+  else await cloudPush();
+}
+async function logout(forced) {
+  try { if (!forced && auth.get()) await cloudPush(); } catch (e) {}
+  try { localStorage.setItem(KEY + "-bak", JSON.stringify(S)); localStorage.removeItem(KEY); } catch (e) {}
+  auth.set(null); setVerified(false); S = { profile: null, subjects: [], exams: [], classes: [], done: {} }; tab = "home"; tReset(); render();
+}
+let authMode = "login", authErr = "", authUser = "";
+function renderAuth() {
+  moreOpen = false; $("more").hidden = true; $("nav").hidden = true;
+  const login = authMode === "login", HINT = "من 3 لـ 20 حرف: إنجليزي وأرقام و _ . وفيه حرف واحد على الأقل (مثال: ahmed_22)";
+  const em = h("input", { id: "au", type: "text", dir: "auto", autocomplete: "username", autocapitalize: "none", spellcheck: "false", required: true, maxlength: 21, placeholder: "اسم المستخدم", value: authUser, "aria-describedby": "au-h" });
+  const hint = h("small", { id: "au-h", "aria-live": "polite", hidden: login }, login ? "" : HINT);
+  const upd = () => { authUser = em.value; if (login) return; const u = em.value.trim().toLowerCase().replace(/^@/, ""); hint.className = !u ? "" : validUser(u) ? "ok" : "bad"; hint.textContent = !u ? HINT : validUser(u) ? "✓ اسم مناسب" : HINT; };
+  em.addEventListener("input", upd); if (authUser) upd();
+  const pw = h("input", { id: "ap", type: "password", dir: "auto", autocomplete: login ? "current-password" : "new-password", required: true, minlength: 6, placeholder: "كلمة المرور", "aria-describedby": "ap-h" });
+  const pwHint = h("small", { id: "ap-h", "aria-live": "polite", hidden: login }, "6 حروف على الأقل");
+  pw.addEventListener("input", () => { const n = pw.value.length; pwHint.className = !n ? "" : n >= 6 ? "ok" : "bad"; pwHint.textContent = n >= 6 ? "✓ كلمة مرور مناسبة" : "6 حروف على الأقل"; });
+  const eye = h("button", { type: "button", "aria-label": "إظهار أو إخفاء كلمة المرور", onclick: () => { const sh = pw.type === "password"; pw.type = sh ? "text" : "password"; eye.textContent = sh ? "إخفاء" : "إظهار"; } }, "إظهار");
+  const err = h("div", { class: "auth-err", role: "alert", hidden: !authErr }, authErr);
+  const go = h("button", { type: "submit", class: "auth-go" }, login ? "دخول" : "إنشاء حساب");
+  const form = h("form", { onsubmit: async e => {
+    e.preventDefault(); go.disabled = true; go.textContent = "ثواني…"; err.hidden = true;
+    try {
+      const id = login ? toId(em.value) : (validUser(em.value.trim().toLowerCase().replace(/^@/, "")) ? toId(em.value) : null);
+      if (!id) throw new Error(login ? "اكتب اسم المستخدم بتاعك." : "اسم المستخدم من 3 لـ 20 حرف: إنجليزي وأرقام و _ . وفيه حرف واحد على الأقل.");
+      const j = await authReq(login ? "token?grant_type=password" : "signup", { email: id, password: pw.value });
+      if (!j.access_token) { authMode = "login"; authErr = "التسجيل مش متاح دلوقتي، جرّب بعد شوية."; renderAuth(); return; }
+      saveSess(j); authErr = ""; authUser = ""; render(); cloudBoot().catch(() => {});
+    } catch (x) { err.textContent = x.message === "Failed to fetch" ? "مفيش اتصال بالنت." : x.message; err.hidden = false; go.disabled = false; go.textContent = login ? "دخول" : "إنشاء حساب"; }
+  } },
+    h("div", { class: "auth-f" }, h("label", { for: "au" }, "اسم المستخدم"), em, hint),
+    h("div", { class: "auth-f" }, h("label", { for: "ap" }, "كلمة المرور"), h("div", { class: "pw" }, pw, eye), pwHint),
+    err, go, login && h("p", { class: "auth-forgot" }, "نسيت كلمة المرور؟ كلّم الأدمن وهيبعتلك كلمة مؤقتة تغيّرها بعد الدخول."),
+    h("div", { class: "auth-foot" }, h("span", {}, "🔄 مزامنة بين كل أجهزتك"), h("span", {}, "🔒 بياناتك محفوظة على حسابك")));
+  const seg = h("div", { class: "seg", role: "group", "aria-label": "دخول أو حساب جديد" }, [["login", "دخول"], ["signup", "حساب جديد"]].map(([k, l]) =>
+    h("button", { type: "button", class: "ghost sm" + (authMode === k ? " on" : ""), "aria-pressed": String(authMode === k), onclick: () => { if (authMode !== k) { authMode = k; authErr = ""; renderAuth(); } } }, l)));
+  $("view").replaceChildren(h("div", { class: "auth-wrap" }, h("div", { class: "auth-card" },
+    h("div", { class: "auth-head" }, h("span", { class: "logo" }, "U"), h("h2", {}, "UniMate AI"), h("p", {}, "مساعدك الجامعي الذكي")),
+    h("div", { class: "auth-body" }, seg, form))));
+  if (matchMedia("(min-width:900px)").matches) setTimeout(() => em.focus());
+}
 let S = store.load() || { profile: null, subjects: [], exams: [], classes: [], done: {} };
 let tab = "home", plotSel = null, treeFocus = null;
 let syncT; const commit = () => { store.save(S); render(); if (S.notifOn) { clearTimeout(syncT); syncT = setTimeout(() => syncNotif(), 1500); } };
@@ -954,7 +1131,7 @@ const views = {
     const moodContext = moodTask ? "المهمة دي من خطة النهاردة." : todayMood === "anxious" && upcoming && moodSubject ? "اخترنا مادة امتحانك الأقرب كأولوية للمراجعة." : upcoming && moodSubject ? "مهام اليوم خلصت؛ دي مادة امتحانك الأقرب." : plan.length ? "أنجزت خطة اليوم؛ استخدم الوقت لمراجعة خفيفة." : S.subjects.length ? "مفيش جلسة محددة في خطة اليوم." : "ابدأ بمذاكرة عامة أو أضف موادك لخطة أدق.";
     return h("div", { class: "home-page" },
       h("div", { class: "card hero herobox" },
-        h("div", {}, h("p", { class: "dt" }, fmt(now)), h("h2", {}, greet + " يا " + S.profile.name),
+        h("div", {}, h("p", { class: "dt" }, fmt(now)), h("h2", {}, greet + " يا " + S.profile.name, vBadge()),
           h("p", {}, plan.length ? "النهاردة " + plan.length + " مهام، حوالي " + total + " دقيقة." : S.subjects.length ? (availableHours === 0 ? "النهارده يوم راحة حسب اختيارك." : "زوّد وقت اليوم لـ15 دقيقة على الأقل عشان نضيف جلسة.") : "ابدأ بإضافة موادك عشان نجهّز خطتك."), h("button", { class: "home-cta", onclick: () => goTab("focus") }, ico("focus"), "ابدأ جلسة التركيز")),
         plan.length ? h("div", { class: "ring mini", style: "--p:" + pct, role: "img", "aria-label": "أنجزت " + done + " من " + plan.length }, h("b", {}, done + "/" + plan.length)) : null),
       h("div", { class: "tiles home-stats" },
@@ -1125,16 +1302,20 @@ const views = {
     const me = S.profile, th = S.theme || "auto";
     return h("div", {}, head("حسابي", "بياناتك وتفضيلاتك"),
       h("div", { class: "card who" }, h("span", { class: "av" }, (me.name || "?").trim().charAt(0)),
-        h("div", {}, h("h3", {}, me.name), h("span", { class: "muted" }, [me.uni, me.year && "السنة " + me.year].filter(Boolean).join(" — ")))),
+        h("div", {}, h("h3", {}, me.name, vBadge()), h("span", { class: "muted" }, [me.uni, me.year && "السنة " + me.year].filter(Boolean).join(" — ")))),
       h("div", { class: "card" }, h("h3", {}, "المظهر"),
         h("div", { class: "seg", role: "group" }, [["auto", "تلقائي"], ["light", "فاتح"], ["dark", "داكن"]].map(([k, l]) => h("button", { type: "button", class: "ghost sm" + (th === k ? " on" : ""), "aria-pressed": String(th === k), onclick: () => { S.theme = k; store.save(S); render(); } }, l)))),
       profileForm(p => { S.profile = p; commit(); toast("اتحفظت بياناتك"); }, "حفظ التعديلات"),
       notifCard(),
+      h("div", { class: "card" }, h("h3", {}, "الدخول"), h("p", { class: "muted", dir: "ltr", style: "text-align:start" }, niceId((auth.get() || {}).email)),
+        h("button", { class: "ghost", onclick: async () => { if (await sure("تسجيل خروج؟ بياناتك محفوظة على حسابك.")) logout(); } }, "تسجيل خروج")),
+      pwCard(),
+      delCard(),
       h("div", { class: "card" }, h("h3", {}, "بياناتك"),
-        h("p", { class: "muted" }, "بياناتك محفوظة على الجهاز ده."),
+        h("p", { class: "muted" }, "بياناتك محفوظة على حسابك وبتتزامن تلقائيًا."),
         h("div", { class: "inl" },
           h("button", { class: "ghost", onclick: async () => { try { await navigator.clipboard.writeText(JSON.stringify(S)); toast("اتنسخت نسخة احتياطية من بياناتك"); } catch (e) { toast("تعذر النسخ"); } } }, "انسخ نسخة احتياطية"),
-          h("button", { class: "ghost", onclick: async () => { if (await sure("هتتمسح كل بياناتك. متأكد؟")) { store.clear(); S = { profile: null, subjects: [], exams: [], classes: [], done: {} }; tab = "home"; tReset(); render(); } } }, "ابدأ من جديد"))));
+          h("button", { class: "ghost", onclick: async () => { if (await sure("هتتمسح كل بياناتك. متأكد؟")) { store.clear(); S = { profile: null, subjects: [], exams: [], classes: [], done: {} }; tab = "home"; tReset(); render(); store.save(S); } } }, "ابدأ من جديد"))));
   }
 };
 
@@ -1157,10 +1338,11 @@ async function callAI(msgs, onText) {
   if (AI_URL) {
     let r;
     try {
-      r = await fetch(AI_URL, { method: "POST", headers: { "Content-Type": "application/json", apikey: AI_KEY, Authorization: "Bearer " + AI_KEY },
+      r = await fetch(AI_URL, { method: "POST", headers: { "Content-Type": "application/json", apikey: AI_KEY, Authorization: "Bearer " + ((await getTok()) || AI_KEY) },
         body: JSON.stringify({ messages: chatMsgs().map(({ role, content }) => ({ role, content })), context: ctxData() }) });
     } catch (e) { throw { code: "failed", detail: "network: " + (e && e.message) }; }
-    if (r.status === 429) throw { code: "rate_limited" };
+    if (r.status === 401) throw { code: "login_required" };
+    if (r.status === 429) { const j = await r.json().catch(() => ({})); throw { code: j.error === "daily_limit" ? "daily_limit" : "rate_limited", limit: j.limit }; }
     if (!r.ok) { let d = ""; try { const j = await r.json(); d = j.error || j.message || JSON.stringify(j); } catch (e) {} throw { code: "failed", detail: r.status + " - " + d }; }
     const j = await r.json(); onText({ text: j.text }); return { text: j.text };
   }
@@ -1175,7 +1357,7 @@ async function ask(text) {
     hist[hist.length - 1].content = r.text;
     if (hist.length > 12) hist.splice(0, 2);
   } catch (e) {
-    hist.splice(-2); hist.push({ role: "assistant", content: e && e.code === "rate_limited" ? "الطلبات كتير دلوقتي، جرّب بعد شوية." : "المساعد مش متاح حاليًا. جرّب تاني بعد شوية." + (e && e.detail ? " [" + e.detail + "]" : ""), err: true });
+    hist.splice(-2); hist.push({ role: "assistant", content: e && e.code === "daily_limit" ? "وصلت للحد اليومي من رسائل المساعد. هيتجدد بكرة." : e && e.code === "login_required" ? "سجّل دخول الأول عشان تستخدم المساعد." : e && e.code === "rate_limited" ? "الطلبات كتير دلوقتي، جرّب بعد شوية." : "المساعد مش متاح حاليًا. جرّب تاني بعد شوية." + (e && e.detail ? " [" + e.detail + "]" : ""), err: true });
   }
   busy = false; render();
 }
@@ -1185,8 +1367,11 @@ let aiMode = "chat";
 const Q = { stage: "setup", text: "", files: [], count: 10, diff: "متوسط", short: true, subj: "", quiz: null, ans: [], i: 0, review: null, revErr: false, saved: false, busy: false, err: "" };
 const readB64 = f => new Promise((ok, no) => { const r = new FileReader(); r.onload = () => ok(String(r.result).split(",")[1]); r.onerror = no; r.readAsDataURL(f); });
 async function quizCall(body) {
-  const r = await fetch(QUIZ_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-  const j = await r.json().catch(() => ({})); if (!r.ok) { const er = new Error(j.error || r.status); er.detail = j.detail; throw er; } return j;
+  const r = await fetch(QUIZ_URL, { method: "POST", headers: { "Content-Type": "application/json", apikey: AI_KEY, Authorization: "Bearer " + ((await getTok()) || AI_KEY) }, body: JSON.stringify(body) });
+  const j = await r.json().catch(() => ({}));
+  if (r.status === 401) throw new Error("سجّل دخول الأول عشان تستخدم الاختبارات.");
+  if (r.status === 429 && j.error === "daily_limit") throw new Error("وصلت للحد اليومي من الاختبارات. هيتجدد بكرة.");
+  if (!r.ok) { const er = new Error(j.error || r.status); er.detail = j.detail; throw er; } return j;
 }
 async function onFiles(e) {
   for (const f of [...e.target.files]) {
@@ -1207,7 +1392,7 @@ async function genQuiz() {
     const files = await Promise.all(Q.files.map(async f => ({ mime: f.mime, data: await readB64(f.file) })));
     const r = await quizCall({ action: "generate", text: Q.text, files, count: Q.count, short: Q.short ? 2 : 0, difficulty: Q.diff, subject: Q.subj });
     Q.quiz = r; Q.ans = r.questions.map(() => null); Q.i = 0; Q.review = null; Q.revErr = false; Q.saved = false; Q.stage = "taking";
-  } catch (e) { Q.err = e.message === "bad_quiz" ? "معرفتش أطلّع أسئلة كويسة من المادة دي. جرّب مادة أطول أو أوضح." + (e.detail ? " [" + JSON.stringify(e.detail).slice(0, 500) + "]" : "") : /timeout|504/.test(e.message) ? "الطلب أخد وقت أطول من اللازم. جرّب ملف أصغر (صفحات أقل) أو اعمل الاختبار على جزء من المادة." : "تعذر توليد الاختبار (" + e.message + "). جرّب تاني."; }
+  } catch (e) { Q.err = /الحد اليومي|سجّل دخول/.test(e.message) ? e.message : e.message === "bad_quiz" ? "معرفتش أطلّع أسئلة كويسة من المادة دي. جرّب مادة أطول أو أوضح." + (e.detail ? " [" + JSON.stringify(e.detail).slice(0, 500) + "]" : "") : /timeout|504/.test(e.message) ? "الطلب أخد وقت أطول من اللازم. جرّب ملف أصغر (صفحات أقل) أو اعمل الاختبار على جزء من المادة." : "تعذر توليد الاختبار (" + e.message + "). جرّب تاني."; }
   Q.busy = false; render();
 }
 async function submitQuiz() {
@@ -1315,6 +1500,8 @@ function paintMore() {
 addEventListener("keydown", e => { if (e.key === "Escape" && moreOpen) { moreOpen = false; paintMore(); } });
 function render() {
   applyTheme();
+  document.body.classList.toggle("auth", !auth.get());
+  if (!auth.get()) { renderAuth(); return; }
   const nav = $("nav"), v = $("view");
   if (!S.profile) {
     moreOpen = false; $("more").hidden = true;
@@ -1334,6 +1521,10 @@ function render() {
   tPaint();
 }
 render();
+$("view").before(annBox); loadAnn();
+if (auth.get()) cloudBoot().catch(() => {});
+setInterval(() => { if (auth.get() && !document.hidden) { checkAccount(); cloudPush().catch(() => {}); refreshVerified(); } if (!document.hidden) loadAnn(); }, 300000);
+document.addEventListener("visibilitychange", () => { if (!document.hidden) { loadAnn(); if (auth.get()) { checkAccount(); refreshVerified(); } } });
 </script>
 <script>if("serviceWorker"in navigator&&location.protocol.startsWith("http"))addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));</script>
 </body>
