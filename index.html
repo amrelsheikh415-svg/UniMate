@@ -306,6 +306,30 @@ body.auth .wrap{padding:24px 16px}
 .ann{display:flex;gap:10px;align-items:flex-start;background:var(--soft);border:1px solid var(--brand);color:var(--ink);border-radius:14px;padding:10px 14px;margin-bottom:12px;font-weight:600}
 .ann span{flex:1}
 .ann button{background:transparent;color:var(--muted);box-shadow:none;padding:0 6px;font-size:1rem}
+.subtabs{margin-bottom:14px}
+#urg.sticky{position:sticky;top:6px;z-index:30}
+.urg{display:flex;align-items:center;gap:10px;width:100%;text-align:start;padding:11px 14px;border-radius:14px;margin-bottom:10px;font-weight:700;font-size:.92rem;line-height:1.6;box-shadow:0 6px 18px -10px rgba(0,0,0,.45)}
+.urg span:first-child{flex:1}
+.urg.l3{background:#c2415a;color:#fff}
+.urg.l2{background:#f26a1b;color:#fff}
+.urg.l1{background:var(--soft);color:var(--brand);border:1px solid var(--line);box-shadow:none}
+.urg .x{flex:none;padding:0 6px;font-size:1rem;cursor:pointer;opacity:.8}
+#nav button{position:relative}
+#nav .dot,.bside .dot{position:absolute;top:6px;right:calc(50% - 20px);width:9px;height:9px;border-radius:50%;background:#e11d48;border:2px solid var(--surface)}
+.subtabs button{padding-inline:8px}
+.rv-tags{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.rv-tags span{background:var(--soft);color:var(--brand);border-radius:99px;padding:3px 10px;font-size:.82rem;font-weight:600}
+details.nb{border:1px solid var(--line);border-radius:12px;padding:8px 12px;margin-top:8px}
+details.nb summary{cursor:pointer;font-weight:600}
+.rv select,.card select+textarea{margin-top:6px}
+.msg{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-top:10px}
+.msg p{margin:0 0 6px}
+.msg .reply{background:var(--soft);border-radius:10px;padding:8px 10px;color:var(--ink);font-weight:600;margin:0}
+.auth-forgot-btn{display:block;margin:14px auto 0;background:none;box-shadow:none;color:var(--brand);padding:4px 8px;font-size:.9rem;text-decoration:underline}
+#maint{position:fixed;inset:0;z-index:99;background:var(--bg);display:grid;place-items:center;padding:24px;text-align:center}
+.maint-card{max-width:380px}
+.maint-card .big{font-size:3.2rem;line-height:1.2}
+.maint-card button{margin-top:14px}
 .auth-foot{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 16px;margin-top:18px;font-size:.82rem;color:var(--muted)}
 /* حسابي والترحيب */
 .who{display:flex;align-items:center;gap:14px}
@@ -484,7 +508,8 @@ body.auth .wrap{padding:24px 16px}
 .home-page>.daily-plan{order:1}
 .home-page>.home-stats{order:2}
 .home-page>.exam{order:3}
-.home-page>.mood-card{order:4}
+.home-page>.boost{order:4}
+.brow{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:10px}
 .home-page>.missed-plan{order:5}</style>
 </head>
 <body>
@@ -503,7 +528,9 @@ const AI_URL = "https://meavuwntikizkfjhtnbd.supabase.co/functions/v1/quick-serv
 const AI_KEY = "sb_publishable_IClfN-hW7TnDtlqM_-1xVg_DhxUlBmO";
 const KEY = "unimate-v2", PAL = ["#1f3a93", "#f26a1b", "#0f9d6e", "#0e8fd1", "#c2415a"];
 const DAYS = ["الأحد", "الإثنين", "الثلاثاء", "الأربع", "الخميس", "الجمعة", "السبت"];
-const TABS = [["home", "الرئيسية"], ["focus", "التركيز"], ["forest", "الغابة"], ["ai", "المساعد"], ["subjects", "موادي"], ["schedule", "الجدول"], ["exams", "امتحانات"], ["progress", "تقدمي"], ["account", "حسابي"]];
+const TABS = [["home", "الرئيسية"], ["study", "دراستي"], ["focus", "التركيز"], ["ai", "المساعد"], ["progress", "تقدمي"], ["account", "حسابي"]];
+const secs = { study: "subjects", progress: "progress" };
+const ALIAS = { subjects: ["study", "subjects"], schedule: ["study", "schedule"], exams: ["study", "exams"], forest: ["progress", "forest"], review: ["study", "review"] };
 const HINTS = { "تراكم المحاضرات": "صفّي محاضرة متأخرة الأول", "ضيق الوقت": "ركّز على الأكتر تكرارًا في الامتحان", "صعوبة فهم المواد": "اشرحها بصوتك كأنك بتعلّم زميلك", "التأجيل وعدم الالتزام": "ابدأ بـ10 دقايق بس" };
 const PLAN_MODES = [["balanced", "متوازنة"], ["exam", "الامتحان الأقرب"], ["catchup", "المحاضرات المتراكمة"], ["hard", "المواد الأصعب"]];
 const planModeName = mode => (PLAN_MODES.find(x => x[0] === mode) || PLAN_MODES[0])[1];
@@ -586,6 +613,35 @@ async function cloudPush() {
   if (p.name) { pr.name = String(p.name).slice(0, 60); pr.university = String(p.uni || "").slice(0, 80); pr.study_year = String(p.year || "").slice(0, 20); }
   await rest("unimate_profiles?on_conflict=user_id", { method: "POST", headers: H, body: JSON.stringify(pr) });
 }
+function contactCard() {
+  const kind = h("select", { "aria-label": "نوع الرسالة" }, [["problem", "مشكلة"], ["suggestion", "اقتراح"], ["other", "حاجة تانية"]].map(([v, l]) => h("option", { value: v }, l)));
+  const body = h("textarea", { rows: 3, maxlength: 1000, placeholder: "اكتب رسالتك…", "aria-label": "الرسالة" });
+  const list = h("div", {});
+  const load = async () => { try {
+    const rows = await (await rest("unimate_messages?select=body,reply,created_at&user_id=eq." + auth.get().uid + "&order=created_at.desc&limit=5")).json();
+    list.replaceChildren(...(Array.isArray(rows) ? rows : []).map(m => h("div", { class: "msg" }, h("p", {}, m.body), m.reply ? h("p", { class: "reply" }, "ردّ الأدمن: " + m.reply) : h("p", { class: "muted" }, "في انتظار الرد"))));
+  } catch (e) {} };
+  const btn = h("button", { class: "sm", onclick: async () => {
+    const t = body.value.trim(); if (!t) return toast("اكتب رسالتك الأول");
+    btn.disabled = true;
+    try {
+      const a = auth.get();
+      const r = await rest("unimate_messages", { method: "POST", headers: { Prefer: "return=minimal" }, body: JSON.stringify({ user_id: a.uid, username: niceId(a.email).replace(/^@/, ""), kind: kind.value, body: t }) });
+      if (r.ok) { body.value = ""; toast("اتبعتت رسالتك للأدمن"); load(); } else toast("مقدرناش نبعت الرسالة (ممكن تكون وصلت للحد اليومي)");
+    } catch (e) { toast("مفيش اتصال بالنت"); }
+    btn.disabled = false;
+  } }, "إرسال");
+  load();
+  return h("div", { class: "card" }, h("h3", {}, "تواصل مع الأدمن"), h("p", { class: "muted" }, "مشكلة أو اقتراح؟ ابعتلنا وهنرد عليك هنا."), kind, body, h("div", { class: "inl", style: "margin-top:8px" }, btn), list);
+}
+const mBox = h("div", { id: "maint", hidden: true, role: "alertdialog", "aria-label": "صيانة" });
+async function checkMaint() {
+  try {
+    const v = ((await (await fetch(SB + "/rest/v1/unimate_settings?select=value&key=eq.maintenance", { headers: { apikey: AI_KEY } })).json())[0] || {}).value;
+    if (v && v.on) { mBox.replaceChildren(h("div", { class: "maint-card" }, h("div", { class: "big" }, "🛠️"), h("h2", {}, "التطبيق في صيانة"), h("p", {}, v.message || "بنحدّث التطبيق، نرجع بعد شوية."), h("button", { onclick: checkMaint }, "جرّب تاني"))); mBox.hidden = false; }
+    else { mBox.hidden = true; mBox.replaceChildren(); }
+  } catch (e) {}
+}
 function delCard() {
   const pw = h("input", { type: "password", dir: "auto", autocomplete: "current-password", placeholder: "اكتب كلمة المرور للتأكيد", "aria-label": "كلمة المرور للتأكيد" });
   const btn = h("button", { class: "sm ghost", style: "color:var(--pink)", onclick: async () => {
@@ -647,8 +703,36 @@ async function logout(forced) {
   try { localStorage.setItem(KEY + "-bak", JSON.stringify(S)); localStorage.removeItem(KEY); } catch (e) {}
   auth.set(null); setVerified(false); S = { profile: null, subjects: [], exams: [], classes: [], done: {} }; tab = "home"; tReset(); render();
 }
+function renderForgot() {
+  moreOpen = false; $("more").hidden = true; $("nav").hidden = true;
+  const un = h("input", { id: "fu", type: "text", dir: "auto", autocomplete: "username", autocapitalize: "none", spellcheck: "false", required: true, maxlength: 21, placeholder: "اسم المستخدم", value: authUser });
+  const ct = h("input", { id: "fc", type: "tel", dir: "auto", autocomplete: "tel", required: true, maxlength: 20, placeholder: "رقم واتساب (مثال 01012345678)" });
+  const msg = h("div", { class: "auth-err", role: "alert", hidden: true });
+  const go = h("button", { type: "submit", class: "auth-go" }, "إرسال الطلب");
+  const say = (t, ok) => { msg.textContent = t; msg.style.cssText = ok ? "background:color-mix(in srgb,var(--mint) 14%,transparent);color:var(--mint)" : ""; msg.hidden = false; };
+  const form = h("form", { onsubmit: async e => {
+    e.preventDefault(); msg.hidden = true;
+    const u = un.value.trim().toLowerCase().replace(/^@/, ""), c = ct.value.trim();
+    if (!validUser(u)) return say("اكتب اسم المستخدم صح.");
+    if (!/^\+?[0-9\s-]{8,16}$/.test(c)) return say("اكتب رقم واتساب صحيح.");
+    go.disabled = true; go.textContent = "ثواني…";
+    try {
+      const r = await fetch(SB + "/rest/v1/unimate_messages", { method: "POST", headers: { "Content-Type": "application/json", apikey: AI_KEY, Prefer: "return=minimal" }, body: JSON.stringify({ username: u, kind: "password", body: "نسيت كلمة المرور", contact: c }) });
+      if (r.ok) { say("اتبعت طلبك ✓ الأدمن هيكلمك على الواتساب بكلمة مرور مؤقتة.", true); go.hidden = true; return; }
+      say("مقدرناش نبعت الطلب دلوقتي، جرّب بعد شوية.");
+    } catch (x) { say("مفيش اتصال بالنت."); }
+    go.disabled = false; go.textContent = "إرسال الطلب";
+  } },
+    h("div", { class: "auth-f" }, h("label", { for: "fu" }, "اسم المستخدم"), un),
+    h("div", { class: "auth-f" }, h("label", { for: "fc" }, "رقم الواتساب للتواصل"), ct, h("small", {}, "هنكلمك عليه بكلمة مرور مؤقتة. الرقم بيوصل للأدمن بس.")),
+    msg, go);
+  $("view").replaceChildren(h("div", { class: "auth-wrap" }, h("div", { class: "auth-card" },
+    h("div", { class: "auth-head" }, h("span", { class: "logo" }, "U"), h("h2", {}, "نسيت كلمة المرور"), h("p", {}, "ابعت طلب للأدمن وهيساعدك تدخل تاني")),
+    h("div", { class: "auth-body" }, form, h("button", { type: "button", class: "ghost", style: "width:100%;margin-top:14px", onclick: () => { authMode = "login"; renderAuth(); } }, "رجوع لتسجيل الدخول")))));
+}
 let authMode = "login", authErr = "", authUser = "";
 function renderAuth() {
+  if (authMode === "forgot") return renderForgot();
   moreOpen = false; $("more").hidden = true; $("nav").hidden = true;
   const login = authMode === "login", HINT = "من 3 لـ 20 حرف: إنجليزي وأرقام و _ . وفيه حرف واحد على الأقل (مثال: ahmed_22)";
   const em = h("input", { id: "au", type: "text", dir: "auto", autocomplete: "username", autocapitalize: "none", spellcheck: "false", required: true, maxlength: 21, placeholder: "اسم المستخدم", value: authUser, "aria-describedby": "au-h" });
@@ -673,7 +757,7 @@ function renderAuth() {
   } },
     h("div", { class: "auth-f" }, h("label", { for: "au" }, "اسم المستخدم"), em, hint),
     h("div", { class: "auth-f" }, h("label", { for: "ap" }, "كلمة المرور"), h("div", { class: "pw" }, pw, eye), pwHint),
-    err, go, login && h("p", { class: "auth-forgot" }, "نسيت كلمة المرور؟ كلّم الأدمن وهيبعتلك كلمة مؤقتة تغيّرها بعد الدخول."),
+    err, go, login && h("button", { type: "button", class: "auth-forgot-btn", onclick: () => { authMode = "forgot"; authErr = ""; renderAuth(); } }, "نسيت كلمة المرور؟"),
     h("div", { class: "auth-foot" }, h("span", {}, "🔄 مزامنة بين كل أجهزتك"), h("span", {}, "🔒 بياناتك محفوظة على حسابك")));
   const seg = h("div", { class: "seg", role: "group", "aria-label": "دخول أو حساب جديد" }, [["login", "دخول"], ["signup", "حساب جديد"]].map(([k, l]) =>
     h("button", { type: "button", class: "ghost sm" + (authMode === k ? " on" : ""), "aria-pressed": String(authMode === k), onclick: () => { if (authMode !== k) { authMode = k; authErr = ""; renderAuth(); } } }, l)));
@@ -898,7 +982,7 @@ function tPaint() {
 }
 function tToggle() {
   if (tInt) { clearInterval(tInt); tInt = null; } else tInt = setInterval(() => {
-    timerTick(); if (--tLeft <= 0) { timerChime(); if (tMode === "work") plantTree(S.tmin || 25); tMode = tMode === "work" ? "break" : "work"; tLeft = tMode === "work" ? workSecs() : breakSecs(); try { navigator.vibrate && navigator.vibrate(300); } catch (e) {} }
+    timerTick(); if (--tLeft <= 0) { timerChime(); if (tMode === "work") { plantTree(S.tmin || 25); askIntent(); } tMode = tMode === "work" ? "break" : "work"; tLeft = tMode === "work" ? workSecs() : breakSecs(); try { navigator.vibrate && navigator.vibrate(300); } catch (e) {} }
     tPaint();
   }, 1000);
   tPaint();
@@ -907,6 +991,7 @@ function tReset() { if (tMode === "work" && tLeft < workSecs()) toast("🥀 ال
 
 const IC = { focus: "M12 8v4l3 2M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20z", forest: "M12 3l5 7h-3l4 6H6l4-6H7l5-7zM12 16v5", level: "M12 3l2.6 5.3 5.9.9-4.3 4.2 1 5.9-5.2-2.8-5.2 2.8 1-5.9-4.3-4.2 5.9-.9L12 3z", minutes: "M9 2h6m-3 4v6l4 2M5.6 5.6l1.8 1.8M4 13a8 8 0 1016 0 8 8 0 00-16 0z", energy: "M12 2l2.3 7.7L22 12l-7.7 2.3L12 22l-2.3-7.7L2 12l7.7-2.3L12 2z", rest: "M20.9 13.1A9 9 0 0110.9 3a9 9 0 108 10.1z", target: "M12 22a10 10 0 110-20 10 10 0 010 20zM12 17a5 5 0 110-10 5 5 0 010 10zM12 12h.01", calm: "M20.8 4.6a5.5 5.5 0 00-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 00-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 000-7.8z", start: "M12 22a10 10 0 110-20 10 10 0 010 20zM9.5 9a2.5 2.5 0 014.5 1.5c0 1.5-2 2-2 3.5M12 17h.01", home: "M3 11l9-8 9 8M5 10v10h5v-6h4v6h5V10", ai: "M21 11.5a8.5 8.5 0 01-8.5 8.5H4l1.8-3.6A8.5 8.5 0 1121 11.5z", subjects: "M4 5a2 2 0 012-2h13v16H6a2 2 0 00-2 2V5zM4 19a2 2 0 012-2h13", schedule: "M4 6h16v14H4zM4 10h16M8 3v4M16 3v4", exams: "M9 4h6v3H9zM6 5h12v16H6zM9 14l2 2 4-4", progress: "M4 20V10M10 20V4M16 20v-7M22 20H2", account: "M12 12a4 4 0 100-8 4 4 0 000 8zM4 21a8 8 0 0116 0", more: "M5 12h.01M12 12h.01M19 12h.01" };
 function ico(k) {
+  if (k === "study") k = "subjects";
   const n = document.createElement("span"); n.className = "ic";
   n.innerHTML = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="' + IC[k] + '"/></svg>';
   return n;
@@ -935,7 +1020,7 @@ async function loadBoard(action = "board", extra = {}) {
   boardBusy = true;
   try { board = await forestCall(action, extra); } catch (e) { board = board || { error: true }; }
   boardBusy = false; boardAt = Date.now();
-  if (tab === "forest" || tab === "leaderboard") render();
+  if (tab === "forest" || tab === "leaderboard" || (tab === "progress" && secs.progress === "forest")) render();
 }
 function plantTree(m = 25) {
   S.trees = S.trees || []; const t = Date.now(), today = iso(new Date()), sessions = S.trees.filter(x => iso(new Date(tm(x).t)) === today).length;
@@ -951,7 +1036,7 @@ function plantTree(m = 25) {
   const stages = ["بذرة", "برعم", "شتلة", "شجرة كاملة"];
   toast(rare ? "إنجاز جامد! شجرة " + subjectName + " النادرة بتكبر 🌸" : "🌱 شجرة " + subjectName + " وصلت لمرحلة " + stages[growing.growth - 1]);
   loadBoard("plant", { minutes: m });
-  if (tab === "forest" || tab === "leaderboard") render();
+  if (tab === "forest" || tab === "leaderboard" || (tab === "progress" && secs.progress === "forest")) render();
 }
 
 /* ---------- تنبيهات الموبايل (Web Push) ---------- */
@@ -965,7 +1050,7 @@ async function syncNotif() {
   notifBusy = true;
   try {
     notif = await notifCall({ action: "sync", data: {
-      exams: S.exams.map(e => ({ id: e.id, subject: (subj(e.sid) || {}).name || "مادة", date: e.date, kind: e.kind || "" })),
+      exams: [...S.exams.map(e => ({ id: e.id, subject: (subj(e.sid) || {}).name || "مادة", date: e.date, kind: e.kind || "", time: e.time || "" })), ...B.events.map(ev => ({ id: "g" + ev.id.slice(0, 8), subject: ev.subject || "الدفعة", date: ev.date, kind: ev.kind, time: ev.time || "" }))],
       classes: S.classes.map(c => ({ id: c.id, day: c.day, time: c.time, title: c.title })) } });
   } catch (e) { notif = { error: e.message }; }
   notifBusy = false; notifAt = Date.now(); if (tab === "account") render();
@@ -1138,20 +1223,10 @@ const views = {
         h("div", { class: "tile", style: "--a:var(--brand)" }, h("b", {}, st.streak), h("span", { class: "metric-label" }, h("span", { class: "metric-icon" }, ico("forest")), "ستريك الغابة")),
         h("div", { class: "tile", style: "--a:var(--mint)" }, h("b", {}, st.lvl), h("span", { class: "metric-label" }, h("span", { class: "metric-icon" }, ico("level")), "المستوى")),
         h("div", { class: "tile", style: "--a:var(--brand)" }, h("b", {}, st.mins), h("span", { class: "metric-label" }, h("span", { class: "metric-icon" }, ico("minutes")), "دقيقة مذاكرة"))),
-      h("section", { class: "card mood-card", "aria-labelledby": "moodTitle" },
-        h("div", { class: "mood-heading" }, h("span", { class: "mood-spark", "aria-hidden": "true" }, ico("energy")), h("div", {}, h("span", { class: "mood-kicker" }, "تشيك إن سريع"), h("h3", { id: "moodTitle" }, "مزاجك إيه النهارده؟"), h("p", { class: "muted" }, "اختار أقرب إحساس ليك عشان نرشح لك بداية مناسبة."))),
-        h("div", { class: "mood-grid" }, moods.map(m => h("button", { type: "button", class: "mood-option" + (todayMood === m.id ? " selected" : ""), "aria-pressed": String(todayMood === m.id), onclick: () => { S.dailyMood = { day: key, id: m.id }; store.save(S); render(); } }, h("span", { class: "mood-icon", "aria-hidden": "true" }, ico(m.icon)), h("span", {}, m.label)))),
-        chosenMood ? h("div", { class: "mood-guidance" },
-          h("div", { class: "mood-target" }, h("span", { class: "mood-target-label" }, "اقتراح مناسب لك · " + chosenMood.minutes + " دقيقة"), h("b", {}, chosenMood.title), h("p", { class: "muted" }, moodTask ? "المهمة المقترحة: " + moodTask.name : moodSubject ? "المادة المقترحة: " + moodSubject.name : "اختار مادة بتحبها أو ابدأ بمذاكرة عامة."), h("p", { class: "muted mood-context" }, moodContext)),
-          h("ol", { class: "mood-steps" }, chosenMood.steps.map((step, i) => h("li", {}, h("span", { class: "step-num" }, i + 1), h("span", {}, step)))),
-          h("button", { class: "sm mood-start", onclick: () => {
-            if (tInt || tMode !== "work" || tLeft !== workSecs()) { goTab("focus"); toast("كمّل جلستك الحالية أو دوس إعادة قبل تغيير مدتها"); return; }
-            if (moodSubject) S.focusSid = moodSubject.id;
-            S.tmin = chosenMood.minutes; tLeft = workSecs(); store.save(S); goTab("focus");
-          } }, ico("focus"), "ابدأ جلسة " + chosenMood.minutes + " دقيقة")) : null),
       upcoming && h("div", { class: "card exam" + (dleft <= 3 ? " hot" : "") },
         h("div", { class: "d" }, h("b", { class: dleft === 0 ? "t" : "" }, dleft === 0 ? "النهاردة" : dleft), dleft === 0 ? null : h("span", {}, "يوم")),
         h("div", { class: "i" }, h("span", { class: "muted" }, "أقرب امتحان"), h("h3", {}, subj(upcoming.sid)?.name || "امتحان"), h("span", { class: "muted" }, fmt(new Date(upcoming.date + "T00:00:00"))))),
+      homeBoost(key),
       h("div", { class: "card daily-plan" }, h("div", { class: "hd" }, h("div", {}, h("span", { class: "section-kicker" }, "خطتك الشخصية"), h("h3", {}, "مهام النهاردة")), plan.length ? h("span", { class: "plan-mode" }, done + " من " + plan.length + " · " + planModeName(S.profile.planMode || "balanced")) : null),
         h("div", { class: "bar" }, h("i", { style: "width:" + (plan.length ? Math.round(done / plan.length * 100) : 0) + "%" })),
         plan.length ? plan.map((x, i) => {
@@ -1170,6 +1245,7 @@ const views = {
       h("div", { class: "card timer" }, h("h3", { id: "tMode" }, "جلسة تركيز"),
         h("label", { class: "muted", style: "display:block;text-align:start;margin:10px 0" }, "مادة الشجرة", h("select", { id: "focusSubject", value: S.subjects.some(s => s.id === S.focusSid) ? S.focusSid : "", disabled: !!tInt || (tMode === "work" && tLeft !== workSecs()), onchange: e => { S.focusSid = e.target.value; store.save(S); } }, h("option", { value: "" }, "مذاكرة عامة"), S.subjects.map(s => h("option", { value: s.id }, s.name)))),
         h("p", { class: "muted", style: "text-align:start;font-size:.85rem" }, "اختار المادة، وكل جلسة مكتملة هتنمّي شجرتها الخاصة."),
+        intentField(),
         h("div", { class: "picks" }, DUR.map(([m, em]) => h("button", { class: "ghost sm" + ((S.tmin || 25) === m ? " on" : ""), onclick: () => {
           if (tInt || tMode !== "work" || tLeft !== workSecs()) { toast("خلّص الجلسة الحالية أو دوس إعادة الأول"); return; }
           S.tmin = m; store.save(S); tLeft = workSecs(); render(); } }, m + "د " + em))),
@@ -1270,14 +1346,13 @@ const views = {
     const kind = h("input", { type: "text", placeholder: "نوعه (ميد، فاينال...)", "aria-label": "نوع الامتحان" });
     const key = iso(new Date());
     return h("div", {}, head("الامتحانات", "سجّل مواعيدك والخطة هتتظبط على قرب كل امتحان"),
-      S.subjects.length ? h("form", { class: "card inl", onsubmit: e => { e.preventDefault(); S.exams.push({ id: uid(), sid: sel.value, date: date.value, kind: kind.value.trim() }); commit(); } },
-        sel, date, kind, h("button", { type: "submit" }, "إضافة")) : h("p", { class: "note" }, "ضيف موادك الأول من صفحة «موادي»."),
+      examForm(),
       S.exams.slice().sort((a, b) => a.date < b.date ? -1 : 1).map(e => {
         const d = dnum(e.date) - dnum(key);
         return h("div", { class: "card exam" + (d >= 0 && d <= 3 ? " hot" : "") + (d < 0 ? " past" : "") },
           h("div", { class: "d" }, d < 0 ? h("b", { class: "t" }, "عدّى") : d === 0 ? h("b", { class: "t" }, "النهاردة") : [h("b", {}, d), h("span", {}, "يوم")]),
-          h("div", { class: "i", style: "flex:1" }, h("h3", {}, (subj(e.sid)?.name || "") + (e.kind ? " — " + e.kind : "")), h("span", { class: "muted" }, new Date(e.date + "T00:00:00").toLocaleDateString("ar-EG-u-nu-latn", { weekday: "long", day: "numeric", month: "long" }))),
-          h("button", { class: "ghost sm", onclick: () => { S.exams = S.exams.filter(x => x.id !== e.id); commit(); } }, "حذف"));
+          h("div", { class: "i", style: "flex:1" }, h("h3", {}, (subj(e.sid)?.name || "") + (e.kind ? " — " + e.kind : "") + (e.time ? " • " + e.time : "")), h("span", { class: "muted" }, new Date(e.date + "T00:00:00").toLocaleDateString("ar-EG-u-nu-latn", { weekday: "long", day: "numeric", month: "long" }))),
+          h("div", { class: "inl" }, h("button", { class: "ghost sm", onclick: () => exportIcs(e), title: "أضف للتقويم", "aria-label": "أضف للتقويم" }, "📅"), h("button", { class: "ghost sm", onclick: () => { S.exams = S.exams.filter(x => x.id !== e.id); commit(); } }, "حذف")));
       }));
   },
 
@@ -1309,6 +1384,7 @@ const views = {
       notifCard(),
       h("div", { class: "card" }, h("h3", {}, "الدخول"), h("p", { class: "muted", dir: "ltr", style: "text-align:start" }, niceId((auth.get() || {}).email)),
         h("button", { class: "ghost", onclick: async () => { if (await sure("تسجيل خروج؟ بياناتك محفوظة على حسابك.")) logout(); } }, "تسجيل خروج")),
+      contactCard(),
       pwCard(),
       delCard(),
       h("div", { class: "card" }, h("h3", {}, "بياناتك"),
@@ -1398,14 +1474,14 @@ async function genQuiz() {
 async function submitQuiz() {
   const un = Q.ans.filter(a => a == null || a === "").length;
   if (un && !(await sure("لسه فاضل " + un + " سؤال من غير إجابة. تسلّم كده؟"))) return;
-  Q.stage = "result"; Q.review = null; Q.revErr = false; Q.saved = false; render(); doReview();
+  Q.stage = "result"; Q.review = null; Q.revErr = false; Q.saved = false; recordQuiz("mcq"); render(); doReview();
 }
 const qPts = () => Q.quiz.questions.reduce((a, x, i) => a + (x.type === "mcq" ? (Q.ans[i] === x.answer ? 1 : 0) : ((Q.review && (Q.review.items.find(r => r.index === i) || {}).score) || 0)), 0);
 async function doReview() {
   const items = Q.quiz.questions.map((x, i) => x.type === "mcq"
     ? { type: "mcq", topic: x.topic, q: x.q, student: Q.ans[i] == null ? "(مفيش إجابة)" : x.options[Q.ans[i]], right: x.options[x.answer], correct: Q.ans[i] === x.answer }
     : { type: "short", topic: x.topic, q: x.q, student: Q.ans[i] || "(مفيش إجابة)", right: x.model_answer });
-  try { Q.review = await quizCall({ action: "review", items }); } catch (e) { Q.revErr = true; }
+  try { Q.review = await quizCall({ action: "review", items }); recordQuiz("short"); } catch (e) { Q.revErr = true; }
   if (!Q.saved) { Q.saved = true; S.quizzes = S.quizzes || []; S.quizzes.unshift({ d: iso(new Date()), s: Q.subj, t: Q.quiz.title, p: Math.round(qPts() / Q.quiz.questions.length * 100), n: Q.quiz.questions.length }); S.quizzes = S.quizzes.slice(0, 20); store.save(S); }
   render();
 }
@@ -1484,11 +1560,266 @@ function chatView() {
     h("div", { class: "card chatcard" }, chat, h("div", { class: "composer" }, q, h("button", { class: "send", "aria-label": "إرسال", disabled: busy, onclick: go }, sendIc()))));
 }
 
+/* ---------- مراجعة متباعدة + دفتر أخطاء + اشرحها بكلامك ---------- */
+const LADDER = [1, 3, 7, 14, 30, 60];
+const addDays = n => { const d = new Date(); d.setDate(d.getDate() + n); return iso(d); };
+const cardsOf = () => S.cards || (S.cards = []);
+const dueCards = () => { const t = iso(new Date()); return cardsOf().filter(c => c.due <= t); };
+function addCard(c) { if (cardsOf().some(x => x.q === c.q)) return false; cardsOf().push({ id: uid(), stage: 0, due: addDays(c.src === "wrong" ? 2 : 1), ...c }); return true; }
+function rateCard(c, r) { if (r === 0) c.stage = 0; else if (r === 2) c.stage = Math.min(c.stage + 1, LADDER.length - 1); c.due = addDays(r === 0 ? 1 : LADDER[c.stage]); }
+const weakList = n => Object.entries(S.weak || {}).filter(([, e]) => e.t >= 2 && e.w / e.t >= .4).sort((a, b) => b[1].w / b[1].t - a[1].w / a[1].t).slice(0, n);
+function recordQuiz(kind) {
+  const z = Q.quiz; if (!z) return; const sid = (S.subjects.find(x => x.name === Q.subj) || {}).id;
+  z.questions.forEach((x, i) => {
+    if ((x.type === "mcq") !== (kind === "mcq")) return;
+    const ok = kind === "mcq" ? Q.ans[i] === x.answer : ((Q.review && (Q.review.items.find(r => r.index === i) || {}).score) || 0) >= 1;
+    const t = x.topic || "عام", e = ((S.weak = S.weak || {})[t] = S.weak[t] || { w: 0, t: 0 }); e.t++; if (!ok) e.w++;
+    if (!ok) addCard({ q: x.q, a: kind === "mcq" ? x.options[x.answer] + (x.explanation ? " — " + x.explanation : "") : x.model_answer, topic: t, sid, src: "wrong" });
+  });
+  store.save(S);
+}
+async function aiAsk(prompt) {
+  const r = await fetch(AI_URL, { method: "POST", headers: { "Content-Type": "application/json", apikey: AI_KEY, Authorization: "Bearer " + ((await getTok()) || AI_KEY) }, body: JSON.stringify({ messages: [{ role: "user", content: prompt }], context: {} }) });
+  const j = await r.json().catch(() => ({}));
+  if (r.status === 401) throw new Error("سجّل دخول الأول.");
+  if (r.status === 429) throw new Error(j.error === "daily_limit" ? "وصلت للحد اليومي من رسائل المساعد. هيتجدد بكرة." : "الطلبات كتير دلوقتي، جرّب بعد شوية.");
+  if (!r.ok || !j.text) throw new Error("المساعد مش متاح حاليًا. جرّب تاني بعد شوية.");
+  return j.text;
+}
+function parseCards(t) {
+  let arr = []; try { arr = JSON.parse((t.match(/\[[\s\S]*\]/) || [""])[0]); } catch (e) { arr = (t.match(/\{[^{}]*\}/g) || []).map(o => { try { return JSON.parse(o); } catch (x) { return null; } }); }
+  return (Array.isArray(arr) ? arr : []).filter(c => c && typeof c.q === "string" && typeof c.a === "string" && c.q.trim() && c.a.trim()).map(c => ({ q: c.q.trim().slice(0, 300), a: c.a.trim().slice(0, 400), topic: String(c.topic || "").slice(0, 40) }));
+}
+const RV = { queue: null, i: 0, flip: false, busy: false, msg: "", ex: { t: "", s: "", out: "", busy: false } };
+const startReview = () => { RV.queue = dueCards().sort(() => Math.random() - .5); RV.i = 0; RV.flip = false; };
+function reviewRun() {
+  if (RV.i >= RV.queue.length) { const n = RV.queue.length; return h("div", { class: "card" }, h("h3", {}, "خلّصت مراجعة النهاردة 🎉"), h("p", { class: "muted" }, n + " كروت — هتظهر تاني في مواعيدها."), h("button", { onclick: () => { RV.queue = null; render(); } }, "تمام")); }
+  const c = RV.queue[RV.i], rt = r => { rateCard(c, r); store.save(S); RV.i++; RV.flip = false; render(); };
+  return h("div", { class: "card rv" }, h("p", { class: "muted" }, (RV.i + 1) + " / " + RV.queue.length + (c.topic ? " • " + c.topic : "")), h("h3", { style: "white-space:pre-wrap" }, c.q),
+    RV.flip ? h("div", {}, h("p", { class: "ans ok", style: "white-space:pre-wrap" }, c.a), h("div", { class: "inl" }, h("button", { class: "ghost", onclick: () => rt(0) }, "نسيت"), h("button", { class: "ghost", onclick: () => rt(1) }, "صعب"), h("button", { onclick: () => rt(2) }, "سهل")))
+      : h("div", {}, h("p", { class: "muted" }, "فكّر في الإجابة الأول، وبعدين اعرضها."), h("button", { onclick: () => { RV.flip = true; render(); } }, "اعرض الإجابة")));
+}
+function genCard() {
+  const sel = h("select", { "aria-label": "المادة" }, h("option", { value: "" }, "مادة عامة"), S.subjects.map(x => h("option", { value: x.id }, x.name)));
+  const ta = h("textarea", { rows: 4, maxlength: 6000, placeholder: "الصق هنا جزء من مادتك (ملاحظات، ملخص، فقرة من الكتاب)…", "aria-label": "المادة" });
+  const btn = h("button", { class: "sm", disabled: RV.busy, onclick: async () => {
+    const t = ta.value.trim(); if (t.length < 80) return toast("الصق نص أطول شوية (80 حرف على الأقل)");
+    RV.busy = true; RV.msg = "بيطلّع الكروت…"; render();
+    try {
+      const out = parseCards(await aiAsk("طلّع من النص ده 8 كروت مراجعة (سؤال وجواب قصير ومحدد) بنفس لغة النص. رجّع JSON بس من غير أي كلام تاني: [{\"q\":\"السؤال\",\"a\":\"الجواب في جملة أو اتنين\",\"topic\":\"الموضوع في كلمتين\"}]\n\nالنص:\n" + t.slice(0, 5000)));
+      const n = out.filter(c => addCard({ ...c, sid: sel.value || undefined, src: "ai" })).length; store.save(S);
+      RV.msg = n ? "اتضافت " + n + " كروت. هتظهر لك في مراجعة بكرة." : "معرفتش أطلّع كروت كويسة. جرّب نص أوضح.";
+    } catch (e) { RV.msg = e.message; }
+    RV.busy = false; render();
+  } }, RV.busy ? "ثواني…" : "طلّع كروت");
+  return h("div", { class: "card" }, h("h3", {}, "كروت من مادتك"), h("p", { class: "muted" }, "الصق نص والمساعد يحوّله لكروت سؤال/جواب. (بتحسب من حد رسائل المساعد)"), sel, ta, h("div", { class: "inl", style: "margin-top:8px" }, btn), RV.msg ? h("p", { class: "note" }, RV.msg) : null);
+}
+function weakCard() {
+  const w = weakList(6), wrong = cardsOf().filter(c => c.src === "wrong");
+  return h("div", { class: "card" }, h("h3", {}, "دفتر الأخطاء ونقط الضعف"),
+    w.length ? h("div", { class: "rv-tags" }, w.map(([t, e]) => h("span", {}, t + " (" + e.w + "/" + e.t + " غلط)"))) : h("p", { class: "muted" }, "لما تحل اختبارات «اختبرني» هنسجّل هنا المواضيع اللي بتغلط فيها وأسئلتك الغلط، وهنراجعها معاك بعد يومين وأسبوع."),
+    wrong.slice(-8).reverse().map(c => h("details", { class: "nb" }, h("summary", {}, c.q), h("p", { style: "white-space:pre-wrap" }, c.a), h("button", { class: "ghost sm", onclick: () => { S.cards = cardsOf().filter(x => x.id !== c.id); store.save(S); render(); } }, "مسحت الغلطة دي"))));
+}
+function explainCard() {
+  const t = h("input", { type: "text", maxlength: 80, placeholder: "اسم الموضوع", value: RV.ex.t, "aria-label": "الموضوع", oninput: e => { RV.ex.t = e.target.value; } });
+  const s = h("textarea", { rows: 4, maxlength: 1500, placeholder: "اشرحه بكلامك كأنك بتعلّمه لزميلك…", "aria-label": "شرحك", oninput: e => { RV.ex.s = e.target.value; } }, RV.ex.s);
+  const btn = h("button", { class: "sm", disabled: RV.ex.busy, onclick: async () => {
+    if (RV.ex.t.trim().length < 2 || RV.ex.s.trim().length < 40) return toast("اكتب الموضوع وشرح أطول شوية");
+    RV.ex.busy = true; RV.ex.out = ""; render();
+    try { RV.ex.out = await aiAsk("الطالب بيشرح موضوع «" + RV.ex.t.trim() + "» بكلامه:\n" + RV.ex.s.trim() + "\n\nقيّم شرحه بالعامية المصرية وباختصار: (1) إيه الصح فيه (2) إيه الناقص أو الغلط (3) تصحيح في جملة لو فيه غلط. من غير نصائح مذاكرة عامة."); }
+    catch (e) { RV.ex.out = e.message; }
+    RV.ex.busy = false; render();
+  } }, RV.ex.busy ? "ثواني…" : "قيّم شرحي");
+  return h("div", { class: "card" }, h("h3", {}, "اشرحها بكلامك"), h("p", { class: "muted" }, "لو قدرت تشرح الموضوع من غير ما تبص في الكتاب، يبقى فهمته فعلاً. (بتحسب من حد رسائل المساعد)"), t, s, h("div", { class: "inl", style: "margin-top:8px" }, btn), RV.ex.out ? h("div", { class: "note", style: "white-space:pre-wrap" }, RV.ex.out) : null);
+}
+function reviewView() {
+  const due = dueCards(), n = cardsOf().length;
+  return h("div", {}, head("مراجعة", "اسأل نفسك بدل ما تعيد القراءة — أقوى طريقة للحفظ."),
+    RV.queue ? reviewRun() : h("div", { class: "card" }, h("h3", {}, due.length ? "عندك " + due.length + " كرت للمراجعة النهاردة" : "مفيش مراجعة مستحقة النهاردة ✓"), h("p", { class: "muted" }, "إجمالي كروتك: " + n), due.length ? h("button", { onclick: () => { startReview(); render(); } }, "ابدأ المراجعة") : null),
+    genCard(), weakCard(), explainCard());
+}
+function examMilestones(key) { return S.exams.map(e => ({ e, dl: dnum(e.date) - dnum(key) })).filter(x => [14, 7, 3, 1].includes(x.dl)).map(x => ({ id: x.e.id + ":" + x.dl, name: (S.subjects.find(s => s.id === x.e.sid) || {}).name || "امتحان", kind: x.e.kind, dl: x.dl })); }
+function homeBoost(key) {
+  const due = dueCards(), ms = examMilestones(key), weak = weakList(3);
+  const tmr = addDays(1), nudge = new Date().getHours() >= 17 && S.nudgeDay !== key && !S.exams.some(x => x.date === tmr);
+  const soon = soonEvents(key);
+  if (!due.length && !ms.length && !weak.length && !nudge && !soon.length) return null;
+  return h("div", { class: "card boost" }, h("span", { class: "section-kicker" }, "عزّز مذاكرتك"),
+    soon.map(x => { const miss = [!x.time && "الساعة", !x.place && "المكان"].filter(Boolean); return h("div", { style: "margin-top:12px;padding-bottom:10px;border-bottom:1px solid var(--line)" },
+      h("b", {}, (x.dl ? "بكرة" : "النهاردة") + ": " + x.kind + (x.name ? " " + x.name : "")),
+      h("p", { class: "muted", style: "margin:4px 0" }, [x.time ? "الساعة " + x.time : null, x.place ? "المكان: " + x.place : null, x.note ? "🎒 " + x.note : null].filter(Boolean).join(" • ") || "مفيش تفاصيل متسجّلة"),
+      miss.length ? h("p", { class: "note", style: "margin:4px 0" }, "ناقص: " + miss.join(" و") + ". اسأل زمايلك وكمّله.") : null,
+      h("label", { style: "display:flex;gap:8px;align-items:center" }, h("input", { type: "checkbox", checked: !!(S.ready || {})[x.id], onchange: e => { (S.ready = S.ready || {})[x.id] = e.target.checked; store.save(S); } }), h("span", {}, "أنا عارف المكان والساعة وجهّزت حاجتي"))); }),
+    nudge ? h("div", { class: "brow" }, h("span", {}, "في كويز أو تسليم بكرة؟"), h("div", { class: "inl" }, h("button", { class: "sm", onclick: () => { examSt.date = tmr; examSt.kind = "كويز"; goTab("exams"); } }, "أضفه"), h("button", { class: "ghost sm", onclick: () => { S.nudgeDay = key; store.save(S); render(); } }, "مفيش"))) : null,
+    due.length ? h("div", { class: "brow" }, h("span", {}, due.length + " كرت مراجعة النهاردة"), h("button", { class: "sm", onclick: () => { startReview(); goTab("review"); } }, "ابدأ")) : null,
+    ms.map(m => h("label", { class: "brow", style: "justify-content:flex-start" }, h("input", { type: "checkbox", checked: !!(S.revDone || {})[m.id], onchange: e => { (S.revDone = S.revDone || {})[m.id] = e.target.checked; store.save(S); } }), h("span", {}, "راجع «" + m.name + "» — باقي " + m.dl + " يوم على الامتحان"))),
+    weak.length ? h("div", { class: "brow" }, h("div", { class: "rv-tags", style: "margin:0" }, weak.map(([t, e]) => h("span", {}, t + " (" + e.w + "/" + e.t + ")"))), h("button", { class: "ghost sm", onclick: () => goTab("review") }, "الأخطاء")) : null);
+}
+function intentField() {
+  const i = h("input", { type: "text", maxlength: 80, placeholder: "هتعمل إيه في الجلسة دي؟ (مثال: 5 مسائل تفاضل)", value: S.intent || "", "aria-label": "هدف الجلسة", disabled: !!tInt, oninput: e => { S.intent = e.target.value; } });
+  i.addEventListener("change", () => store.save(S)); const st = S.intentStats;
+  return h("div", { style: "text-align:start;margin:10px 0" }, h("label", { class: "muted", style: "display:block;margin-bottom:4px;font-size:.85rem" }, "هدف الجلسة (اختياري)"), i, st && st.total ? h("p", { class: "muted", style: "font-size:.8rem;margin:6px 0 0" }, "نفّذت " + st.done + " من " + st.total + " هدف جلسة") : null);
+}
+function askIntent() { const t = (S.intent || "").trim(); if (!t) return; setTimeout(async () => { const ok = await sure("خلّصت اللي نويت عليه؟ «" + t + "»"); const st = (S.intentStats = S.intentStats || { done: 0, total: 0 }); st.total++; if (ok) st.done++; S.intent = ""; store.save(S); render(); }, 700); }
+
+/* ---------- ما يفوتكش كويز: إضافة سريعة + تقويم + تذكير مسائي ---------- */
+function dlFile(name, text, type) { const a = h("a", { href: URL.createObjectURL(new Blob([text], { type })), download: name }); document.body.append(a); a.click(); a.remove(); }
+function exportIcs(e) {
+  const nm = (((subj(e.sid) || {}).name || "") + " " + (e.kind || "")).trim() || "امتحان", esc = t => String(t).replace(/[\\;,]/g, m => "\\" + m);
+  const d = e.date.replace(/-/g, ""), al = (trig, t) => "BEGIN:VALARM\r\nACTION:DISPLAY\r\nDESCRIPTION:" + esc(t) + "\r\nTRIGGER:" + trig + "\r\nEND:VALARM";
+  let when, alarms;
+  if (e.time) { const hh = e.time.slice(0, 2), mm = e.time.slice(3, 5), h2 = String((+hh + 1) % 24).padStart(2, "0"); when = "DTSTART:" + d + "T" + hh + mm + "00\r\nDTEND:" + d + "T" + h2 + mm + "00"; alarms = [al("-PT1440M", "بكرة: " + nm), al("-PT120M", "بعد ساعتين: " + nm), al("-PT30M", "بعد نص ساعة: " + nm)]; }
+  else { const nx = new Date(e.date + "T00:00:00"); nx.setDate(nx.getDate() + 1); when = "DTSTART;VALUE=DATE:" + d + "\r\nDTEND;VALUE=DATE:" + iso(nx).replace(/-/g, ""); alarms = [al("-P2DT15H", "كمان 3 أيام: " + nm), al("-PT900M", "بكرة: " + nm), al("PT480M", "النهاردة: " + nm)]; }
+  const stamp = new Date().toISOString().replace(/[-:]/g, "").slice(0, 15) + "Z";
+  dlFile("exam-" + e.date + ".ics", ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//UniMate//AR", "BEGIN:VEVENT", "UID:" + e.id + "@unimate", "DTSTAMP:" + stamp, when, "SUMMARY:" + esc(nm), ...alarms, "END:VEVENT", "END:VCALENDAR"].join("\r\n"), "text/calendar");
+  toast("افتح الملف وأضفه للتقويم، هيرنّ لك قبل الموعد 📅");
+}
+const EX_KINDS = ["كويز", "ميد", "فاينال", "تسليم", "سكشن"];
+const PX = { text: "", busy: false, msg: "", items: [] };
+const parseObjs = t => { let a = []; try { a = JSON.parse((t.match(/\[[\s\S]*\]/) || ["[]"])[0]); } catch (e) { a = (t.match(/\{[^{}]*\}/g) || []).map(o => { try { return JSON.parse(o); } catch (x) { return null; } }); } return Array.isArray(a) ? a.filter(x => x && typeof x === "object") : []; };
+function resolveDate(x) {
+  const td = iso(new Date());
+  if (/^\d{4}-\d{2}-\d{2}$/.test(x.date || "")) { let d = x.date; const y = new Date().getFullYear(); if (d < td) d = y + d.slice(4); if (d < td) d = (y + 1) + d.slice(4); return d; }
+  if (x.rel === "today") return td; if (x.rel === "tomorrow") return addDays(1); if (x.rel === "after_tomorrow") return addDays(2);
+  if (Number.isInteger(x.weekday) && x.weekday >= 0 && x.weekday <= 6) { let n = (x.weekday - new Date().getDay() + 7) % 7; if (n === 0) n = 7; return addDays(n); }
+  return "";
+}
+const matchSubject = n => { n = String(n || "").trim().toLowerCase(); if (!n) return ""; const m = S.subjects.find(x => { const a = x.name.toLowerCase(); return a === n || a.includes(n) || n.includes(a); }); return m ? m.id : ""; };
+const fmtDay = d => new Date(d + "T00:00:00").toLocaleDateString("ar-EG-u-nu-latn", { weekday: "long", day: "numeric", month: "numeric" });
+function pasteCard() {
+  const ta = h("textarea", { rows: 3, maxlength: 1000, placeholder: "انسخ رسالة الجروب أو الدكتور هنا، مثال: «كويز تفاضل الثلاثاء الساعة 10»", "aria-label": "رسالة الموعد", oninput: e => { PX.text = e.target.value; } }, PX.text);
+  const btn = h("button", { class: "sm", disabled: PX.busy, onclick: async () => {
+    const t = PX.text.trim(); if (t.length < 6) return toast("الصق الرسالة الأول");
+    PX.busy = true; PX.msg = ""; PX.items = []; render();
+    try {
+      const out = await aiAsk("بتستخرج مواعيد كويزات وامتحانات وتسليمات من رسالة طالب (جروب واتساب أو دكتور). النهاردة: " + new Date().toLocaleDateString("ar-EG", { weekday: "long" }) + " " + iso(new Date()) + ".\nموادي: " + (S.subjects.map(x => x.name).join("، ") || "مفيش") + ".\nرجّع JSON array بس من غير أي كلام تاني، كل عنصر: {\"kind\":\"كويز|ميد|فاينال|تسليم|سكشن\",\"subject\":\"اسم المادة من قايمتي لو متطابق وإلا ''\",\"date\":\"YYYY-MM-DD لو الرسالة ذكرت تاريخ صريح وإلا ''\",\"weekday\":رقم 0 لـ 6 (0=الأحد) لو ذكرت اسم يوم وإلا -1,\"rel\":\"today أو tomorrow أو after_tomorrow لو قال النهاردة/بكرة/بعد بكرة وإلا ''\",\"time\":\"HH:MM بنظام 24 ساعة لو ذكرت ساعة وإلا ''\"}. لو مفيش موعد رجّع [].\n\nالرسالة:\n" + t.slice(0, 900));
+      PX.items = parseObjs(out).slice(0, 5).map(x => ({ kind: EX_KINDS.includes(x.kind) ? x.kind : "كويز", sid: matchSubject(x.subject), date: resolveDate(x), time: /^([01]\d|2[0-3]):[0-5]\d$/.test(x.time || "") ? x.time : "" }));
+      PX.msg = PX.items.length ? "لقيت " + PX.items.length + (PX.items.length > 1 ? " مواعيد" : " موعد") + ". دوس عليه عشان يتحط في الفورم اللي تحت، وراجعه قبل ما تضيف." : "مالقيتش موعد في الرسالة. اكتبه يدوي من الفورم اللي تحت.";
+    } catch (e) { PX.msg = e.message; }
+    PX.busy = false; render();
+  } }, PX.busy ? "ثواني…" : "طلّع الموعد");
+  return h("div", { class: "card" }, h("h3", {}, "الصق رسالة الموعد ✨"), h("p", { class: "muted" }, "أسرع من التسجيل اليدوي. (بتحسب من حد رسائل المساعد)"), ta, h("div", { class: "inl", style: "margin-top:8px" }, btn),
+    PX.msg ? h("p", { class: "note" }, PX.msg) : null,
+    PX.items.map(it => h("button", { type: "button", class: "ghost", style: "display:block;width:100%;text-align:start;margin-top:8px", onclick: () => { examSt.kind = it.kind; examSt.sid = it.sid; if (it.date) examSt.date = it.date; examSt.time = it.time; PX.msg = it.date ? "اتحط في الفورم تحت. راجع التاريخ والساعة واضغط إضافة." : "التاريخ مش واضح في الرسالة، حدّده من الفورم تحت."; render(); const f = document.querySelector("#view form.card:not(.x)"); f && f.scrollIntoView({ behavior: "smooth", block: "center" }); } },
+      it.kind + ((S.subjects.find(x => x.id === it.sid) || {}).name ? " " + S.subjects.find(x => x.id === it.sid).name : "") + " — " + (it.date ? fmtDay(it.date) : "التاريخ مش واضح") + (it.time ? " • " + it.time : ""))));
+}
+const examSt = { kind: "كويز", date: "", time: "", sid: "", place: "", note: "", share: "", subjText: "" };
+const B = { mine: [], events: [], at: 0, busy: false, msg: "" };
+const BERR = { not_found: "الكود ده مش موجود. اتأكد منه.", batch_full: "المجموعة دي اتملت.", too_many_batches: "وصلت للحد الأقصى (5 مجموعات).", too_many_events: "وصلت للحد اليومي من إضافة المواعيد.", batch_events_full: "المجموعة دي وصلت للحد الأقصى من المواعيد.", bad_name: "اكتب اسم من حرفين على الأقل." };
+async function rpc(fn, args) { const r = await rest("rpc/" + fn, { method: "POST", body: JSON.stringify(args) }); const j = await r.json().catch(() => ({})); if (!r.ok) throw new Error(BERR[(j.message || "").trim()] || "حصل خطأ، جرّب تاني."); return j; }
+async function loadBatches(force) {
+  if (!auth.get() || B.busy || (!force && Date.now() - B.at < 30000)) return; B.busy = true;
+  try {
+    const m = await (await rest("unimate_batch_members?select=batch_code,role,unimate_batches(name)")).json();
+    B.mine = Array.isArray(m) ? m.map(x => ({ code: x.batch_code, role: x.role, name: (x.unimate_batches || {}).name || x.batch_code })) : [];
+    const ev = B.mine.length ? await (await rest("unimate_batch_events?select=*&date=gte." + addDays(-1) + "&order=date.asc,time.asc&limit=200")).json() : [];
+    B.events = Array.isArray(ev) ? ev : []; B.at = Date.now();
+    if (S.notifOn) syncNotif();
+    if (tab === "home" || (tab === "study" && secs.study === "exams")) render();
+  } catch (e) {}
+  B.busy = false;
+}
+function joinBlock(act) {
+  const code = h("input", { type: "text", dir: "ltr", maxlength: 12, placeholder: "كود الدفعة (6 حروف)", "aria-label": "كود الدفعة", autocapitalize: "characters" });
+  const name = h("input", { type: "text", maxlength: 60, placeholder: "اسم الدفعة (مثال: هندسة سنة تانية)", "aria-label": "اسم الدفعة" });
+  return [h("div", { class: "inl" }, code, h("button", { class: "sm", onclick: () => code.value.trim() && act(() => rpc("unimate_join_batch", { p_code: code.value }), "انضميت للمجموعة ✓") }, "انضم")),
+    h("div", { class: "inl", style: "margin-top:8px" }, name, h("button", { class: "sm ghost", onclick: () => name.value.trim() && act(() => rpc("unimate_create_batch", { p_name: name.value }), "اتعملت المجموعة ✓ ابعت الكود لزمايلك") }, "اعمل مجموعة"))];
+}
+function batchCard() {
+  if (!auth.get()) return null;
+  loadBatches();
+  const act = async (fn, ok) => { B.msg = ""; try { await fn(); B.msg = ok; await loadBatches(true); } catch (e) { B.msg = e.message; } render(); };
+  const msg = B.msg ? h("p", { class: "note" }, B.msg) : null;
+  if (!B.mine.length) return h("div", { class: "card" }, h("h3", {}, "تقويم الدفعة 👥"), h("p", { class: "muted" }, "لو أي حد من دفعتك ضاف كويز، يظهر عند كلكم وتتنبّهوا بيه. اتفقوا على مجموعة واحدة."), joinBlock(act), msg);
+  const today = iso(new Date()), up = B.events.filter(e => e.date >= today), roleOf = c => (B.mine.find(m => m.code === c) || {}).role, nameOf = c => (B.mine.find(m => m.code === c) || {}).name || "";
+  return h("div", { class: "card" }, h("h3", {}, "تقويم الدفعة 👥"), msg,
+    B.mine.map(m => h("div", { class: "brow" }, h("span", {}, m.name + " • الكود: " + m.code), h("div", { class: "inl" },
+      h("button", { class: "ghost sm", onclick: async () => { try { await navigator.clipboard.writeText(m.code); toast("اتنسخ الكود"); } catch (e) { toast(m.code); } } }, "نسخ"),
+      h("button", { class: "ghost sm", onclick: async () => { if (await sure("تخرج من «" + m.name + "»؟")) act(async () => { const r = await rest("unimate_batch_members?batch_code=eq." + m.code + "&user_id=eq." + auth.get().uid, { method: "DELETE" }); if (!r.ok) throw new Error("حصل خطأ"); }, "خرجت من المجموعة"); } }, "خروج")))),
+    up.length ? up.map(ev => h("div", { class: "msg" }, h("b", {}, ev.kind + (ev.subject ? " " + ev.subject : "")),
+      h("p", { class: "muted", style: "margin:2px 0" }, fmtDay(ev.date) + (ev.time ? " • " + ev.time : "") + (ev.place ? " • " + ev.place : "") + (B.mine.length > 1 ? " • " + nameOf(ev.batch_code) : "")),
+      ev.note ? h("p", { style: "margin:2px 0" }, "🎒 " + ev.note) : null,
+      ev.created_by === auth.get().uid || roleOf(ev.batch_code) === "owner" ? h("button", { class: "ghost sm", onclick: async () => { if (await sure("تمسح الموعد ده من الدفعة كلها؟")) act(async () => { const r = await rest("unimate_batch_events?id=eq." + ev.id, { method: "DELETE" }); if (!r.ok) throw new Error("حصل خطأ"); }, "اتمسح الموعد"); } }, "مسح") : null))
+      : h("p", { class: "muted" }, "مفيش مواعيد للدفعة لسه. أضف أول واحد من الفورم اللي تحت واختار مشاركته مع الدفعة."),
+    h("details", { class: "nb" }, h("summary", {}, "انضم أو اعمل مجموعة تانية"), joinBlock(act)));
+}
+function examForm() {
+  const f = examSt; if (!f.date) f.date = addDays(1);
+  const chip = (t, on, fn) => h("button", { type: "button", class: "ghost sm" + (on ? " on" : ""), "aria-pressed": String(on), onclick: fn }, t);
+  const sel = h("select", { "aria-label": "المادة", onchange: e => { f.sid = e.target.value; render(); } }, h("option", { value: "" }, "مادة غير محددة"), S.subjects.map(x => h("option", { value: x.id, selected: x.id === f.sid }, x.name)));
+  const dI = h("input", { type: "date", value: f.date, "aria-label": "التاريخ", onchange: e => { f.date = e.target.value; render(); } });
+  const tI = h("input", { type: "time", value: f.time, "aria-label": "الساعة (اختياري)", onchange: e => { f.time = e.target.value; } });
+  const place = h("input", { type: "text", maxlength: 80, placeholder: "المكان (قاعة / معمل) — اختياري", value: f.place, "aria-label": "المكان", oninput: e => { f.place = e.target.value; } });
+  const note = h("input", { type: "text", maxlength: 200, placeholder: "هتحتاج إيه؟ (آلة حاسبة، كارنيه…) — اختياري", value: f.note, "aria-label": "الأدوات المطلوبة", oninput: e => { f.note = e.target.value; } });
+  const shareSel = B.mine.length ? h("select", { "aria-label": "المشاركة", onchange: e => { f.share = e.target.value; render(); } }, h("option", { value: "" }, "مواعيدي أنا بس"), B.mine.map(m => h("option", { value: m.code, selected: f.share === m.code }, "شاركه مع «" + m.name + "»"))) : null;
+  const subjT = f.share && !f.sid ? h("input", { type: "text", maxlength: 60, placeholder: "اسم المادة (عشان زمايلك يعرفوه)", value: f.subjText, "aria-label": "اسم المادة", oninput: e => { f.subjText = e.target.value; } }) : null;
+  const reset = () => { f.time = ""; f.date = ""; f.place = ""; f.note = ""; f.subjText = ""; };
+  const submit = async e => {
+    e.preventDefault(); if (!f.date) return toast("اختار التاريخ");
+    if (f.share) {
+      const nm = ((S.subjects.find(x => x.id === f.sid) || {}).name || f.subjText).trim().slice(0, 60);
+      try {
+        const r = await rest("unimate_batch_events", { method: "POST", headers: { Prefer: "return=minimal" }, body: JSON.stringify({ batch_code: f.share, kind: f.kind, subject: nm, date: f.date, time: f.time || null, place: f.place.trim() || null, note: f.note.trim() || null, created_by: auth.get().uid }) });
+        if (!r.ok) { const j = await r.json().catch(() => ({})); return toast(BERR[(j.message || "").trim()] || "مقدرناش نضيفه للدفعة"); }
+      } catch (x) { return toast("مفيش اتصال بالنت"); }
+      toast("اتضاف للدفعة ✓ كلهم هيتنبّهوا بيه"); reset(); await loadBatches(true); render(); return;
+    }
+    S.exams.push({ id: uid(), sid: f.sid, date: f.date, kind: f.kind, ...(f.time ? { time: f.time } : {}), ...(f.place.trim() ? { place: f.place.trim() } : {}), ...(f.note.trim() ? { note: f.note.trim() } : {}) });
+    reset(); commit(); toast("اتضاف ✓ دوس 📅 تحت عشان يرنّ لك التقويم");
+  };
+  return h("div", {}, pasteCard(), batchCard(), h("form", { class: "card", onsubmit: submit },
+      h("h3", {}, "كويز أو امتحان أو تسليم جديد"),
+      h("div", { class: "seg subtabs" }, EX_KINDS.map(k => chip(k, f.kind === k, () => { f.kind = k; render(); }))),
+      h("div", { class: "seg subtabs" }, [["النهاردة", 0], ["بكرة", 1], ["بعد 3 أيام", 3], ["أسبوع", 7]].map(([t, n]) => chip(t, f.date === addDays(n), () => { f.date = addDays(n); render(); }))),
+      h("div", { class: "inl" }, dI, tI), place, note, sel, shareSel, subjT, h("button", { type: "submit", style: "margin-top:8px" }, f.share ? "أضف للدفعة" : "إضافة")),
+    S.exams.length && !S.notifOn ? h("div", { class: "card" }, h("h3", {}, "متفوّتش موعد تاني 🔔"), h("p", { class: "muted" }, "فعّل تنبيهات الموبايل، أو دوس 📅 على أي موعد يتضاف لتقويم موبايلك ويرنّ لك قبلها (وبيشتغل على أي موبايل)."), pushReady() && !(isIOS && !navigator.standalone) ? h("button", { class: "sm", onclick: enablePush }, "فعّل التنبيهات") : null) : null);
+}
+function soonEvents(key) {
+  const out = [], tm = addDays(1);
+  const add = (id, name, kind, date, time, place, note) => { if (date === key || date === tm) out.push({ id: id + ":" + date, name, kind, date, time, place, note, dl: date === key ? 0 : 1 }); };
+  S.exams.forEach(e => add(e.id, (subj(e.sid) || {}).name || "", e.kind || "امتحان", e.date, e.time, e.place, e.note));
+  B.events.forEach(ev => add("g" + ev.id, ev.subject || "", ev.kind, ev.date, ev.time, ev.place, ev.note));
+  return out.sort((a, b) => a.dl - b.dl);
+}
+/* ---------- شريط الموعد القريب (يظهر في كل الصفحات حسب الأهمية) ---------- */
+const urgBox = h("div", { id: "urg" }), BASE_TITLE = document.title;
+const fmtMins = m => m < 60 ? m + " دقيقة" : Math.floor(m / 60) + " ساعة" + (m % 60 ? " و" + (m % 60) + " دقيقة" : "");
+function urgentList() {
+  const d0 = new Date(), key = iso(d0), nowMin = d0.getHours() * 60 + d0.getMinutes(), out = [];
+  const add = (id, name, kind, date, time, place) => {
+    const dl = dnum(date) - dnum(key); if (dl < 0 || dl > 3) return;
+    let mins = null; if (dl === 0 && time) { mins = +time.slice(0, 2) * 60 + +time.slice(3, 5) - nowMin; if (mins < -60) return; }
+    out.push({ id, name, kind, time, place, dl, mins });
+  };
+  S.exams.forEach(e => add(e.id, (subj(e.sid) || {}).name || "", e.kind || "امتحان", e.date, e.time, e.place));
+  B.events.forEach(ev => add("g" + ev.id, ev.subject || "", ev.kind, ev.date, ev.time, ev.place));
+  return out.sort((a, b) => a.dl - b.dl || (a.mins ?? 9999) - (b.mins ?? 9999));
+}
+function renderUrg() {
+  const l = auth.get() ? urgentList() : [], t = l[0], key = iso(new Date());
+  const hide = t && t.dl >= 2 && S.hideUrg === key;
+  urgBox.replaceChildren(); urgBox.className = "";
+  document.title = (t && !hide ? (t.dl === 0 ? "🚨 " + t.kind + " النهاردة — " : t.dl === 1 ? "⏰ " + t.kind + " بكرة — " : "") : "") + BASE_TITLE;
+  document.querySelectorAll("#nav button, .bside button").forEach(b => { b.querySelectorAll(".dot").forEach(d => d.remove()); if (t && t.dl <= 1 && b.textContent.trim().startsWith("دراستي")) b.append(h("i", { class: "dot", "aria-hidden": "true" })); });
+  if (!t || hide) return;
+  const lvl = t.dl === 0 ? "l3" : t.dl === 1 ? "l2" : "l1";
+  const when = t.dl === 0 ? "🚨 النهاردة" : t.dl === 1 ? "⏰ بكرة" : "📅 بعد " + t.dl + " أيام";
+  const txt = when + ": " + t.kind + (t.name ? " " + t.name : "") + (t.time ? " — الساعة " + t.time : "") + (t.mins !== null ? (t.mins > 0 ? " (باقي " + fmtMins(t.mins) + ")" : " (بدأ!)") : "") + (t.place ? " • " + t.place : "") + (l.length > 1 ? " • +" + (l.length - 1) + " كمان" : "");
+  if (t.dl === 0) urgBox.className = "sticky";
+  urgBox.append(h("button", { type: "button", class: "urg " + lvl, role: t.dl === 0 ? "alert" : "status", onclick: () => goTab("exams") }, h("span", {}, txt),
+    t.dl >= 2 ? h("span", { class: "x", role: "button", "aria-label": "إخفاء", onclick: e => { e.stopPropagation(); S.hideUrg = key; store.save(S); renderUrg(); } }, "✕") : null));
+}
+/* ---------- دمج التبويبات ---------- */
+const _v = { subjects: views.subjects, schedule: views.schedule, exams: views.exams, progress: views.progress, forest: views.forest, review: reviewView };
+const subTabs = (key, items) => h("div", { class: "seg subtabs", role: "tablist" }, items.map(([k, l]) => h("button", { type: "button", role: "tab", class: "ghost sm" + (secs[key] === k ? " on" : ""), "aria-selected": String(secs[key] === k), onclick: () => { secs[key] = k; render(); window.scrollTo(0, 0); } }, l)));
+views.study = () => h("div", {}, subTabs("study", [["subjects", "المواد"], ["schedule", "الجدول"], ["exams", "الامتحانات"], ["review", "مراجعة" + (dueCards().length ? " (" + dueCards().length + ")" : "")]]), _v[secs.study]());
+views.progress = () => h("div", {}, subTabs("progress", [["progress", "إنجازاتي"], ["forest", "الغابة 🌳"]]), _v[secs.progress]());
+
 /* ---------- التشغيل ---------- */
 (() => { const m = location.hash.match(/^#join=([A-Za-z0-9]{4,12})$/); if (m) { S.pendingJoin = m[1].toUpperCase(); store.save(S); history.replaceState(null, "", location.pathname + location.search); } })();
-const PRIMARY = ["home", "focus", "forest", "ai", "subjects"];
+const PRIMARY = ["home", "study", "focus", "ai", "progress"];
 let moreOpen = false;
-function goTab(k) { tab = k; moreOpen = false; render(); window.scrollTo(0, 0); }
+function goTab(k) { if (ALIAS[k]) { secs[ALIAS[k][0]] = ALIAS[k][1]; k = ALIAS[k][0]; } tab = k; moreOpen = false; render(); window.scrollTo(0, 0); }
 function paintMore() {
   const m = $("more"), b = $("nav").querySelector(".more");
   m.hidden = !moreOpen || !S.profile;
@@ -1508,11 +1839,11 @@ function render() {
     nav.hidden = true;
     v.replaceChildren(h("div", {}, h("div", { class: "card hero" }, h("h2", {}, "أهلاً بيك في UniMate AI"), h("p", {}, "مساعدك الجامعي الذكي لتنظيم المذاكرة."),
       h("ul", { class: "feat" }, h("li", {}, "خطة يومية بتتغير مع قرب امتحاناتك"), h("li", {}, "متابعة محاضراتك وإنجازاتك"), h("li", {}, "مساعد ذكي يجاوب أسئلتك"))),
-      profileForm(p => { S.profile = p; tab = "subjects"; commit(); }, "يلا نبدأ")));
+      profileForm(p => { S.profile = p; tab = "study"; secs.study = "subjects"; commit(); }, "يلا نبدأ")));
     return;
   }
   nav.hidden = false;
-  if (S.pendingJoin) { const c = S.pendingJoin; S.pendingJoin = null; store.save(S); tab = "forest"; sel = "global"; sure("تنضم لمجموعة المذاكرة " + c + " 👥؟").then(ok => { if (ok) joinRoom(c); }); }
+  if (S.pendingJoin) { const c = S.pendingJoin; S.pendingJoin = null; store.save(S); tab = "progress"; secs.progress = "forest"; sel = "global"; sure("تنضم لمجموعة المذاكرة " + c + " 👥؟").then(ok => { if (ok) joinRoom(c); }); }
   nav.replaceChildren(h("div", { class: "bside" }, h("span", { class: "logo" }, "U"), "UniMate AI"), ...TABS.map(([k, l]) => h("button", { class: PRIMARY.includes(k) ? "" : "sec", "aria-current": k === tab ? "page" : null, onclick: () => goTab(k) }, ico(k), l)),
     h("button", { class: "more" + (PRIMARY.includes(tab) ? "" : " cur"), "aria-label": "المزيد", "aria-haspopup": "true", "aria-expanded": "false", onclick: () => { moreOpen = !moreOpen; paintMore(); } }, ico("more"), "المزيد"));
   paintMore();
@@ -1520,11 +1851,12 @@ function render() {
   v.append(h("p", { class: "muted", style: "text-align:center;font-size:.75rem;margin-top:18px" }, "الإصدار 2026.10.22 — اختبارات v2"));
   tPaint();
 }
+const _render = render; render = function () { _render(); renderUrg(); }; setInterval(renderUrg, 30000);
 render();
-$("view").before(annBox); loadAnn();
-if (auth.get()) cloudBoot().catch(() => {});
-setInterval(() => { if (auth.get() && !document.hidden) { checkAccount(); cloudPush().catch(() => {}); refreshVerified(); } if (!document.hidden) loadAnn(); }, 300000);
-document.addEventListener("visibilitychange", () => { if (!document.hidden) { loadAnn(); if (auth.get()) { checkAccount(); refreshVerified(); } } });
+$("view").before(urgBox); $("view").before(annBox); document.body.append(mBox); loadAnn(); checkMaint();
+if (auth.get()) { cloudBoot().catch(() => {}); loadBatches(); }
+setInterval(() => { if (auth.get() && !document.hidden) { checkAccount(); cloudPush().catch(() => {}); refreshVerified(); } if (!document.hidden) { loadAnn(); checkMaint(); } }, 300000);
+document.addEventListener("visibilitychange", () => { if (!document.hidden) { loadAnn(); checkMaint(); if (auth.get()) { checkAccount(); refreshVerified(); loadBatches(); } } });
 </script>
 <script>if("serviceWorker"in navigator&&location.protocol.startsWith("http"))addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));</script>
 </body>
