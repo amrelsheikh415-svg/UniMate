@@ -1,20 +1,69 @@
-const C="unimate-v2",FILES=["./","./index.html","./icon-192.png","./icon-512.png"];
-const NOTIFY_URL="https://meavuwntikizkfjhtnbd.supabase.co/functions/v1/notify";
-self.addEventListener("install",e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(FILES)).then(()=>self.skipWaiting()))});
-self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==C).map(x=>caches.delete(x)))).then(()=>self.clients.claim()))});
-self.addEventListener("fetch",e=>{
-  const u=new URL(e.request.url);
-  if(e.request.method!=="GET"||u.origin!==location.origin)return; // Supabase/fonts go straight to network
-  e.respondWith(fetch(e.request).then(r=>{const k=r.clone();caches.open(C).then(c=>c.put(e.request,k));return r}).catch(()=>caches.match(e.request).then(r=>r||caches.match("./index.html"))));
+/* UniMate service worker v3: push notifications + offline shell */
+const NOTIFY = "https://meavuwntikizkfjhtnbd.supabase.co/functions/v1/notify";
+const CACHE = "unimate-shell-v3";
+
+self.addEventListener("install", () => { self.skipWaiting(); });
+
+self.addEventListener("activate", e => e.waitUntil((async () => {
+  for (const k of await caches.keys()) if (k !== CACHE && k.startsWith("unimate")) await caches.delete(k);
+  await self.clients.claim();
+})()));
+
+// network first, cached copy only when offline (same-origin GET only; API calls are never touched)
+self.addEventListener("fetch", e => {
+  const r = e.request;
+  if (r.method !== "GET") return;
+  let u; try { u = new URL(r.url); } catch (_) { return; }
+  if (u.origin !== self.location.origin) return;
+  e.respondWith((async () => {
+    try {
+      const res = await fetch(r);
+      if (res.ok) { const c = await caches.open(CACHE); c.put(r, res.clone()).catch(() => {}); }
+      return res;
+    } catch (err) {
+      const hit = (await caches.match(r)) || (r.mode === "navigate" ? (await caches.match("./index.html")) || (await caches.match("./")) : null);
+      if (hit) return hit;
+      throw err;
+    }
+  })());
 });
-self.addEventListener("push",e=>{e.waitUntil((async()=>{
-  let items=[];
-  try{
-    const sub=await self.registration.pushManager.getSubscription();
-    const r=await fetch(NOTIFY_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"inbox",endpoint:sub&&sub.endpoint})});
-    items=(await r.json()).items||[];
-  }catch(_){}
-  if(!items.length)items=[{title:"UniMate",body:"عندك تنبيه جديد 🔔"}];
-  await Promise.all(items.map(i=>self.registration.showNotification(i.title,{body:i.body,icon:"icon-192.png",badge:"icon-192.png",dir:"rtl",lang:"ar",data:{url:"./"}})));
-})())});
-self.addEventListener("notificationclick",e=>{e.notification.close();e.waitUntil(clients.matchAll({type:"window",includeUncontrolled:true}).then(l=>l.length?l[0].focus():clients.openWindow("./")))});
+
+// The server sends an empty push; the text is fetched here. Every push MUST show a notification,
+// so a failed fetch falls back to a generic message instead of silently dropping it.
+self.addEventListener("push", e => e.waitUntil((async () => {
+  let shown = 0;
+  try {
+    const sub = await self.registration.pushManager.getSubscription();
+    if (sub) {
+      const r = await fetch(NOTIFY, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "inbox", endpoint: sub.endpoint }) });
+      const j = await r.json();
+      for (const it of (j && j.items) || []) {
+        await self.registration.showNotification(it.title || "UniMate", {
+          body: it.body || "", dir: "rtl", lang: "ar", tag: "unimate-" + Date.now() + "-" + shown, renotify: true,
+          vibrate: [120, 60, 120], data: { url: it.url || "./" },
+        });
+        shown++;
+      }
+    }
+  } catch (_) {}
+  if (!shown) await self.registration.showNotification("UniMate", { body: "عندك تنبيه جديد، افتح التطبيق", dir: "rtl", lang: "ar", tag: "unimate-fallback", data: { url: "./" } });
+})()));
+
+self.addEventListener("notificationclick", e => {
+  e.notification.close();
+  const url = new URL((e.notification.data && e.notification.data.url) || "./", self.registration.scope).href;
+  e.waitUntil((async () => {
+    const wins = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+    for (const c of wins) {
+      if ("focus" in c) {
+        await c.focus();
+        if ("navigate" in c) { try { await c.navigate(url); } catch (_) {} }
+        return;
+      }
+    }
+    await self.clients.openWindow(url);
+  })());
+});
+
+// lets the app check that this exact version is the one running on the site
+self.addEventListener("message", e => { if (e.data === "version" && e.ports && e.ports[0]) e.ports[0].postMessage({ v: "v3" }); });
