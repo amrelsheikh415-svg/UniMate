@@ -1050,7 +1050,9 @@ async function syncNotif() {
   notifBusy = true;
   try {
     notif = await notifCall({ action: "sync", data: {
-      exams: [...S.exams.map(e => ({ id: e.id, subject: (subj(e.sid) || {}).name || "مادة", date: e.date, kind: e.kind || "", time: e.time || "" })), ...B.events.map(ev => ({ id: "g" + ev.id.slice(0, 8), subject: ev.subject || "الدفعة", date: ev.date, kind: ev.kind, time: ev.time || "" }))],
+      exams: [...S.exams.map(e => ({ id: e.id, subject: (subj(e.sid) || {}).name || "مادة", date: e.date, kind: e.kind || "", time: e.time || "", place: e.place || "", note: e.note || "" })), ...B.events.map(ev => ({ id: "g" + ev.id.slice(0, 8), subject: ev.subject || "الدفعة", date: ev.date, kind: ev.kind, time: ev.time || "", place: ev.place || "", note: ev.note || "" }))],
+      cardDue: cardsOf().map(c => c.due),
+      stats: { today: (S.trees || []).filter(x => iso(new Date(tm(x).t)) === iso(new Date())).reduce((a, x) => a + (tm(x).m || 0), 0), streak: forestStreak().current },
       classes: S.classes.map(c => ({ id: c.id, day: c.day, time: c.time, title: c.title })) } });
   } catch (e) { notif = { error: e.message }; }
   notifBusy = false; notifAt = Date.now(); if (tab === "account") render();
@@ -1089,7 +1091,7 @@ function notifCard() {
   const on = S.notifOn && "Notification" in window && Notification.permission === "granted";
   if (on && !notifBusy && Date.now() - notifAt > 20000) syncNotif();
   return h("div", { class: "card" }, h("h3", {}, "تنبيهات الموبايل 📲"),
-    h("p", { class: "muted" }, "إشعارات من الموقع نفسه قبل المحاضرة بنص ساعة، وقبل الامتحان بـ3 أيام ويوم وفي يومه، وتذكير بالمذاكرة بالليل لو امتحانك قرب."),
+    h("p", { class: "muted" }, "تنبيه الصبح بجدول يومك، وقبل المحاضرة بنص ساعة، وقبل الامتحان (3 أيام، وليلته بالمكان والأدوات، وقبله بساعتين ونص ساعة)، وتذكير بالليل لو لسه ماذاكرتش."),
     !/^https?:/.test(location.protocol) ? h("p", { class: "muted" }, "⚠️ الإشعارات بتشتغل بس لما تفتح الموقع من رابط (زي Netlify) مش من ملف على الجهاز.")
     : isIOS && !navigator.standalone ? h("p", { class: "muted" }, "على الآيفون: افتح الموقع في Safari، دوس زرار المشاركة ثم Add to Home Screen، وافتحه من الأيقونة وبعدها فعّل الإشعارات.")
     : !pushReady() ? h("p", { class: "muted" }, "المتصفح ده مش بيدعم الإشعارات. جرّب Chrome على الأندرويد.")
@@ -1414,7 +1416,7 @@ async function callAI(msgs, onText) {
   if (AI_URL) {
     let r;
     try {
-      r = await fetch(AI_URL, { method: "POST", headers: { "Content-Type": "application/json", apikey: AI_KEY, Authorization: "Bearer " + ((await getTok()) || AI_KEY) },
+      r = await fetch(AI_URL, { method: "POST", headers: { "Content-Type": "application/json", apikey: AI_KEY, Authorization: "Bearer " + ((track("chat"), await getTok()) || AI_KEY) },
         body: JSON.stringify({ messages: chatMsgs().map(({ role, content }) => ({ role, content })), context: ctxData() }) });
     } catch (e) { throw { code: "failed", detail: "network: " + (e && e.message) }; }
     if (r.status === 401) throw { code: "login_required" };
@@ -1569,6 +1571,7 @@ function addCard(c) { if (cardsOf().some(x => x.q === c.q)) return false; cardsO
 function rateCard(c, r) { if (r === 0) c.stage = 0; else if (r === 2) c.stage = Math.min(c.stage + 1, LADDER.length - 1); c.due = addDays(r === 0 ? 1 : LADDER[c.stage]); }
 const weakList = n => Object.entries(S.weak || {}).filter(([, e]) => e.t >= 2 && e.w / e.t >= .4).sort((a, b) => b[1].w / b[1].t - a[1].w / a[1].t).slice(0, n);
 function recordQuiz(kind) {
+  if (kind === "mcq") track("quiz");
   const z = Q.quiz; if (!z) return; const sid = (S.subjects.find(x => x.name === Q.subj) || {}).id;
   z.questions.forEach((x, i) => {
     if ((x.type === "mcq") !== (kind === "mcq")) return;
@@ -1594,7 +1597,7 @@ const RV = { queue: null, i: 0, flip: false, busy: false, msg: "", ex: { t: "", 
 const startReview = () => { RV.queue = dueCards().sort(() => Math.random() - .5); RV.i = 0; RV.flip = false; };
 function reviewRun() {
   if (RV.i >= RV.queue.length) { const n = RV.queue.length; return h("div", { class: "card" }, h("h3", {}, "خلّصت مراجعة النهاردة 🎉"), h("p", { class: "muted" }, n + " كروت — هتظهر تاني في مواعيدها."), h("button", { onclick: () => { RV.queue = null; render(); } }, "تمام")); }
-  const c = RV.queue[RV.i], rt = r => { rateCard(c, r); store.save(S); RV.i++; RV.flip = false; render(); };
+  const c = RV.queue[RV.i], rt = r => { rateCard(c, r); store.save(S); if (S.notifOn) { clearTimeout(syncT); syncT = setTimeout(() => syncNotif(), 4000); } RV.i++; RV.flip = false; render(); };
   return h("div", { class: "card rv" }, h("p", { class: "muted" }, (RV.i + 1) + " / " + RV.queue.length + (c.topic ? " • " + c.topic : "")), h("h3", { style: "white-space:pre-wrap" }, c.q),
     RV.flip ? h("div", {}, h("p", { class: "ans ok", style: "white-space:pre-wrap" }, c.a), h("div", { class: "inl" }, h("button", { class: "ghost", onclick: () => rt(0) }, "نسيت"), h("button", { class: "ghost", onclick: () => rt(1) }, "صعب"), h("button", { onclick: () => rt(2) }, "سهل")))
       : h("div", {}, h("p", { class: "muted" }, "فكّر في الإجابة الأول، وبعدين اعرضها."), h("button", { onclick: () => { RV.flip = true; render(); } }, "اعرض الإجابة")));
@@ -1809,9 +1812,26 @@ function renderUrg() {
   urgBox.append(h("button", { type: "button", class: "urg " + lvl, role: t.dl === 0 ? "alert" : "status", onclick: () => goTab("exams") }, h("span", {}, txt),
     t.dl >= 2 ? h("span", { class: "x", role: "button", "aria-label": "إخفاء", onclick: e => { e.stopPropagation(); S.hideUrg = key; store.save(S); renderUrg(); } }, "✕") : null));
 }
+/* ---------- تتبّع استخدام خفيف (مرة في اليوم لكل ميزة، بدون أي محتوى) ---------- */
+const TRK = (() => { try { return JSON.parse(localStorage.getItem("unimate-trk")) || {}; } catch (e) { return {}; } })();
+function track(f) {
+  try {
+    if (!auth.get()) return; const d = iso(new Date());
+    if (TRK.d !== d) { TRK.d = d; TRK.s = []; }
+    if (TRK.s.includes(f)) return; TRK.s.push(f); localStorage.setItem("unimate-trk", JSON.stringify(TRK));
+    rest("rpc/unimate_track", { method: "POST", body: JSON.stringify({ p_feature: f }) }).catch(() => {});
+  } catch (e) {}
+}
+function applyHash() {
+  const k = (location.hash || "").slice(1);
+  if (!["home", "exams", "review", "focus", "schedule", "ai", "progress", "account", "forest", "subjects", "study"].includes(k)) return;
+  try { history.replaceState(null, "", location.pathname + location.search); } catch (e) {}
+  if (auth.get()) goTab(k);
+}
+addEventListener("hashchange", applyHash);
 /* ---------- دمج التبويبات ---------- */
 const _v = { subjects: views.subjects, schedule: views.schedule, exams: views.exams, progress: views.progress, forest: views.forest, review: reviewView };
-const subTabs = (key, items) => h("div", { class: "seg subtabs", role: "tablist" }, items.map(([k, l]) => h("button", { type: "button", role: "tab", class: "ghost sm" + (secs[key] === k ? " on" : ""), "aria-selected": String(secs[key] === k), onclick: () => { secs[key] = k; render(); window.scrollTo(0, 0); } }, l)));
+const subTabs = (key, items) => h("div", { class: "seg subtabs", role: "tablist" }, items.map(([k, l]) => h("button", { type: "button", role: "tab", class: "ghost sm" + (secs[key] === k ? " on" : ""), "aria-selected": String(secs[key] === k), onclick: () => { secs[key] = k; track(k); render(); window.scrollTo(0, 0); } }, l)));
 views.study = () => h("div", {}, subTabs("study", [["subjects", "المواد"], ["schedule", "الجدول"], ["exams", "الامتحانات"], ["review", "مراجعة" + (dueCards().length ? " (" + dueCards().length + ")" : "")]]), _v[secs.study]());
 views.progress = () => h("div", {}, subTabs("progress", [["progress", "إنجازاتي"], ["forest", "الغابة 🌳"]]), _v[secs.progress]());
 
@@ -1819,7 +1839,7 @@ views.progress = () => h("div", {}, subTabs("progress", [["progress", "إنجا�
 (() => { const m = location.hash.match(/^#join=([A-Za-z0-9]{4,12})$/); if (m) { S.pendingJoin = m[1].toUpperCase(); store.save(S); history.replaceState(null, "", location.pathname + location.search); } })();
 const PRIMARY = ["home", "study", "focus", "ai", "progress"];
 let moreOpen = false;
-function goTab(k) { if (ALIAS[k]) { secs[ALIAS[k][0]] = ALIAS[k][1]; k = ALIAS[k][0]; } tab = k; moreOpen = false; render(); window.scrollTo(0, 0); }
+function goTab(k) { track(k); if (ALIAS[k]) { secs[ALIAS[k][0]] = ALIAS[k][1]; k = ALIAS[k][0]; } tab = k; moreOpen = false; render(); window.scrollTo(0, 0); }
 function paintMore() {
   const m = $("more"), b = $("nav").querySelector(".more");
   m.hidden = !moreOpen || !S.profile;
@@ -1854,10 +1874,10 @@ function render() {
 const _render = render; render = function () { _render(); renderUrg(); }; setInterval(renderUrg, 30000);
 render();
 $("view").before(urgBox); $("view").before(annBox); document.body.append(mBox); loadAnn(); checkMaint();
-if (auth.get()) { cloudBoot().catch(() => {}); loadBatches(); }
+if (auth.get()) { cloudBoot().catch(() => {}); loadBatches(); track("open"); applyHash(); if (S.notifOn) setTimeout(syncNotif, 2500); }
 setInterval(() => { if (auth.get() && !document.hidden) { checkAccount(); cloudPush().catch(() => {}); refreshVerified(); } if (!document.hidden) { loadAnn(); checkMaint(); } }, 300000);
 document.addEventListener("visibilitychange", () => { if (!document.hidden) { loadAnn(); checkMaint(); if (auth.get()) { checkAccount(); refreshVerified(); loadBatches(); } } });
 </script>
-<script>if("serviceWorker"in navigator&&location.protocol.startsWith("http"))addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));</script>
+<script>if("serviceWorker"in navigator&&location.protocol.startsWith("http"))addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>r.update()).catch(()=>{}));</script>
 </body>
 </html>

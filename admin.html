@@ -133,7 +133,7 @@ async function limitsDlg(u) {
 }
 const act = async (fn, msg) => { try { await fn(); toast(msg); show(); } catch (e) { toast(e.message); } };
 
-const TABS = [["overview", "نظرة عامة"], ["users", "المستخدمين"], ["forest", "الغابة"], ["announce", "إعلان"], ["log", "السجل"]];
+const TABS = [["overview", "نظرة عامة"], ["users", "المستخدمين"], ["batches", "الدفعات"], ["usage", "الاستخدام"], ["inbox", "الرسائل"], ["announce", "إعلان وصيانة"], ["system", "النظام"], ["forest", "الغابة"], ["log", "السجل"]];
 let tab = "overview", page = 1, q = "";
 function drawTabs() {
   const n = $("tabs"); n.replaceChildren();
@@ -141,25 +141,32 @@ function drawTabs() {
 }
 async function show() {
   const m = $("main"); m.replaceChildren(h("div", { class: "empty" }, "بيحمّل…"));
-  try { m.replaceChildren(await ({ overview, users, forest, announce, log })[tab]()); } catch (e) { m.replaceChildren(h("div", { class: "empty" }, e.message)); }
+  try { m.replaceChildren(await ({ overview, users, forest, batches, usage, inbox, announce, system, log })[tab]()); } catch (e) { m.replaceChildren(h("div", { class: "empty" }, e.message)); }
 }
 async function overview() {
   const s = await api("stats");
   const S = [["مسجّلين", s.users, 1], ["نشطين آخر 24 ساعة", s.active24h, 1], ["جدد آخر 7 أيام", s.new7d], ["حسابات موثّقة", s.verified], ["أجهزة (تذكيرات)", s.devices], ["اشتراكات إشعارات", s.push], ["إشعارات لسه متبعتتش", s.outboxPending], ["أشجار الغابة", s.trees], ["أعضاء الغرف", s.rooms]];
+  let usage = null; try { usage = await ops("usage"); } catch (e) {}
+  let openMsgs = null; try { openMsgs = (await ops("inbox_count")).open; } catch (e) {}
   let chart = null; try { chart = signupChart((await api("signups", {}, "admin-insights")).days); } catch (e) {}
   let sec = null; try { sec = await api("x", {}, "admin-security"); } catch (e) {}
+  if (openMsgs !== null) S.unshift(["رسائل مفتوحة", openMsgs, openMsgs > 0]);
   const cards = h("div", { class: "grid" }, S.map(([l, v, hot]) => h("div", { class: "stat" + (hot ? " hot" : "") }, h("b", {}, String(v)), h("span", {}, l))));
-  if (!sec) return h("div", {}, cards, chart);
+  const ai = !usage ? null : h("div", {}, usageChart(usage.days),
+    usage.top.length ? h("div", { class: "tw", style: "margin-top:12px" }, h("table", {}, h("thead", {}, h("tr", {}, ["أكتر حسابات استهلاكًا (7 أيام)", "رسائل المساعد", "اختبارات"].map(x => h("th", {}, x)))),
+      h("tbody", {}, usage.top.map(t => h("tr", {}, h("td", {}, niceId(t.who)), h("td", {}, String(t.ai)), h("td", {}, String(t.quiz))))))) : null);
+  const bk = h("div", { class: "act", style: "margin-top:18px" }, h("button", { onclick: e => backupNow(e.target) }, "نسخة احتياطية (JSON)"));
+  if (!sec) return h("div", {}, cards, chart, ai, bk);
   const sc = h("div", { class: "grid", style: "margin-top:12px" },
     h("div", { class: "stat" + (sec.failed24h ? " hot" : "") }, h("b", {}, String(sec.failed24h)), h("span", {}, "محاولات دخول فاشلة (24 ساعة)")),
     h("div", { class: "stat" + (sec.lockedNow ? " hot" : "") }, h("b", {}, String(sec.lockedNow)), h("span", {}, "حسابات مقفولة دلوقتي")));
   const tb = sec.targets.length ? h("div", { class: "tw", style: "margin-top:12px" }, h("table", {}, h("thead", {}, h("tr", {}, ["الحساب", "محاولات فاشلة", "آخر محاولة", "الحالة"].map(x => h("th", {}, x)))),
     h("tbody", {}, sec.targets.map(t => h("tr", {}, h("td", {}, niceId(t.id)), h("td", {}, String(t.fails)), h("td", {}, fmt(t.last)), h("td", {}, t.locked ? h("span", { class: "tag bad" }, "مقفول مؤقتًا") : "—")))))) : null;
-  return h("div", {}, cards, chart, h("h2", { style: "font-size:16px;margin:22px 0 4px" }, "الأمان"), sc, tb);
+  return h("div", {}, cards, chart, ai, h("h2", { style: "font-size:16px;margin:22px 0 4px" }, "الأمان"), sc, tb, bk);
 }
 async function users() {
-  const d = await api("users", { page });
-  const rows = d.users.filter(u => !q || [u.email, niceId(u.email), u.name, u.university].join(" ").toLowerCase().includes(q.toLowerCase()));
+  const d = await more("users_search", { page, q, filter: UF });
+  const rows = d.users;
   const body = rows.length ? rows.map(u => {
     const banned = u.banned_until && new Date(u.banned_until) > new Date();
     return h("tr", {},
@@ -178,7 +185,8 @@ async function users() {
   const pages = Math.max(1, Math.ceil(d.total / 50));
   return h("div", {},
     h("div", { class: "bar" },
-      h("input", { type: "search", placeholder: "ابحث بالاسم أو اليوزر في الصفحة دي", value: q, oninput: e => { q = e.target.value; clearTimeout(tt); tt = setTimeout(show, 250); } }),
+      h("input", { type: "search", placeholder: "ابحث في كل الحسابات (اسم / يوزر / جامعة) واضغط Enter", value: q, onkeydown: e => { if (e.key === "Enter") { q = e.target.value; page = 1; show(); } } }),
+      h("select", { "aria-label": "فلتر", onchange: e => { UF = e.target.value; page = 1; show(); } }, [["", "كل الحسابات"], ["active7", "نشطين آخر 7 أيام"], ["inactive7", "غايبين من أسبوع+"], ["new7", "جدد آخر 7 أيام"], ["verified", "موثّقين"], ["banned", "محظورين"], ["admin", "أدمنز"]].map(([v, l]) => h("option", { value: v, selected: v === UF }, l))),
       h("span", { class: "sp" }), h("span", {}, d.total + " مستخدم"), h("button", { onclick: e => exportCsv(e.target) }, "تصدير CSV"),
       h("button", { disabled: page <= 1, onclick: () => { page--; show(); } }, "السابق"), h("span", {}, page + " / " + pages),
       h("button", { disabled: page >= pages, onclick: () => { page++; show(); } }, "التالي")),
@@ -236,16 +244,146 @@ async function detailDlg(u) {
     h("div", { class: "act", style: "margin-top:14px" }, h("button", { onclick: () => dlg.remove() }, "إغلاق")));
   document.body.append(dlg); dlg.showModal(); dlg.addEventListener("close", () => dlg.remove());
 }
+const ops = (action, extra = {}) => api(action, extra, "admin-ops");
+function usageChart(days) {
+  const NS = "http://www.w3.org/2000/svg", W = 560, H = 190, bw = 28, gap = (W - 14 * bw) / 15, max = Math.max(1, ...days.map(d => d.ai + d.quiz * 3));
+  const el = (t, at, txt) => { const n = document.createElementNS(NS, t); for (const k in at) n.setAttribute(k, at[k]); if (txt != null) n.textContent = txt; return n; };
+  const svg = el("svg", { viewBox: "0 0 " + W + " " + H, role: "img", "aria-label": "استهلاك المساعد والاختبارات آخر 14 يوم", style: "width:100%;max-width:640px;height:auto;display:block" });
+  days.forEach((d, i) => {
+    const x = gap + i * (bw + gap), hAi = Math.round(d.ai / max * 110), hQz = Math.round(d.quiz * 3 / max * 110), base = 140;
+    if (d.ai) svg.append(el("rect", { x, y: base - hAi, width: bw, height: Math.max(hAi, 2), rx: 3, style: "fill:var(--brand)" }));
+    if (d.quiz) svg.append(el("rect", { x, y: base - hAi - hQz - (d.ai ? 1 : 0), width: bw, height: Math.max(hQz, 2), rx: 3, style: "fill:var(--accent)" }));
+    svg.append(el("text", { x: x + bw / 2, y: 158, "text-anchor": "middle", "font-size": 10, style: "fill:var(--mute)" }, d.day.slice(8) + "/" + d.day.slice(5, 7)));
+    if (d.ai || d.quiz) svg.append(el("text", { x: x + bw / 2, y: base - hAi - hQz - 6, "text-anchor": "middle", "font-size": 11, style: "fill:var(--ink)" }, String(d.ai + d.quiz)));
+  });
+  const tot = days.reduce((s, d) => ({ ai: s.ai + d.ai, quiz: s.quiz + d.quiz }), { ai: 0, quiz: 0 });
+  return h("div", { class: "stat", style: "margin-top:12px;direction:ltr" },
+    h("span", { style: "direction:rtl;display:block" }, "استهلاك الذكاء الاصطناعي آخر 14 يوم — رسائل المساعد: " + tot.ai + " (أزرق) • اختبارات: " + tot.quiz + " (برتقالي)"), svg);
+}
+async function backupNow(btn) {
+  btn.disabled = true;
+  try {
+    const d = await ops("backup");
+    const a = h("a", { href: URL.createObjectURL(new Blob([JSON.stringify(d, null, 1)], { type: "application/json" })), download: "unimate-backup-" + new Date().toISOString().slice(0, 10) + ".json" });
+    document.body.append(a); a.click(); a.remove(); toast("اتنزّلت النسخة الاحتياطية");
+  } catch (e) { toast(e.message); }
+  btn.disabled = false;
+}
+const KIND = { problem: "مشكلة", password: "نسيت كلمة المرور", suggestion: "اقتراح", other: "حاجة تانية" };
+async function inbox() {
+  const d = await ops("inbox");
+  const waLink = c => { let n = String(c || "").replace(/[^0-9]/g, ""); if (n.startsWith("00")) n = n.slice(2); else if (n.startsWith("0")) n = "2" + n; return n ? "https://wa.me/" + n : null; };
+  const card = m => {
+    const ta = h("textarea", { rows: 2, maxlength: 1000, placeholder: "اكتب ردك…" });
+    ta.style.cssText = "width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:inherit;margin-top:8px";
+    const wa = m.contact ? waLink(m.contact) : null;
+    return h("div", { class: "stat", style: "margin-bottom:10px" },
+      h("div", { style: "display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:6px" },
+        h("b", { style: "font-size:15px" }, m.username ? "@" + m.username : "—"), h("span", { class: "tag" + (m.kind === "password" ? " bad" : "") }, KIND[m.kind] || m.kind),
+        h("span", { class: "tag" + (m.status === "open" ? " adm" : m.status === "answered" ? " ok" : "") }, m.status === "open" ? "مفتوحة" : m.status === "answered" ? "اتردّ عليها" : "مقفولة"),
+        h("span", { style: "color:var(--mute);font-size:12px" }, fmt(m.created_at))),
+      h("div", { style: "font-size:15px;white-space:pre-wrap;margin-bottom:6px" }, m.body),
+      m.contact && h("div", { style: "margin-bottom:6px;font-size:14px" }, "واتساب: ", wa ? h("a", { href: wa, target: "_blank", rel: "noopener", style: "direction:ltr;display:inline-block" }, m.contact) : m.contact),
+      m.reply && h("div", { style: "background:var(--bg);border-radius:8px;padding:8px 10px;font-size:14px" }, "ردّك: " + m.reply),
+      m.status !== "closed" && h("div", {}, ta, h("div", { class: "act", style: "margin-top:8px" },
+        m.user_id && h("button", { class: "primary", onclick: () => { if (!ta.value.trim()) return toast("اكتب الرد الأول"); act(() => ops("inbox_reply", { id: m.id, reply: ta.value }), "اتبعت الرد"); } }, "رد"),
+        m.kind === "password" && h("button", { onclick: async () => { try { const u = await ops("find_user", { username: m.username }); await resetPw({ id: u.id, email: u.email }); } catch (e) { toast(e.message); } } }, "كلمة مرور مؤقتة"),
+        h("button", { onclick: () => act(() => ops("inbox_close", { id: m.id }), "اتقفلت الرسالة") }, "إغلاق"))));
+  };
+  return h("div", {}, h("p", { style: "margin:0 0 10px;color:var(--mute)" }, "رسائل مفتوحة: " + d.open + ". طلبات «نسيت كلمة المرور» بتوصل برقم واتساب المستخدم، اضغط عليه وابعتله الكلمة المؤقتة بعد ما تعملها."),
+    d.items.length ? d.items.map(card) : h("div", { class: "empty" }, "مفيش رسائل."));
+}
+const more = (action, extra = {}) => api(action, extra, "admin-more");
+let UF = "";
+const FEAT = { open: "فتح التطبيق", home: "الرئيسية", study: "دراستي", focus: "التركيز", ai: "المساعد (تبويب)", progress: "تقدمي", account: "حسابي", subjects: "المواد", schedule: "الجدول", exams: "الامتحانات", review: "المراجعة", forest: "الغابة", quiz: "حل اختبار", chat: "رسالة للمساعد" };
+const tbl = (heads, rows, empty) => h("div", { class: "tw" }, h("table", {}, h("thead", {}, h("tr", {}, heads.map(x => h("th", {}, x)))), h("tbody", {}, rows.length ? rows : [h("tr", {}, h("td", { colspan: heads.length, class: "empty" }, empty))])));
+const pct = (a, b) => b ? Math.round(a / b * 100) + "%" : "—";
+
+async function batchDlg(x) {
+  let d; try { d = await more("batch_detail", { code: x.code }); } catch (e) { return toast(e.message); }
+  const dlg = h("dialog", { style: "max-height:80vh;overflow:auto;width:min(94vw,520px)" }, h("h3", {}, x.name + " • " + x.code),
+    h("b", {}, "الأعضاء (" + d.members.length + ")"),
+    h("ul", { style: "margin:6px 0 12px;padding-inline-start:18px" }, d.members.map(m => h("li", { style: "margin:4px 0" }, m.who + (m.role === "owner" ? " (مالك)" : "") + " ", m.role !== "owner" ? h("button", { class: "danger", style: "padding:1px 8px", onclick: () => { if (confirm("إزالة العضو من المجموعة؟")) { dlg.remove(); act(() => more("batch_del_member", { code: x.code, user_id: m.user_id }), "اتشال العضو"); } } }, "إزالة") : null))),
+    h("b", {}, "المواعيد (" + d.events.length + ")"),
+    h("ul", { style: "margin:6px 0 12px;padding-inline-start:18px" }, d.events.length ? d.events.map(e => h("li", { style: "margin:6px 0" }, e.kind + " " + (e.subject || "") + " — " + e.date + (e.time ? " " + e.time : "") + (e.place ? " • " + e.place : "") + " (أضافه " + e.who + ") ", h("button", { class: "danger", style: "padding:1px 8px", onclick: () => { if (confirm("مسح الموعد؟")) { dlg.remove(); act(() => more("batch_del_event", { id: e.id }), "اتمسح الموعد"); } } }, "مسح"))) : [h("li", {}, "مفيش")]),
+    h("div", { class: "act" }, h("button", { onclick: () => dlg.remove() }, "إغلاق")));
+  document.body.append(dlg); dlg.showModal(); dlg.addEventListener("close", () => dlg.remove());
+}
+async function batches() {
+  const d = await more("batches");
+  return tbl(["المجموعة", "المالك", "الأعضاء", "المواعيد", "اتعملت", "إجراءات"], d.items.map(x => h("tr", {},
+    h("td", {}, x.name, h("small", {}, x.code)), h("td", {}, x.owner), h("td", {}, String(x.members)), h("td", {}, String(x.events)), h("td", {}, fmt(x.created_at)),
+    h("td", {}, h("div", { class: "act" }, h("button", { onclick: () => batchDlg(x) }, "تفاصيل"), h("button", { class: "danger", onclick: () => { if (confirm("مسح المجموعة «" + x.name + "» بكل أعضائها ومواعيدها؟")) act(() => more("batch_del", { code: x.code }), "اتمسحت المجموعة"); } }, "مسح"))))), "مفيش مجموعات لسه.");
+}
+async function usage() {
+  const [d, ai] = [await more("analytics"), await ops("usage").catch(() => null)], r = d.retention;
+  const c = signupChart(d.dau); c.firstChild.textContent = "مستخدمين نشطين يوميًا — آخر 14 يوم";
+  return h("div", {}, h("div", { class: "grid" },
+      h("div", { class: "stat hot" }, h("b", {}, pct(r.h1, r.e1)), h("span", {}, "رجعوا تاني بعد يوم (" + r.h1 + " من " + r.e1 + ")")),
+      h("div", { class: "stat hot" }, h("b", {}, pct(r.h7, r.e7)), h("span", {}, "رجعوا خلال أسبوع (" + r.h7 + " من " + r.e7 + ")")),
+      h("div", { class: "stat" }, h("b", {}, String(r.tracked)), h("span", {}, "مستخدمين اتتبّعوا"))),
+    r.e1 < 10 ? h("p", { style: "color:var(--mute);font-size:13px" }, "العينة لسه صغيرة، فالنسب مش دقيقة لحد ما يزيد العدد. التتبّع بيبدأ من آخر نسخة من التطبيق ترفعها.") : null,
+    c,
+    h("h2", { style: "font-size:16px;margin:22px 0 10px" }, "أكتر الميزات استخدامًا (7 أيام)"),
+    tbl(["الميزة", "مرات الاستخدام (يوم لكل مستخدم)", "مستخدمين"], d.features.map(f => h("tr", {}, h("td", {}, FEAT[f.feature] || f.feature), h("td", {}, String(f.n)), h("td", {}, String(f.users)))), "لسه مفيش بيانات. هتبدأ تتجمّع أول ما المستخدمين يفتحوا النسخة الجديدة."),
+    ai ? h("div", {}, usageChart(ai.days)) : null);
+}
+const ok = (v, t) => h("tr", {}, h("td", {}, v ? "✅" : "❌"), h("td", {}, t));
+async function system() {
+  const [hl, lim, ad, bk] = [await more("health").catch(() => null), await more("limits_get"), await more("admins_list"), await more("backups_list").catch(() => ({ items: [] }))];
+  const age = hl && hl.last_run ? Math.round((Date.now() - new Date(hl.last_run)) / 60000) : null;
+  const health = hl ? tbl(["", "الفحص"], [
+    ok(hl.cron_found && age !== null && age <= 3, "جدولة التنبيهات شغالة" + (age !== null ? " (آخر تشغيل من " + age + " دقيقة)" : " (مفيش تشغيل مسجّل)")),
+    ok(hl.last_status === "succeeded", "آخر تشغيل: " + (hl.last_status || "—")),
+    ok(!hl.failed_1h, "تشغيلات فاشلة آخر ساعة: " + hl.failed_1h),
+    ok(!hl.stuck_outbox, "إشعارات عالقة أكتر من 10 دقايق: " + hl.stuck_outbox),
+    ok(!hl.push_failed_24h, "إرسالات رفضها خدمة الإشعارات آخر 24 ساعة: " + hl.push_failed_24h + " (اتقبل " + hl.push_ok_24h + ")"),
+    ok(!hl.push_ok_24h || hl.shown_24h > 0, "إشعارات ظهرت فعلاً على الأجهزة: " + hl.shown_24h + " من " + hl.push_ok_24h + (hl.push_ok_24h && !hl.shown_24h ? " — لو صفر يبقى sw.js على الموقع قديم" : "")),
+    ok(true, "تنبيهات اتبعتت آخر 24 ساعة: " + hl.sent_24h + " • اشتراكات الإشعارات: " + hl.push_subs)], "") : h("p", { class: "empty" }, "مقدرتش أقرأ حالة النظام.");
+  const ai = h("input", { type: "number", min: 0, max: 100000, value: lim.value.ai, "aria-label": "رسائل المساعد" }), qz = h("input", { type: "number", min: 0, max: 100000, value: lim.value.quiz, "aria-label": "الاختبارات" });
+  [ai, qz].forEach(i => i.style.cssText = "direction:ltr;text-align:center;max-width:120px");
+  const em = h("input", { type: "email", placeholder: "إيميل الأدمن الجديد", dir: "ltr", "aria-label": "إيميل الأدمن" });
+  return h("div", {},
+    h("h2", { style: "font-size:16px;margin:0 0 8px" }, "صحة النظام"), health,
+    h("h2", { style: "font-size:16px;margin:24px 0 8px" }, "الحدود اليومية الافتراضية"),
+    h("div", { class: "stat" }, h("p", { style: "margin:0 0 8px;color:var(--mute);font-size:13px" }, "بتسري على كل الحسابات اللي ماليهاش حد خاص (من زر «الحدود» جنب المستخدم)."),
+      h("div", { class: "bar", style: "margin:0" }, h("span", {}, "رسائل المساعد"), ai, h("span", {}, "اختبارات"), qz, h("button", { class: "primary", onclick: () => act(() => more("limits_set", { ai: ai.value, quiz: qz.value }), "اتحفظت الحدود") }, "حفظ"))),
+    h("h2", { style: "font-size:16px;margin:24px 0 8px" }, "الأدمنز"),
+    h("div", { class: "stat" }, ad.items.map(e => h("div", { class: "bar", style: "margin:0 0 6px" }, h("span", { dir: "ltr" }, e), e !== ad.me ? h("button", { class: "danger", onclick: () => { if (confirm("تشيل " + e + " من الأدمنز؟")) act(() => more("admin_remove", { email: e }), "اتشال الأدمن"); } }, "إزالة") : h("span", { class: "tag ok" }, "إنت"))),
+      h("div", { class: "bar", style: "margin:8px 0 0" }, em, h("button", { class: "primary", onclick: () => em.value.trim() ? act(() => more("admin_add", { email: em.value }), "اتضاف الأدمن") : toast("اكتب الإيميل") }, "إضافة")),
+      h("p", { style: "margin:6px 0 0;color:var(--mute);font-size:13px" }, "لازم يكون عنده حساب بالإيميل ده الأول (يتعمل من Supabase ← Authentication).")),
+    h("h2", { style: "font-size:16px;margin:24px 0 8px" }, "النسخ الاحتياطية"),
+    h("p", { style: "margin:0 0 8px;color:var(--mute);font-size:13px" }, "بتتاخد نسخة تلقائي كل يوم أحد 3 الفجر (بتوقيت UTC)، وبنحتفظ بآخر 8. الاسترجاع بيرجّع بيانات مستخدم واحد (مواده وجدوله) من نسخة، مش قاعدة البيانات كلها."),
+    h("div", { class: "act", style: "margin-bottom:10px" }, h("button", { class: "primary", onclick: () => act(() => more("backup_now"), "اتعملت نسخة") }, "اعمل نسخة دلوقتي")),
+    tbl(["النسخة", "الحجم", "إجراءات"], bk.items.map(f => h("tr", {}, h("td", {}, f.name, h("small", {}, fmt(f.created_at))), h("td", {}, Math.max(1, Math.round(f.size / 1024)) + " KB"),
+      h("td", {}, h("div", { class: "act" },
+        h("button", { onclick: async () => { try { window.open((await more("backup_url", { name: f.name })).url, "_blank", "noopener"); } catch (e) { toast(e.message); } } }, "تنزيل"),
+        h("button", { onclick: async () => { const un = prompt("اسم المستخدم اللي عايز ترجّع بياناته (من غير @):"); if (!un) return; try { const u = await ops("find_user", { username: un }); if (confirm("ترجّع بيانات @" + un.replace(/^@/, "") + " من النسخة دي؟ هتستبدل بياناته الحالية.")) { await more("restore_user", { name: f.name, user_id: u.id }); toast("اترجّعت بياناته"); } } catch (e) { toast(e.message); } } }, "استرجاع مستخدم"))))), "مفيش نسخ لسه."));
+}
 async function announce() {
-  const d = await api("announcements"), cur = d.items.find(x => x.active);
+  const d = await api("announcements"), nowT = Date.now();
+  const cur = d.items.find(x => x.active && (!x.starts_at || new Date(x.starts_at) <= nowT) && (!x.ends_at || new Date(x.ends_at) > nowT)), sched = d.items.filter(x => x.active && x.starts_at && new Date(x.starts_at) > nowT);
+  let mt = { on: false, message: "" }; try { mt = (await ops("maintenance_get")).value; } catch (e) {}
   const ta = h("textarea", { maxlength: 300, rows: 3, placeholder: "اكتب نص الإعلان (حد أقصى 300 حرف). هيظهر كشريط فوق التطبيق عند كل المستخدمين." });
   ta.style.cssText = "width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);font:inherit";
+  const stI = h("input", { type: "datetime-local", "aria-label": "بداية الإعلان" }), enI = h("input", { type: "datetime-local", "aria-label": "نهاية الإعلان" });
+  [stI, enI].forEach(i => i.style.cssText = "direction:ltr;max-width:210px");
   return h("div", {},
     h("div", { class: "stat", style: "margin-bottom:12px" }, h("span", {}, "الإعلان الشغال دلوقتي"), h("b", { style: "font-size:16px;font-weight:600" }, cur ? cur.message : "مفيش إعلان"),
       cur && h("div", { class: "act", style: "margin-top:8px" }, h("button", { class: "danger", onclick: () => act(() => api("announce_off"), "اتوقّف الإعلان") }, "إيقاف الإعلان"))),
-    ta, h("div", { class: "act", style: "margin-top:8px" }, h("button", { class: "primary", onclick: () => { if (ta.value.trim()) act(() => api("announce", { message: ta.value }), "اتنشر الإعلان"); else toast("اكتب نص الإعلان"); } }, "نشر الإعلان")));
+    ta, h("div", { class: "bar", style: "margin:8px 0 0" }, h("label", { style: "font-size:13px;color:var(--mute)" }, "يبدأ (اختياري)"), stI, h("label", { style: "font-size:13px;color:var(--mute)" }, "ينتهي (اختياري)"), enI),
+    h("div", { class: "act", style: "margin-top:8px" }, h("button", { class: "primary", onclick: () => { if (!ta.value.trim()) return toast("اكتب نص الإعلان"); act(() => more("announce2", { message: ta.value, starts_at: stI.value ? new Date(stI.value).toISOString() : null, ends_at: enI.value ? new Date(enI.value).toISOString() : null }), stI.value ? "اتجدول الإعلان" : "اتنشر الإعلان"); } }, stI ? "نشر / جدولة الإعلان" : "نشر")),
+    sched.length ? h("p", { style: "color:var(--mute);font-size:13px;margin:8px 0 0" }, "إعلانات مجدولة: " + sched.map(x => "«" + x.message.slice(0, 30) + "» تبدأ " + fmt(x.starts_at)).join(" • ")) : null,
+    h("h2", { style: "font-size:16px;margin:26px 0 8px" }, "إشعار موبايل للكل"),
+    h("div", { class: "stat" }, h("p", { style: "margin:0 0 8px;color:var(--mute);font-size:13px" }, "بيوصل كإشعار لكل اللي فعّل التنبيهات. مرة واحدة كل 10 دقايق، فاكتب حاجة مهمة بس."),
+      (() => { const bi = h("input", { type: "text", maxlength: 160, placeholder: "نص الإشعار (حد أقصى 160 حرف)" }); return h("div", {}, bi, h("div", { class: "act", style: "margin-top:8px" }, h("button", { class: "danger", onclick: async () => { if (!bi.value.trim()) return toast("اكتب نص الإشعار"); if (!confirm("تبعت الإشعار ده لكل المستخدمين؟")) return; try { const r = await more("broadcast", { text: bi.value }); toast("اتبعت لـ " + r.delivered + " من " + r.total + " جهاز"); bi.value = ""; } catch (e) { toast(e.message); } } }, "ابعت للكل"))); })()),
+    h("h2", { style: "font-size:16px;margin:26px 0 8px" }, "وضع الصيانة"),
+    h("div", { class: "stat" }, h("span", {}, "الحالة"), h("b", { style: "font-size:16px;font-weight:600;color:" + (mt.on ? "var(--bad)" : "var(--ok)") }, mt.on ? "الصيانة شغالة: التطبيق مقفول عند الكل" : "التطبيق شغال عادي"),
+      h("p", { style: "margin:8px 0;color:var(--mute);font-size:13px" }, "لما تشغّلها بتظهر لكل المستخدمين شاشة صيانة بدل التطبيق. لوحة الأدمن مش بتتأثر."),
+      (() => { const mi = h("input", { type: "text", maxlength: 200, placeholder: "رسالة للمستخدمين (اختياري)", value: mt.message || "" }); return h("div", {}, mi, h("div", { class: "act", style: "margin-top:8px" },
+        h("button", { class: mt.on ? "" : "danger", onclick: () => { if (mt.on || confirm("تقفل التطبيق على كل المستخدمين؟")) act(() => ops("maintenance_set", { on: !mt.on, message: mi.value }), mt.on ? "اتوقفت الصيانة" : "اتشغّلت الصيانة"); } }, mt.on ? "إيقاف الصيانة" : "تشغيل الصيانة"))); })()));
 }
-const ACT = { ban: "حظر", unban: "فك حظر", verify: "توثيق", unverify: "إلغاء توثيق", reset_password: "كلمة مرور جديدة", delete_user: "حذف حساب", delete_tree: "حذف شجرة", delete_device: "مسح جهاز", announce: "نشر إعلان", announce_off: "إيقاف إعلان", set_limits: "تعديل الحدود", reset_usage: "تصفير الاستخدام", view_user: "عرض بيانات مستخدم" };
+const ACT = { ban: "حظر", unban: "فك حظر", verify: "توثيق", unverify: "إلغاء توثيق", reset_password: "كلمة مرور جديدة", delete_user: "حذف حساب", delete_tree: "حذف شجرة", delete_device: "مسح جهاز", announce: "نشر إعلان", announce_off: "إيقاف إعلان", set_limits: "تعديل الحدود", reset_usage: "تصفير الاستخدام", view_user: "عرض بيانات مستخدم", reply_message: "رد على رسالة", backup: "نسخة احتياطية", maintenance_on: "تشغيل الصيانة", maintenance_off: "إيقاف الصيانة", limits_default: "تعديل الحدود الافتراضية", broadcast: "إشعار للكل", admin_add: "إضافة أدمن", admin_remove: "إزالة أدمن", backup_auto: "نسخة تلقائية", restore_user: "استرجاع مستخدم", batch_del: "مسح مجموعة", batch_del_event: "مسح موعد دفعة", batch_del_member: "إزالة عضو دفعة" };
 async function log() {
   const d = await api("log");
   const body = d.items.length ? d.items.map(x => h("tr", {}, h("td", {}, fmt(x.created_at)), h("td", {}, niceId(x.admin_email)), h("td", {}, ACT[x.action] || x.action), h("td", {}, h("span", { dir: "auto" }, niceId(x.target) || "—")), h("td", {}, x.detail || "—"))) : [h("tr", {}, h("td", { colspan: 5, class: "empty" }, "مفيش إجراءات لسه."))];
